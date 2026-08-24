@@ -22,7 +22,7 @@ Welcome to the **Binksanders Website** project! This is a modern, high-performan
 - **Responsive Design:** Fully optimized for all screen sizes and devices.
 - **Dark/Light Mode:** Seamless theme switching with `next-themes`.
 
-## 📂 Folder Structure
+## 📂 Folder Structure 
 
 ```text
 binksanders_website/
