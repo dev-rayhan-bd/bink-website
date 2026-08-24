@@ -1,42 +1,39 @@
-name: Frontend CD Workflow (Main Branch -> AWS S3)
+name: Frontend CD Workflow (Main Branch -> AWS EC2)
 
 on:
   push:
-    branches: [ "main" ]
+    branches: ["main"]
 
 jobs:
   deploy:
-    name: Build & Deploy to AWS S3
+    name: Deploy Frontend to AWS EC2
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
+      - name: Deploy to EC2 via SSH
+        uses: appleboy/ssh-action@v1.0.3
         with:
-          node-version: '20'
-          cache: 'yarn'
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USERNAME }}
+          key: ${{ secrets.EC2_SSH_KEY }}
+          port: 22
+          script: |
+            source ~/.bashrc 2>/dev/null || true
+            source ~/.profile 2>/dev/null || true
+            export NVM_DIR="$HOME/.nvm"
+            [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+            export PATH=$PATH:/usr/local/bin:/usr/bin:$HOME/.nvm/versions/node/$(ls $HOME/.nvm/versions/node 2>/dev/null | tail -n 1)/bin:$HOME/.yarn/bin:$HOME/.npm-global/bin
 
-      - name: Install dependencies
-        run: yarn install --frozen-lockfile
+            cd ~/binksanders_website || cd /var/www/binksanders_website
+            git fetch origin main
+            git reset --hard origin/main
 
-      - name: Build Project
-        run: yarn build
+            YARN_CMD=$(command -v yarn || find $HOME/.nvm /usr /home -name yarn 2>/dev/null | head -n 1 || echo "yarn")
+            PM2_CMD=$(command -v pm2 || find $HOME/.nvm /usr /home -name pm2 2>/dev/null | head -n 1 || echo "pm2")
 
-      - name: Configure AWS Credentials
-        uses: aws-actions/configure-aws-credentials@v4
-        with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: ${{ secrets.AWS_REGION }}
-
-      - name: Sync Build Output to AWS S3
-        run: |
-          aws s3 sync dist/ s3://${{ secrets.AWS_S3_BUCKET }} --delete
-
-      - name: Invalidate CloudFront Cache
-        run: |
-          aws cloudfront create-invalidation --distribution-id ${{ secrets.CLOUDFRONT_DISTRIBUTION_ID }} --paths "/*"
- 
+            $YARN_CMD install
+            $YARN_CMD run build || $YARN_CMD build
+            $PM2_CMD restart actinc-frontend || $PM2_CMD restart frontend || $PM2_CMD restart all
