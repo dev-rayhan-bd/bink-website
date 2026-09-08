@@ -362,6 +362,8 @@ export function ModuleSurveyRunner({
             }}
             correctAnswer={result?.correctAnswer}
             isSubmitted={Boolean(result)}
+            currentIndex={currentIndex}
+            totalQuestions={totalQuestions}
           />
 
           {result &&

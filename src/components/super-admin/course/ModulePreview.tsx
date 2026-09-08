@@ -360,20 +360,22 @@ export function ModulePreview({
             )}
 
             <QuestionAnswer
-            question={question as any}
-            answer={answer}
-            disabled={Boolean(result)}
-            onAnswer={setAnswer}
-            onSwipe={(direction) => {
-              setAnswer(direction);
-              handleSubmit(direction);
-            }}
-            onAutoSubmit={(ans) => {
-              handleSubmit(ans);
-            }}
-            correctAnswer={result?.correctAnswer}
-            isSubmitted={Boolean(result)}
-          />
+              question={question as any}
+              answer={answer}
+              disabled={Boolean(result)}
+              onAnswer={setAnswer}
+              onSwipe={(direction) => {
+                setAnswer(direction);
+                handleSubmit(direction);
+              }}
+              onAutoSubmit={(ans) => {
+                handleSubmit(ans);
+              }}
+              correctAnswer={result?.correctAnswer}
+              isSubmitted={Boolean(result)}
+              currentIndex={currentIndex}
+              totalQuestions={totalQuestions}
+            />
 
             {result &&
             question.type !== "Simulated Call" &&

@@ -41,7 +41,7 @@ const isExpectedResponse = (
   if (!question?.isScored) return false;
 
   if (question.type === "Swipe") {
-    return answer === question.correctDirection;
+    return Boolean(question.correctDirection && answer === question.correctDirection);
   }
 
   if (question.type === "Ordering") {

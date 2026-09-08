@@ -79,6 +79,7 @@ export function ModuleEditor({ module }: { module?: LearningModule }) {
           const questionWithColor = {
             ...question,
             colorCode: question.colorCode || "#E9308F",
+            blockColor: question.blockColor || "",
           };
           if (question.type === "MCQ") {
             const options = question.options || [];

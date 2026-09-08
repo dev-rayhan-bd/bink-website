@@ -28,9 +28,11 @@ export function QuestionnaireSection() {
     newType: QuestionDataSchemaType["type"],
   ) => {
     const currentColor = getValues(`questions.${index}.colorCode`);
+    const currentBlockColor = getValues(`questions.${index}.blockColor`);
     update(index, {
       ...getDefaultQuestionValues(newType, id),
       colorCode: currentColor || "#E9308F",
+      blockColor: currentBlockColor || "",
     });
   };
 

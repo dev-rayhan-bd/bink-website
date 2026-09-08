@@ -20,7 +20,13 @@ export function QuestionAnswer({
   onAutoSubmit,
   correctAnswer,
   isSubmitted = false,
-}: AnswerRendererProps & { onAutoSubmit?: (value: string) => void }) {
+  currentIndex,
+  totalQuestions,
+}: AnswerRendererProps & {
+  onAutoSubmit?: (value: string) => void;
+  currentIndex?: number;
+  totalQuestions?: number;
+}) {
   if (question.type === "Information") {
     return null;
   }
@@ -53,14 +59,14 @@ export function QuestionAnswer({
               disabled={disabled}
               onClick={() => onAnswer(option)}
               className={cn(
-                "group flex w-full min-w-0 items-center gap-3 rounded-sm border p-3 text-left text-sm transition-colors",
+                "group flex w-full min-w-0 items-center gap-3.5 rounded-2xl border border-black/10 p-3.5 text-left text-sm shadow-xs transition-all hover:scale-[1.01] active:scale-[0.99] dark:border-white/15",
                 isCorrectOption &&
-                  "border-2 border-success bg-background font-semibold text-foreground",
+                  "border-2 border-success bg-background font-semibold text-foreground shadow-sm",
                 isWrongSelection &&
-                  "border-2 border-primary bg-background font-semibold text-foreground",
+                  "border-2 border-primary bg-background font-semibold text-foreground shadow-sm",
                 !isSubmitted &&
                   selected &&
-                  "border-2 border-success bg-background font-semibold",
+                  "border-2 border-success bg-background font-semibold shadow-sm",
                 !isSubmitted &&
                   !selected &&
                   "border-border bg-background hover:border-primary/50",
@@ -70,7 +76,7 @@ export function QuestionAnswer({
             >
               <span
                 className={cn(
-                  "flex size-8 shrink-0 items-center justify-center rounded-sm bg-muted text-xs font-bold text-muted-foreground transition-colors",
+                  "flex size-8 shrink-0 items-center justify-center rounded-xl bg-muted text-xs font-bold text-muted-foreground transition-colors",
                   (isCorrectOption || (!isSubmitted && selected)) &&
                     "bg-success text-white",
                   isWrongSelection && "bg-primary text-primary-foreground",
@@ -96,6 +102,8 @@ export function QuestionAnswer({
         question={question}
         disabled={disabled}
         onSwipe={onSwipe}
+        currentIndex={currentIndex}
+        totalQuestions={totalQuestions}
       />
     );
   }
@@ -122,9 +130,9 @@ export function QuestionAnswer({
               opacity: { duration: 0.2 },
             }}
             key={`${item}-${index}`}
-            className="flex items-center gap-3 rounded-lg border bg-background p-3"
+            className="flex items-center gap-3 rounded-2xl border border-black/10 bg-background p-3.5 shadow-xs dark:border-white/15"
           >
-            <span className="flex size-8 shrink-0 items-center justify-center rounded bg-muted text-sm font-bold">
+            <span className="flex size-8 shrink-0 items-center justify-center rounded-xl bg-muted text-sm font-bold">
               {index + 1}
             </span>
             <span className="min-w-0 flex-1 whitespace-pre-wrap wrap-break-word text-sm">
@@ -189,7 +197,7 @@ export function QuestionAnswer({
         </div>
 
         {options.length > 0 ? (
-          <div className="mt-auto shrink-0 space-y-3 rounded-md border border-border bg-background p-3 shadow-sm">
+          <div className="mt-auto shrink-0 space-y-3 rounded-2xl border border-black/10 bg-background p-4 shadow-md shadow-black/5 dark:border-white/15">
             <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
               Choose your response
             </p>
@@ -222,14 +230,14 @@ export function QuestionAnswer({
                   disabled={disabled}
                   onClick={() => onAnswer(option)}
                   className={cn(
-                    "w-full min-w-0 whitespace-pre-wrap rounded-sm border p-2 text-left text-sm transition-colors wrap-break-word",
+                    "w-full min-w-0 whitespace-pre-wrap rounded-xl border border-black/10 p-3 text-left text-sm shadow-xs transition-all hover:scale-[1.01] active:scale-[0.99] wrap-break-word dark:border-white/15",
                     isCorrectOption &&
-                      "border-2 border-success bg-background font-semibold text-foreground",
+                      "border-2 border-success bg-background font-semibold text-foreground shadow-sm",
                     isWrongSelection &&
-                      "border-2 border-primary bg-background font-semibold text-foreground",
+                      "border-2 border-primary bg-background font-semibold text-foreground shadow-sm",
                     !isSubmitted &&
                       selected &&
-                      "border-2 border-primary bg-background font-semibold",
+                      "border-2 border-primary bg-background font-semibold shadow-sm",
                     !isSubmitted &&
                       !selected &&
                       "border-border bg-background hover:border-primary/50",

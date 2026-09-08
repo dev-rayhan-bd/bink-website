@@ -20,6 +20,11 @@ const baseQuestionSchema = z.object({
   colorCode: z
     .string()
     .regex(/^#[0-9A-Fa-f]{6}$/, "Enter a valid 6-digit hex color"),
+  blockColor: z
+    .string()
+    .regex(/^#[0-9A-Fa-f]{6}$/, "Enter a valid 6-digit hex color")
+    .optional()
+    .or(z.literal("")),
   explanation: z.string().trim().optional(),
   image: optionalMedia,
 });
@@ -45,7 +50,7 @@ const swipeSchema = baseQuestionSchema.omit({ content: true }).extend({
   content: z.string().optional().default(""),
   leftLabel: z.string().trim().min(1, "Left label is required"),
   rightLabel: z.string().trim().min(1, "Right label is required"),
-  correctDirection: z.enum(["left", "right"]),
+  correctDirection: z.enum(["left", "right"]).optional(),
 });
 
 const orderingSchema = baseQuestionSchema.extend({
@@ -172,6 +177,7 @@ export const getDefaultQuestionValues = (
     content: "",
     isScored: true,
     colorCode: "#E9308F",
+    blockColor: "",
   };
 
   switch (type) {
@@ -190,7 +196,6 @@ export const getDefaultQuestionValues = (
         type,
         leftLabel: "",
         rightLabel: "",
-        correctDirection: "left",
       };
     case "Ordering":
       return { ...base, type, items: ["", "", "", ""] };

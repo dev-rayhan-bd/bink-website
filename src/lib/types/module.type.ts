@@ -23,6 +23,7 @@ export type ModuleQuestion = {
   content?: string;
   isScored: boolean;
   colorCode?: string;
+  blockColor?: string;
   explanation?: string;
   image?: string;
   options?: string[];

@@ -118,18 +118,6 @@ export function RichTextEditor({
     },
   });
 
-  const setBlockBackground = (color: string) => {
-    if (!editor) return;
-    const node = editor.isActive("heading") ? "heading" : "paragraph";
-    editor.chain().focus().updateAttributes(node, { blockBackground: color }).run();
-  };
-
-  const clearBlockBackground = () => {
-    if (!editor) return;
-    const node = editor.isActive("heading") ? "heading" : "paragraph";
-    editor.chain().focus().updateAttributes(node, { blockBackground: null }).run();
-  };
-
   if (!editor) {
     return <div className="min-h-32 rounded-md border bg-background" />;
   }
@@ -261,30 +249,7 @@ export function RichTextEditor({
             }
           />
         </label>
-        <label className="flex h-8 items-center gap-1 rounded border bg-background px-2 text-[10px] font-medium text-muted-foreground" title="Text highlight">
-          Highlight
-          <input
-            type="color"
-            aria-label="Text highlight color"
-            className="size-5 cursor-pointer border-0 bg-transparent p-0"
-            onChange={(event) =>
-              editor.chain().focus().setBackgroundColor(event.target.value).run()
-            }
-          />
-        </label>
-        <label className="flex h-8 items-center gap-1 rounded border bg-background px-2 text-[10px] font-medium text-muted-foreground" title="Whole paragraph background">
-          Block
-          <input
-            type="color"
-            aria-label="Block background color"
-            className="size-5 cursor-pointer border-0 bg-transparent p-0"
-            onChange={(event) => setBlockBackground(event.target.value)}
-          />
-        </label>
 
-        <ToolbarButton label="Clear block background" onClick={clearBlockBackground}>
-          <span className="text-xs font-bold">BG×</span>
-        </ToolbarButton>
         <ToolbarButton
           label="Clear formatting"
           onClick={() => editor.chain().focus().unsetAllMarks().clearNodes().run()}

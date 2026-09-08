@@ -21,10 +21,14 @@ export function ModuleSwipeQuestion({
   question,
   disabled,
   onSwipe,
+  currentIndex,
+  totalQuestions,
 }: {
   question: ModuleQuestion;
   disabled: boolean;
   onSwipe: (direction: "left" | "right") => void;
+  currentIndex?: number;
+  totalQuestions?: number;
 }) {
   const x = useMotionValue(0);
   const controls = useAnimation();
@@ -42,6 +46,12 @@ export function ModuleSwipeQuestion({
       "rgba(34, 197, 94, 0.35)",
     ],
   );
+
+  const cardBg =
+    question.blockColor ||
+    (question.colorCode && /^#[0-9A-Fa-f]{6}$/.test(question.colorCode)
+      ? question.colorCode
+      : undefined);
 
   const submitSwipe = async (direction: "left" | "right") => {
     if (isDisabled) return;
@@ -94,15 +104,33 @@ export function ModuleSwipeQuestion({
         onDragEnd={handleDragEnd}
         style={{ x, rotate, touchAction: "pan-y" }}
         animate={controls}
-        className="relative z-10 w-full max-w-full cursor-grab overflow-hidden rounded-lg bg-transparent will-change-transform active:cursor-grabbing"
+        className="relative z-10 w-full max-w-full cursor-grab overflow-hidden rounded-[32px] border border-black/10 bg-primary text-primary-foreground shadow-[0_20px_45px_-10px_rgba(233,48,143,0.35)] ring-1 ring-black/5 will-change-transform active:cursor-grabbing dark:border-white/15 dark:ring-white/10"
       >
         <motion.div
-          className="pointer-events-none absolute inset-0 z-20"
+          className="pointer-events-none absolute inset-0 z-20 rounded-[32px]"
           style={{ backgroundColor: overlayColor }}
         />
-        <div className="relative z-10 flex w-full flex-col">
+        <div
+          className={cn(
+            "relative z-10 flex w-full flex-col overflow-hidden rounded-[32px]",
+            !question.image
+              ? "min-h-[300px] justify-between p-6 sm:min-h-[360px] sm:p-8"
+              : "p-0",
+          )}
+          style={cardBg ? { backgroundColor: cardBg } : undefined}
+        >
+          {/* Card Top Label */}
+          <div className="flex w-full items-center justify-between pb-2">
+            <span className="text-[11px] font-bold uppercase tracking-widest text-inherit/75">
+              {currentIndex !== undefined && totalQuestions !== undefined
+                ? `Vraag ${currentIndex + 1} van ${totalQuestions}`
+                : question.type}
+            </span>
+          </div>
+
+          {/* Picture Always Above Text */}
           {question.image && (
-            <div className="aspect-3/4 w-full overflow-hidden bg-muted/20">
+            <div className="aspect-3/4 w-full overflow-hidden rounded-t-[32px] bg-muted/20">
               <MediaImage
                 value={question.image as MediaValue}
                 alt="Swipe question"
@@ -111,57 +139,59 @@ export function ModuleSwipeQuestion({
             </div>
           )}
 
+          {/* Text Content */}
           {hasContent && (
             <div
-              className={
+              className={cn(
+                "flex-1 flex items-center justify-center text-center",
                 question.image
-                  ? "border-t border-border/60"
-                  : ""
-              }
+                  ? "border-t border-border/40 p-5 sm:p-6"
+                  : "py-6 my-auto",
+              )}
             >
               <RichQuestionContent
                 value={question.content}
-                className="text-center text-lg font-semibold leading-relaxed"
+                className="font-heading text-lg font-bold leading-relaxed text-inherit sm:text-xl"
               />
             </div>
           )}
 
+          {/* Bottom Card Direction Hints */}
+          <div className="flex w-full items-center justify-between pt-3 text-xs font-semibold text-inherit/75">
+            <span className="flex items-center gap-1">
+              ← {question.leftLabel || "Nee"}
+            </span>
+            <span className="flex items-center gap-1">
+              {question.rightLabel || "Ja"} →
+            </span>
+          </div>
         </div>
       </motion.div>
 
-      <div className="mt-auto flex w-full max-w-full flex-col gap-3 pt-4">
-        <div className="flex items-center justify-center gap-2 px-5 text-xs font-medium text-foreground">
-          <ArrowLeft className="size-4" />
-          <span>Swipe to respond</span>
-          <ArrowRight className="size-4" />
+      {/* Action Controls Under Card */}
+      <div className="mt-auto flex w-full max-w-full flex-col gap-3 pt-5">
+        <div className="flex items-center justify-center gap-2 text-xs font-medium text-muted-foreground/90">
+          <span>Sleep de kaart of tik hieronder</span>
         </div>
         <div className="flex w-full gap-3">
-          <Button
+          <button
             type="button"
-            variant="disagree"
-            size="default"
             disabled={isDisabled}
-            className="h-auto min-h-10 min-w-0 flex-1 whitespace-normal wrap-break-word py-2 text-sm font-bold shadow-sm"
             onClick={() => void submitSwipe("left")}
+            className="flex flex-1 items-center justify-center gap-2 rounded-2xl border border-black/10 bg-card px-4 py-3.5 text-sm font-bold text-foreground shadow-sm transition-all hover:bg-muted active:scale-95 disabled:pointer-events-none disabled:opacity-50 dark:border-white/15"
           >
-            <X className="mr-1.5 size-4 shrink-0 stroke-3" />
-            <span className="min-w-0 break-all text-left leading-tight">
-              {question.leftLabel || "Disagree"}
-            </span>
-          </Button>
-          <Button
+            <X className="size-4 stroke-3 text-destructive" />
+            <span className="truncate">{question.leftLabel || "Nee"}</span>
+          </button>
+          <button
             type="button"
-            variant="agree"
-            size="default"
             disabled={isDisabled}
-            className="h-auto min-h-10 min-w-0 flex-1 whitespace-normal wrap-break-word py-2 text-sm font-bold shadow-sm"
             onClick={() => void submitSwipe("right")}
+            className="flex flex-1 items-center justify-center gap-2 rounded-2xl bg-primary px-4 py-3.5 text-sm font-bold text-primary-foreground shadow-md transition-all hover:bg-primary/90 active:scale-95 disabled:pointer-events-none disabled:opacity-50"
           >
-            <Check className="mr-1.5 size-4 shrink-0 stroke-3" />
-            <span className="min-w-0 break-all text-left leading-tight">
-              {question.rightLabel || "Agree"}
-            </span>
-          </Button>
+            <Check className="size-4 stroke-3" />
+            <span className="truncate">{question.rightLabel || "Ja"}</span>
+          </button>
         </div>
       </div>
     </div>

@@ -360,6 +360,38 @@ export function QuestionBlock({
               />
             </div>
           </Field>
+
+          <Field>
+            <FieldLabel htmlFor={`question-block-color-${blockId}`}>
+              Block Color
+            </FieldLabel>
+            <div className="flex gap-2">
+              <Input
+                id={`question-block-color-${blockId}`}
+                type="color"
+                value={
+                  /^#[0-9A-Fa-f]{6}$/.test(currentQuestion.blockColor || "")
+                    ? currentQuestion.blockColor
+                    : "#FFFFFF"
+                }
+                className="size-9 shrink-0 cursor-pointer p-1"
+                onChange={(event) =>
+                  setValue(
+                    `questions.${index}.blockColor`,
+                    event.target.value.toUpperCase(),
+                    { shouldDirty: true, shouldValidate: true },
+                  )
+                }
+              />
+              <Input
+                aria-label="Question block hex color"
+                maxLength={7}
+                placeholder="#FFFFFF"
+                className="font-mono uppercase"
+                {...register(`questions.${index}.blockColor`)}
+              />
+            </div>
+          </Field>
         </div>
       </div>
 
@@ -436,7 +468,7 @@ export function QuestionBlock({
       )}
 
       {currentQuestion.type === "Swipe" && (
-        <div className="grid gap-4 sm:grid-cols-3">
+        <div className="grid gap-4 sm:grid-cols-2">
           <Field>
             <FieldLabel>Left Label</FieldLabel>
             <Input {...register(`questions.${index}.leftLabel`)} />
@@ -444,24 +476,6 @@ export function QuestionBlock({
           <Field>
             <FieldLabel>Right Label</FieldLabel>
             <Input {...register(`questions.${index}.rightLabel`)} />
-          </Field>
-          <Field>
-            <FieldLabel>Correct Direction</FieldLabel>
-            <Controller
-              control={control}
-              name={`questions.${index}.correctDirection`}
-              render={({ field }) => (
-                <Select value={field.value} onValueChange={field.onChange}>
-                  <SelectTrigger>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="left">Left</SelectItem>
-                    <SelectItem value="right">Right</SelectItem>
-                  </SelectContent>
-                </Select>
-              )}
-            />
           </Field>
         </div>
       )}
