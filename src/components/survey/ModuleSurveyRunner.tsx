@@ -440,7 +440,7 @@ export function ModuleSurveyRunner({
         </div>
       </AnimationWrapper>
 
-      {!isSimulatedCall && (
+      {!isSimulatedCall && (result || question?.type !== "Swipe") && (
         <div className="mt-auto shrink-0 pt-0 [&_button]:bg-background [&_button]:text-foreground [&_button]:hover:bg-background/90">
           {result ? (
             isOrderingRetry ? (
@@ -461,7 +461,7 @@ export function ModuleSurveyRunner({
                 <ArrowRight />
               </Button>
             )
-          ) : (
+          ) : question?.type !== "Swipe" ? (
             <Button
               size="lg"
               className="w-full"
@@ -481,7 +481,7 @@ export function ModuleSurveyRunner({
                 </>
               )}
             </Button>
-          )}
+          ) : null}
         </div>
       )}
     </div>

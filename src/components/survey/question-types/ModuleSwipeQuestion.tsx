@@ -8,8 +8,7 @@ import {
   useTransform,
   type PanInfo,
 } from "framer-motion";
-import { ArrowLeft, ArrowRight, Check, X } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { Check, X } from "lucide-react";
 import { RichQuestionContent } from "@/components/ui/custom/RichQuestionContent";
 import { cn } from "@/lib/utils";
 import { hasQuestionContent } from "@/lib/question-content";
@@ -47,11 +46,9 @@ export function ModuleSwipeQuestion({
     ],
   );
 
-  const cardBg =
-    question.blockColor ||
-    (question.colorCode && /^#[0-9A-Fa-f]{6}$/.test(question.colorCode)
-      ? question.colorCode
-      : undefined);
+  const blockColor = /^#[0-9A-Fa-f]{6}$/.test(question.blockColor || "")
+    ? question.blockColor
+    : undefined;
 
   const submitSwipe = async (direction: "left" | "right") => {
     if (isDisabled) return;
@@ -102,70 +99,103 @@ export function ModuleSwipeQuestion({
         dragElastic={0.35}
         dragMomentum={false}
         onDragEnd={handleDragEnd}
-        style={{ x, rotate, touchAction: "pan-y" }}
+        style={{
+          x,
+          rotate,
+          touchAction: "pan-y",
+          backgroundColor: blockColor,
+        }}
         animate={controls}
-        className="relative z-10 w-full max-w-full cursor-grab overflow-hidden rounded-[32px] border border-black/10 bg-primary text-primary-foreground shadow-[0_20px_45px_-10px_rgba(233,48,143,0.35)] ring-1 ring-black/5 will-change-transform active:cursor-grabbing dark:border-white/15 dark:ring-white/10"
+        className={cn(
+          "relative z-10 w-full max-w-full cursor-grab overflow-hidden rounded-[28px] border border-black/10 shadow-lg shadow-black/5 will-change-transform active:cursor-grabbing dark:border-white/15",
+          !blockColor && "bg-card text-card-foreground",
+        )}
       >
         <motion.div
-          className="pointer-events-none absolute inset-0 z-20 rounded-[32px]"
+          className="pointer-events-none absolute inset-0 z-20"
           style={{ backgroundColor: overlayColor }}
         />
-        <div
-          className={cn(
-            "relative z-10 flex w-full flex-col overflow-hidden rounded-[32px]",
-            !question.image
-              ? "min-h-[300px] justify-between p-6 sm:min-h-[360px] sm:p-8"
-              : "p-0",
-          )}
-          style={cardBg ? { backgroundColor: cardBg } : undefined}
-        >
-          {/* Card Top Label */}
-          <div className="flex w-full items-center justify-between pb-2">
-            <span className="text-[11px] font-bold uppercase tracking-widest text-inherit/75">
-              {currentIndex !== undefined && totalQuestions !== undefined
-                ? `Vraag ${currentIndex + 1} van ${totalQuestions}`
-                : question.type}
-            </span>
-          </div>
+        {!question.image ? (
+          /* Text-only swipe card */
+          <div className="relative z-10 flex min-h-[380px] w-full flex-col justify-between p-6 sm:min-h-[420px] sm:p-8">
+            {/* Card Top Label */}
+            <div className="flex w-full items-center justify-between pb-2">
+              <span className="text-[11px] font-bold uppercase tracking-widest text-muted-foreground/80">
+                {currentIndex !== undefined && totalQuestions !== undefined
+                  ? `Vraag ${currentIndex + 1} van ${totalQuestions}`
+                  : question.type}
+              </span>
+            </div>
 
-          {/* Picture Always Above Text */}
-          {question.image && (
-            <div className="aspect-3/4 w-full overflow-hidden rounded-t-[32px] bg-muted/20">
+            {/* Text Content */}
+            {hasContent && (
+              <div className="my-auto flex min-h-[200px] flex-1 items-center justify-center py-6 text-center">
+                <RichQuestionContent
+                  value={question.content}
+                  className="font-heading text-lg font-bold leading-relaxed text-foreground sm:text-xl"
+                />
+              </div>
+            )}
+
+            {/* Bottom Card Direction Hints */}
+            <div className="flex w-full items-center justify-between pt-3 text-xs font-semibold text-muted-foreground/80">
+              <span className="flex items-center gap-1">
+                ← {question.leftLabel || "Nee"}
+              </span>
+              <span className="flex items-center gap-1">
+                {question.rightLabel || "Ja"} →
+              </span>
+            </div>
+          </div>
+        ) : (
+          /* Image Swipe Card - Framed with consistent padding, top label, and rounded image */
+          <div className="relative z-10 flex min-h-[420px] w-full flex-col justify-between p-5 sm:min-h-[460px] sm:p-6">
+            {/* Card Top Label */}
+            <div className="flex w-full items-center justify-between pb-3">
+              <span className="text-[11px] font-bold uppercase tracking-widest text-muted-foreground/80">
+                {currentIndex !== undefined && totalQuestions !== undefined
+                  ? `Vraag ${currentIndex + 1} van ${totalQuestions}`
+                  : question.type}
+              </span>
+            </div>
+
+            {/* Framed Image */}
+            <div
+              className={cn(
+                "relative flex w-full shrink-0 items-center justify-center overflow-hidden rounded-2xl border border-black/5 bg-muted/20 shadow-xs dark:border-white/10",
+                hasContent
+                  ? "h-[190px] sm:h-[220px]"
+                  : "min-h-[280px] sm:min-h-[320px] flex-1",
+              )}
+            >
               <MediaImage
                 value={question.image as MediaValue}
                 alt="Swipe question"
-                className="block h-full w-full object-cover object-center"
+                className="block h-full w-full object-contain p-1"
               />
             </div>
-          )}
 
-          {/* Text Content */}
-          {hasContent && (
-            <div
-              className={cn(
-                "flex-1 flex items-center justify-center text-center",
-                question.image
-                  ? "border-t border-border/40 p-5 sm:p-6"
-                  : "py-6 my-auto",
-              )}
-            >
-              <RichQuestionContent
-                value={question.content}
-                className="font-heading text-lg font-bold leading-relaxed text-inherit sm:text-xl"
-              />
+            {/* Text Content below image */}
+            {hasContent && (
+              <div className="my-auto flex min-h-[140px] flex-1 items-center justify-center py-4 text-center">
+                <RichQuestionContent
+                  value={question.content}
+                  className="font-heading text-base font-bold leading-snug text-foreground sm:text-lg"
+                />
+              </div>
+            )}
+
+            {/* Bottom Card Direction Hints */}
+            <div className="flex w-full items-center justify-between pt-3 text-xs font-semibold text-muted-foreground/80">
+              <span className="flex items-center gap-1">
+                ← {question.leftLabel || "Nee"}
+              </span>
+              <span className="flex items-center gap-1">
+                {question.rightLabel || "Ja"} →
+              </span>
             </div>
-          )}
-
-          {/* Bottom Card Direction Hints */}
-          <div className="flex w-full items-center justify-between pt-3 text-xs font-semibold text-inherit/75">
-            <span className="flex items-center gap-1">
-              ← {question.leftLabel || "Nee"}
-            </span>
-            <span className="flex items-center gap-1">
-              {question.rightLabel || "Ja"} →
-            </span>
           </div>
-        </div>
+        )}
       </motion.div>
 
       {/* Action Controls Under Card */}
