@@ -20,14 +20,10 @@ export function ModuleSwipeQuestion({
   question,
   disabled,
   onSwipe,
-  currentIndex,
-  totalQuestions,
 }: {
   question: ModuleQuestion;
   disabled: boolean;
   onSwipe: (direction: "left" | "right") => void;
-  currentIndex?: number;
-  totalQuestions?: number;
 }) {
   const x = useMotionValue(0);
   const controls = useAnimation();
@@ -118,15 +114,6 @@ export function ModuleSwipeQuestion({
         {!question.image ? (
           /* Text-only swipe card */
           <div className="relative z-10 flex min-h-[380px] w-full flex-col justify-between p-6 sm:min-h-[420px] sm:p-8">
-            {/* Card Top Label */}
-            <div className="flex w-full items-center justify-between pb-2">
-              <span className="text-[11px] font-bold uppercase tracking-widest text-muted-foreground/80">
-                {currentIndex !== undefined && totalQuestions !== undefined
-                  ? `Vraag ${currentIndex + 1} van ${totalQuestions}`
-                  : question.type}
-              </span>
-            </div>
-
             {/* Text Content */}
             {hasContent && (
               <div className="my-auto flex min-h-[200px] flex-1 items-center justify-center py-6 text-center">
@@ -148,36 +135,27 @@ export function ModuleSwipeQuestion({
             </div>
           </div>
         ) : (
-          /* Image Swipe Card - Framed with consistent padding, top label, and rounded image */
-          <div className="relative z-10 flex min-h-[420px] w-full flex-col justify-between p-5 sm:min-h-[460px] sm:p-6">
-            {/* Card Top Label */}
-            <div className="flex w-full items-center justify-between pb-3">
-              <span className="text-[11px] font-bold uppercase tracking-widest text-muted-foreground/80">
-                {currentIndex !== undefined && totalQuestions !== undefined
-                  ? `Vraag ${currentIndex + 1} van ${totalQuestions}`
-                  : question.type}
-              </span>
-            </div>
-
-            {/* Framed Image */}
+          /* Image Swipe Card - Image fills the card */
+          <div className="relative z-10 flex min-h-[420px] w-full flex-col justify-between sm:min-h-[460px]">
+            {/* Full-bleed Card Image */}
             <div
               className={cn(
-                "relative flex w-full shrink-0 items-center justify-center overflow-hidden rounded-2xl border border-black/5 bg-muted/20 shadow-xs dark:border-white/10",
+                "relative w-full overflow-hidden bg-muted/20",
                 hasContent
-                  ? "h-[190px] sm:h-[220px]"
-                  : "min-h-[280px] sm:min-h-[320px] flex-1",
+                  ? "aspect-4/3 w-full shrink-0"
+                  : "min-h-[320px] flex-1",
               )}
             >
               <MediaImage
                 value={question.image as MediaValue}
                 alt="Swipe question"
-                className="block h-full w-full object-contain p-1"
+                className="block h-full w-full object-cover object-center"
               />
             </div>
 
             {/* Text Content below image */}
             {hasContent && (
-              <div className="my-auto flex min-h-[140px] flex-1 items-center justify-center py-4 text-center">
+              <div className="my-auto flex min-h-[100px] flex-1 items-center justify-center p-5 text-center sm:p-6">
                 <RichQuestionContent
                   value={question.content}
                   className="font-heading text-base font-bold leading-snug text-foreground sm:text-lg"
@@ -186,7 +164,7 @@ export function ModuleSwipeQuestion({
             )}
 
             {/* Bottom Card Direction Hints */}
-            <div className="flex w-full items-center justify-between pt-3 text-xs font-semibold text-muted-foreground/80">
+            <div className="flex w-full items-center justify-between px-5 pb-4 pt-2 text-xs font-semibold text-muted-foreground/80 sm:px-6">
               <span className="flex items-center gap-1">
                 ← {question.leftLabel || "Nee"}
               </span>

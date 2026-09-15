@@ -20,8 +20,6 @@ export function QuestionAnswer({
   onAutoSubmit,
   correctAnswer,
   isSubmitted = false,
-  currentIndex,
-  totalQuestions,
 }: AnswerRendererProps & {
   onAutoSubmit?: (value: string) => void;
   currentIndex?: number;
@@ -102,8 +100,6 @@ export function QuestionAnswer({
         question={question}
         disabled={disabled}
         onSwipe={onSwipe}
-        currentIndex={currentIndex}
-        totalQuestions={totalQuestions}
       />
     );
   }
