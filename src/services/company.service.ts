@@ -58,6 +58,7 @@ export const getPublicCompanyDropdown = async () =>
 
 export const getCompany = async (companyId: string) =>
   nextServerFetch<ApiResponse<Company>>(`/company/${companyId}`, {
+    auth: "optional",
     next: { tags: ["companies", `company-${companyId}`] },
   });
 

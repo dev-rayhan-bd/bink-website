@@ -19,11 +19,11 @@ export function ProfileLogoutButton() {
         onClick={handleLogout}
         disabled={isPending}
         variant="outline"
-        className="h-auto w-full gap-2 rounded-sm border-border/40 bg-muted p-3.5 text-[#E11D48] hover:bg-muted/70 hover:text-[#E11D48]"
+        className="h-auto w-full gap-2 rounded-sm border-border/40 bg-muted p-3.5 text-destructive hover:bg-muted/70 hover:text-destructive"
       >
         <LogOut className="size-4" />
         <span className="text-[13px] font-medium">
-          {isPending ? "Logging out..." : "Log Out"}
+          {isPending ? "Uitloggen..." : "Uitloggen"}
         </span>
       </Button>
     </div>

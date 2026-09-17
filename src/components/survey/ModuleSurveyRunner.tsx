@@ -172,22 +172,30 @@ export function ModuleSurveyRunner({
     return () => window.clearTimeout(timer);
   }, [currentIndex, module.questions, question?.type, question?.isScored, result, totalQuestions]);
 
+  const isModuleScored = module.questions.some((q) => Boolean(q.isScored));
+  const isQuestionScored = Boolean(question?.isScored);
+
   if (!isStarted && !isCompleted) {
     return (
       <SurveyIntro
         title={module.title}
         description={module.description}
-        badge="Learning module"
+        badge="Leermodule"
         imageUrl={module.thumbnailImage || "/window.svg"}
         questionCount={module.questions.length}
-        format="Interactive"
-        startLabel={userProgress.completedQuestions > 0 ? "Continue" : "Start"}
+        format="Interactief"
+        startLabel={userProgress.completedQuestions > 0 ? "Doorgaan" : "Starten"}
         onStart={() => setIsStarted(true)}
       />
     );
   }
 
   if (isCompleted) {
+    const questionText =
+      totalQuestions === 1
+        ? `Je hebt de vraag in ${module.title} voltooid.`
+        : `Je hebt alle ${totalQuestions} vragen in ${module.title} voltooid.`;
+
     return (
       <AnimationWrapper
         direction="up"
@@ -199,40 +207,49 @@ export function ModuleSurveyRunner({
             <div className="rounded-lg bg-primary p-3 text-center text-primary-foreground shadow-sm">
               <CheckCircle2 className="mx-auto mb-2.5 size-10" />
               <h1 className="font-heading text-xl font-bold">
-                Module completed
+                Module voltooid
               </h1>
               <p className="mt-1.5 text-xs text-primary-foreground/85">
-                You completed all {totalQuestions} questions in {module.title}.
+                {questionText}
               </p>
             </div>
 
-            <div className="grid grid-cols-2 gap-3 rounded-lg border border-secondary-foreground/10 bg-secondary/30 p-3 text-center">
-              <div>
-                <p className="text-xl font-bold text-primary">
-                  {finalResult?.moduleScore ??
-                    userProgress.answers?.reduce(
-                      (acc, ans) => acc + (ans.score || 0),
-                      0,
-                    ) ??
-                    0}
-                </p>
-                <p className="text-xs text-muted-foreground">Module score</p>
+            {isModuleScored ? (
+              <div className="grid grid-cols-2 gap-3 rounded-lg border border-secondary-foreground/10 bg-secondary/30 p-3 text-center">
+                <div>
+                  <p className="text-xl font-bold text-primary">
+                    {finalResult?.moduleScore ??
+                      userProgress.answers?.reduce(
+                        (acc, ans) => acc + (ans.score || 0),
+                        0,
+                      ) ??
+                      0}
+                  </p>
+                  <p className="text-xs text-muted-foreground">Modulescore</p>
+                </div>
+                <div>
+                  <p className="text-xl font-bold text-primary">100%</p>
+                  <p className="text-xs text-muted-foreground">Voortgang</p>
+                </div>
               </div>
-              <div>
-                <p className="text-xl font-bold text-primary">100%</p>
-                <p className="text-xs text-muted-foreground">Progress</p>
+            ) : (
+              <div className="rounded-lg border border-secondary-foreground/10 bg-secondary/30 p-3 text-center">
+                <div>
+                  <p className="text-xl font-bold text-primary">100%</p>
+                  <p className="text-xs text-muted-foreground">Voortgang</p>
+                </div>
               </div>
-            </div>
+            )}
 
             <div className="flex flex-col items-center px-4 pt-8 text-center">
               <div className="mb-4 flex size-16 items-center justify-center rounded-full bg-primary/10 text-primary">
                 <PartyPopper className="size-8" />
               </div>
               <p className="font-heading text-xl font-bold text-foreground">
-                Thank you for completing this module!
+                Bedankt voor het voltooien van deze module!
               </p>
               <p className="mt-2 text-sm text-muted-foreground">
-                Your feedback and participation are greatly appreciated.
+                Jouw feedback en deelname worden zeer gewaardeerd.
               </p>
             </div>
           </div>
@@ -243,7 +260,7 @@ export function ModuleSurveyRunner({
               className="w-full"
               onClick={() => router.push("/modules")}
             >
-              Back to learning path <ArrowRight />
+              Terug naar leerroute <ArrowRight />
             </Button>
           </div>
         </div>
@@ -254,7 +271,7 @@ export function ModuleSurveyRunner({
   if (!question) {
     return (
       <div className="flex min-h-64 items-center justify-center text-sm text-muted-foreground">
-        No questions are available in this module.
+        Er zijn geen vragen beschikbaar in deze module.
       </div>
     );
   }
@@ -271,14 +288,20 @@ export function ModuleSurveyRunner({
   )
     ? question.colorCode
     : undefined;
-  const canShowCorrectAnswer = ![
-    "Information",
-    "Rating",
-    "Free Input",
-    "Simulated Call",
-  ].includes(question.type);
+  const canShowCorrectAnswer =
+    isQuestionScored &&
+    result?.isCorrect !== null &&
+    result?.isCorrect !== undefined &&
+    ![
+      "Information",
+      "Rating",
+      "Free Input",
+      "Simulated Call",
+      "Swipe",
+    ].includes(question.type);
   const isOptionFeedback =
     ["MCQ", "Chat Scenario", "Video"].includes(question.type) &&
+    isQuestionScored &&
     Boolean(result);
   const hasFeedbackCorrectAnswer =
     result?.correctAnswer !== undefined &&
@@ -291,13 +314,13 @@ export function ModuleSurveyRunner({
     question.type === "Ordering" && result?.isCorrect === false;
   const feedbackTitle = canShowCorrectAnswer
     ? result?.isCorrect === false
-      ? "Not quite right"
+      ? "Niet helemaal juist"
       : result?.isCorrect === true
-        ? "Correct answer"
-        : "Answer submitted"
+        ? "Juist antwoord"
+        : "Antwoord verzonden"
     : question.type === "Information" && answer === "reviewed"
-      ? "Reviewed"
-      : "Answer submitted";
+      ? "Bekeken"
+      : "Antwoord verzonden";
 
   return (
     <div
@@ -313,11 +336,8 @@ export function ModuleSurveyRunner({
           </h2>
           <div className="flex flex-col gap-1.5">
             <div className="flex items-end justify-between">
-              <span className="rounded-sm bg-primary px-1.5 py-0.5 text-[10px] font-bold leading-none text-primary-foreground">
-                Q{currentIndex + 1}/{totalQuestions}
-              </span>
-              <span className="text-[10px] font-bold leading-none text-secondary-foreground/80">
-                {currentIndex + 1}/{totalQuestions}
+              <span className="rounded-sm bg-primary px-2 py-0.5 text-[10px] font-bold leading-none text-primary-foreground">
+                Vraag {currentIndex + 1} van {totalQuestions}
               </span>
             </div>
             <Progress
@@ -336,7 +356,7 @@ export function ModuleSurveyRunner({
       >
         <div
           className={cn(
-            "flex min-h-0 min-w-0 flex-1 flex-col overflow-x-hidden overflow-y-auto scrollbar-none [&::-webkit-scrollbar]:hidden",
+            "flex min-h-0 min-w-0 flex-1 flex-col overflow-x-hidden overflow-y-auto pb-6 scrollbar-none [&::-webkit-scrollbar]:hidden",
             isSimulatedCall
               ? "overflow-hidden rounded-lg bg-foreground p-0"
               : "space-y-4",
@@ -389,20 +409,20 @@ export function ModuleSurveyRunner({
                   >
                     {result.isCorrect === false
                       ? hasFeedbackCorrectAnswer
-                        ? "Incorrect - correct answer is highlighted."
-                        : "Incorrect."
+                        ? "Onjuist - het juiste antwoord is gemarkeerd."
+                        : "Onjuist."
                       : result.isCorrect === true
                         ? hasFeedbackCorrectAnswer
-                          ? "Correct - answer is highlighted."
-                          : "Correct."
-                        : "Answer submitted."}
+                          ? "Juist - antwoord is gemarkeerd."
+                          : "Juist."
+                        : "Antwoord verzonden."}
                   </div>
-                ) : !["Rating", "Free Input", "Information"].includes(question.type) ? (
+                ) : !["Rating", "Free Input", "Information", "Swipe"].includes(question.type) && isQuestionScored ? (
                   <div
                     className={cn(
                       "min-w-0 overflow-hidden rounded-sm border px-3 py-2 text-sm wrap-break-word",
                       result.isCorrect === false
-                        ? "border-destructive/50 text-destructive-foreground bg-background text-red-500"
+                        ? "border-destructive/50 text-destructive bg-background"
                         : result.isCorrect === true
                           ? "border-2 border-success bg-background text-foreground"
                           : "border-2 border-border bg-background text-foreground",
@@ -411,7 +431,7 @@ export function ModuleSurveyRunner({
                     <p className="font-medium">{feedbackTitle}</p>
                     {isOrderingRetry && (
                       <p className="mt-2 wrap-break-word font-medium">
-                        Rearrange the items and try again.
+                        Zet de onderdelen in de juiste volgorde en probeer opnieuw.
                       </p>
                     )}
                     {canShowCorrectAnswer &&
@@ -419,7 +439,7 @@ export function ModuleSurveyRunner({
                       result.isCorrect === false &&
                       result.correctAnswer && (
                         <p className="mt-2 wrap-break-word font-medium">
-                          Correct answer:{" "}
+                          Juist antwoord:{" "}
                           {Array.isArray(result.correctAnswer)
                             ? result.correctAnswer.join(" -> ")
                             : result.correctAnswer}
@@ -441,7 +461,7 @@ export function ModuleSurveyRunner({
       </AnimationWrapper>
 
       {!isSimulatedCall && (result || question?.type !== "Swipe") && (
-        <div className="mt-auto shrink-0 pt-0 [&_button]:bg-background [&_button]:text-foreground [&_button]:hover:bg-background/90">
+        <div className="mt-auto shrink-0 pt-3 [&_button]:bg-background [&_button]:text-foreground [&_button]:hover:bg-background/90">
           {result ? (
             isOrderingRetry ? (
               <Button
@@ -449,15 +469,15 @@ export function ModuleSurveyRunner({
                 className="w-full"
                 onClick={handleRetryOrdering}
               >
-                Try again
+                Opnieuw proberen
                 <ArrowRight />
               </Button>
             ) : (
               <Button size="lg" className="w-full" onClick={handleContinue}>
                 {currentIndex === totalQuestions - 1 ||
                 result.moduleStatus === "completed"
-                  ? "View result"
-                  : "Continue"}
+                  ? "Bekijk resultaat"
+                  : "Doorgaan"}
                 <ArrowRight />
               </Button>
             )
@@ -472,11 +492,11 @@ export function ModuleSurveyRunner({
               {isSubmitting ? (
                 <>
                   <LoaderCircle className="size-4 animate-spin" />
-                  Loading...
+                  Laden...
                 </>
               ) : (
                 <>
-                  Next
+                  Volgende
                   <ArrowRight />
                 </>
               )}

@@ -21,22 +21,21 @@ export function TopNav() {
             variant="ghost"
             size="icon"
             onClick={() => router.back()}
-            className="bg-muted"
           >
             <ArrowLeft className="w-5 h-5 text-foreground" />
-            <span className="sr-only">Go back</span>
+            <span className="sr-only">Terug</span>
           </Button>
         )}
         <Link href="/" className="flex min-w-0 items-center gap-2.5 hover:opacity-80 transition-opacity">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src={logoSrc}
-            alt="Company logo"
+            alt="Bedrijfslogo"
             className="h-9 max-w-32 object-contain"
           />
           {!user?.branding?.logo && (
             <span className="text-xl font-bold font-heading tracking-tight text-foreground">
-              Acme Inc
+              Act Inc
             </span>
           )}
         </Link>
@@ -52,7 +51,7 @@ export function TopNav() {
         <Link href="/profile" passHref>
           <Button variant="ghost" size="icon">
             <User className="w-5 h-5 text-foreground" />
-            <span className="sr-only">Profile</span>
+            <span className="sr-only">Profiel</span>
           </Button>
         </Link>
       </div>

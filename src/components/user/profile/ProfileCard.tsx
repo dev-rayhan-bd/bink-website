@@ -15,7 +15,7 @@ export function ProfileCard({
   const displayName =
     [user?.firstName, user?.lastName].filter(Boolean).join(" ").trim() ||
     user?.fullName ||
-    "User";
+    "Deelnemer";
 
   const email = user?.role === "user" ? user.email : null;
   const image = user?.role === "user" ? user.image : null;
@@ -32,10 +32,10 @@ export function ProfileCard({
             {displayName}
           </h2>
           <p className="mt-1 truncate text-[11px] font-medium text-foreground/80">
-            {email || "Email not available"}
+            {email || "Geen e-mailadres beschikbaar"}
           </p>
           <p className="mt-1 text-[10px] capitalize tracking-wide text-foreground/60">
-            {user?.authType ? `${user.authType} account` : "Learning program"}
+            {user?.authType ? `${user.authType}-account` : "Leerprogramma"}
           </p>
         </div>
       </div>

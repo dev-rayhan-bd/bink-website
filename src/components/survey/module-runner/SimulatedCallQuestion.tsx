@@ -69,7 +69,7 @@ export function SimulatedCallQuestion({
 
         <div className="relative z-10 flex min-h-full w-full flex-col items-center justify-between px-6 py-10 text-center">
           <div className="space-y-8">
-            <p className="text-lg text-background/80">Incoming call...</p>
+            <p className="text-lg text-background/80">Inkomende oproep...</p>
             <div className="mx-auto flex size-40 items-center justify-center overflow-hidden rounded-full border border-background/80 bg-background/15 shadow-sm">
               {question.callerPhoto ? (
                 <MediaImage
@@ -128,12 +128,12 @@ export function SimulatedCallQuestion({
                 setDragOffset(0);
               }}
               className="flex size-16 items-center justify-center rounded-full bg-success text-success-foreground shadow-lg shadow-foreground/30 ring-6 ring-background/15 disabled:opacity-60"
-              aria-label="Swipe up to answer call"
+              aria-label="Veeg omhoog om op te nemen"
             >
               <Phone className="size-7" />
             </motion.button>
             <p className="text-xs font-semibold uppercase tracking-wider text-background/60">
-              Swipe up to answer
+              Veeg omhoog om op te nemen
             </p>
           </div>
         </div>
@@ -158,8 +158,8 @@ export function SimulatedCallQuestion({
         />
       ) : (
         <div className="flex h-full w-full flex-col items-center justify-center bg-foreground text-background">
-          <p className="text-xl font-bold">Call completed</p>
-          <p className="mt-2 text-sm text-background/60">Please wait...</p>
+          <p className="text-xl font-bold">Gesprek beëindigd</p>
+          <p className="mt-2 text-sm text-background/60">Even geduld a.u.b....</p>
         </div>
       )}
     </div>

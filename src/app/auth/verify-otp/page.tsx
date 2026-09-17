@@ -68,14 +68,14 @@ function VerifyOtpForm() {
           <div className="flex items-center gap-3">
             <Image
               src="/acme-logo.svg"
-              alt="Acme Inc Logo"
+              alt="Act Inc Logo"
               width={36}
               height={36}
               priority
               style={{ height: "auto" }}
             />
             <span className="text-2xl font-bold font-heading tracking-tight text-foreground">
-              Acme Inc
+              Act Inc
             </span>
           </div>
         </div>
@@ -83,10 +83,10 @@ function VerifyOtpForm() {
         <form onSubmit={handleSubmit} className="space-y-8 animate-fadeIn">
           <div className="space-y-2">
             <h1 className="text-[28px] font-bold font-heading tracking-tight text-foreground leading-[1.2]">
-              Verify Otp
+              Verifieer jouw code
             </h1>
             <p className="text-sm text-muted-foreground leading-relaxed">
-              We sent an OTP to {identifier || "your email"}. Enter it below to continue.
+              We hebben een code gestuurd naar {identifier || "jouw e-mailadres"}. Vul deze hieronder in om verder te gaan.
             </p>
           </div>
 
@@ -111,7 +111,7 @@ function VerifyOtpForm() {
             </div>
             
             <div className="text-center text-xs text-muted-foreground">
-              Don&apos;t get the code? <button type="button" onClick={handleResend} className="text-primary hover:underline">Resend OTP.</button>
+              Geen code ontvangen? <button type="button" onClick={handleResend} className="text-primary hover:underline font-medium">Code opnieuw versturen.</button>
             </div>
           </div>
 
@@ -120,7 +120,7 @@ function VerifyOtpForm() {
               size="lg-full"
               disabled={isPending || otp.length !== 6}
             >
-              {isPending ? "VERIFYING..." : "VERIFY OTP"}
+              {isPending ? "VERIFIËREN..." : "CODE VERIFIËREN"}
             </Button>
         </form>
         <AuthPageLinks />
@@ -128,7 +128,7 @@ function VerifyOtpForm() {
 
       {/* Bottom Footer Section */}
       <div className="flex items-center justify-center gap-1.5 text-[10px] tracking-widest text-muted-foreground font-bold uppercase">
-        <span>Powered By</span>
+        <span>POWERED BY</span>
         <Image
           src="/acme-inc.svg"
           alt="Act Inc Logo"

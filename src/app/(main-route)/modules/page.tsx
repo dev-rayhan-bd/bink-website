@@ -1,6 +1,7 @@
 import { createHash } from "node:crypto";
 import Link from "next/link";
 import { cookies } from "next/headers";
+import { redirect } from "next/navigation";
 import { ArrowRight, BookOpen, CheckCircle2, Layers3 } from "lucide-react";
 import { BlockedSessionRedirect } from "@/components/auth/BlockedSessionRedirect";
 import { Badge } from "@/components/ui/badge";
@@ -12,8 +13,8 @@ import { getMyProfile } from "@/services/user.service";
 
 export default async function ModulesPage() {
   const [response, profileResponse, featuredResult] = await Promise.all([
-    getMyTrainings(),
-    getMyProfile(),
+    getMyTrainings().catch(() => ({ success: false, message: "Unauthorized", data: [] })),
+    getMyProfile().catch(() => ({ success: false, message: "Unauthorized", data: null })),
     getFeaturedTrainings()
       .then((value) => ({ value, errorMessage: undefined }))
       .catch((error: unknown) => ({
@@ -21,7 +22,7 @@ export default async function ModulesPage() {
         errorMessage:
           error instanceof Error
             ? error.message
-            : "Unable to load featured training.",
+            : "Niet mogelijk om uitgelichte training te laden.",
       })),
   ]);
 
@@ -34,7 +35,7 @@ export default async function ModulesPage() {
   }
 
   if (!response.success) {
-    throw new Error(response.message || "Unable to load your trainings");
+    redirect("/auth/login");
   }
 
   const trainings = response.data;
@@ -47,7 +48,7 @@ export default async function ModulesPage() {
   const featuredErrorMessage =
     featuredResult.errorMessage ||
     (featuredResponse && !featuredResponse.success
-      ? featuredResponse.message || "Unable to load featured training."
+      ? featuredResponse.message || "Niet mogelijk om uitgelichte training te laden."
       : undefined);
 
   const cookieStore = await cookies();
@@ -74,10 +75,10 @@ export default async function ModulesPage() {
         <div className="relative z-10 space-y-4">
           <div className="space-y-1">
             <span className="block text-[10px] font-bold uppercase tracking-widest">
-              Assigned trainings
+              Toegewezen trainingen
             </span>
             <h1 className="font-heading text-2xl font-bold tracking-tight">
-              Your Learning Path
+              Jouw leerroute
             </h1>
           </div>
 
@@ -86,14 +87,18 @@ export default async function ModulesPage() {
               <p className="text-2xl font-bold text-primary">
                 {trainings.length}
               </p>
-              <p className="mt-0.5 text-xs text-muted-foreground">Trainings</p>
+              <p className="mt-0.5 text-xs text-muted-foreground">
+                {trainings.length === 1 ? "Training" : "Trainingen"}
+              </p>
             </div>
             <div className="h-10 w-px bg-border"></div>
             <div className="flex-1">
               <p className="text-2xl font-bold text-primary">
                 {totalModules}
               </p>
-              <p className="mt-0.5 text-xs text-muted-foreground">Modules</p>
+              <p className="mt-0.5 text-xs text-muted-foreground">
+                {totalModules === 1 ? "Module" : "Modules"}
+              </p>
             </div>
           </div>
         </div>
@@ -106,9 +111,9 @@ export default async function ModulesPage() {
 
       <section className="flex-1 space-y-4">
         <div>
-          <h2 className="font-heading text-lg font-bold">All trainings</h2>
+          <h2 className="font-heading text-lg font-bold">Alle trainingen</h2>
           <p className="text-xs text-muted-foreground">
-            Continue with the trainings assigned to your team.
+            Ga verder met de trainingen die aan jouw team zijn toegewezen.
           </p>
         </div>
 
@@ -118,77 +123,82 @@ export default async function ModulesPage() {
               <BookOpen />
             </div>
             <h2 className="font-heading text-lg font-bold">
-              No trainings assigned yet
+              Nog geen trainingen toegewezen
             </h2>
             <p className="mt-2 max-w-xs text-sm text-muted-foreground">
-              Trainings assigned to your team will appear here.
+              Trainingen die aan jouw team zijn toegewezen verschijnen hier.
             </p>
           </div>
         ) : (
-          trainings.map((training) => (
-            <article
-              key={training._id}
-              className="overflow-hidden rounded-lg border border-border bg-secondary/20 shadow-sm transition-colors hover:border-secondary/50"
-            >
-              {training.thumbnailImage && (
-                // eslint-disable-next-line @next/next/no-img-element
-                <img
-                  src={training.thumbnailImage}
-                  alt={training.title}
-                  className="h-36 w-full border-b object-cover"
-                />
-              )}
+          trainings.map((training) => {
+            const topicCount = training.topicCount ?? training.topics?.length ?? 0;
+            const moduleCount = training.totalModules ?? 0;
 
-              <div className="space-y-4 p-5">
-                <div className="flex items-center justify-between gap-3">
-                  <div className="flex flex-wrap items-center gap-2">
-                    <Badge
-                      variant={
-                        training.status === "published" ? "active" : "outline"
-                      }
+            return (
+              <article
+                key={training._id}
+                className="overflow-hidden rounded-lg border border-border bg-secondary/20 shadow-sm transition-colors hover:border-secondary/50"
+              >
+                {training.thumbnailImage && (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img
+                    src={training.thumbnailImage}
+                    alt={training.title}
+                    className="h-36 w-full border-b object-cover"
+                  />
+                )}
+
+                <div className="space-y-4 p-5">
+                  <div className="flex items-center justify-between gap-3">
+                    <div className="flex flex-wrap items-center gap-2">
+                      <Badge
+                        variant={
+                          training.status === "published" ? "active" : "outline"
+                        }
+                      >
+                        {training.status === "published" ? "Gepubliceerd" : training.status}
+                      </Badge>
+                      <Badge variant="secondary">
+                        {topicCount} {topicCount === 1 ? "onderwerp" : "onderwerpen"}
+                      </Badge>
+                    </div>
+                    <Link
+                      href={`/modules/training/${training._id}`}
+                      className="group flex items-center gap-1 text-xs font-bold text-primary hover:underline"
                     >
-                      {training.status}
-                    </Badge>
-                    <Badge variant="secondary">
-                      {training.topicCount ?? training.topics?.length ?? 0}{" "}
-                      topics
-                    </Badge>
+                      Openen
+                      <ArrowRight className="size-3.5 transition-transform group-hover:translate-x-0.5" />
+                    </Link>
                   </div>
-                  <Link
-                    href={`/modules/training/${training._id}`}
-                    className="group flex items-center gap-1 text-xs font-bold text-primary hover:underline"
-                  >
-                    Open
-                    <ArrowRight className="size-3.5 transition-transform group-hover:translate-x-0.5" />
-                  </Link>
-                </div>
 
-                <div className="space-y-2">
-                  <h2 className="font-heading text-lg font-bold leading-tight text-foreground">
-                    {training.title}
-                  </h2>
-                  <p className="line-clamp-2 text-xs leading-normal text-muted-foreground">
-                    {training.description ||
-                      "Complete this training to continue your learning path."}
-                  </p>
-                </div>
+                  <div className="space-y-2">
+                    <h2 className="font-heading text-lg font-bold leading-tight text-foreground">
+                      {training.title}
+                    </h2>
+                    <p className="line-clamp-2 text-xs leading-normal text-muted-foreground">
+                      {training.description ||
+                        "Voltooi deze training om je leerroute te vervolgen."}
+                    </p>
+                  </div>
 
-                <div className="flex items-center justify-between rounded-md border bg-background p-3 text-xs text-muted-foreground">
-                  <span className="flex items-center gap-2">
-                    <Layers3 className="size-4" /> {training.totalModules ?? 0}{" "}
-                    modules
-                  </span>
-                  {training.status === "published" && (
-                    <span className="flex items-center gap-1 font-medium text-primary">
-                      <CheckCircle2 className="size-3.5" /> Ready
+                  <div className="flex items-center justify-between rounded-md border bg-background p-3 text-xs text-muted-foreground">
+                    <span className="flex items-center gap-2">
+                      <Layers3 className="size-4" /> {moduleCount}{" "}
+                      {moduleCount === 1 ? "module" : "modules"}
                     </span>
-                  )}
+                    {training.status === "published" && (
+                      <span className="flex items-center gap-1 font-medium text-primary">
+                        <CheckCircle2 className="size-3.5" /> Klaar
+                      </span>
+                    )}
+                  </div>
                 </div>
-              </div>
-            </article>
-          ))
+              </article>
+            );
+          })
         )}
       </section>
     </div>
   );
 }
+

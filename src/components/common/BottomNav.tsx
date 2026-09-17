@@ -19,7 +19,7 @@ export function BottomNav() {
       icon: Layers,
     },
     {
-      label: "Profile",
+      label: "Profiel",
       href: "/profile",
       icon: User,
     },

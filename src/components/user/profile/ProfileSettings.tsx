@@ -8,8 +8,8 @@ import { ChangePasswordDrawer } from "./ChangePasswordDrawer";
 import { EditProfileDrawer } from "./EditProfileDrawer";
 
 const links = [
-  { icon: Headset, label: "Privacy Policy", href: "/privacy-policy" },
-  { icon: Gavel, label: "Terms & Condition", href: "/terms-and-condition" },
+  { icon: Headset, label: "Privacybeleid", href: "/privacy-policy" },
+  { icon: Gavel, label: "Algemene voorwaarden", href: "/terms-and-condition" },
 ];
 
 export function ProfileSettings() {
@@ -23,7 +23,7 @@ export function ProfileSettings() {
 
   return (
     <div className="flex-1 px-1">
-      <h3 className="mb-4 font-heading text-[15px] font-bold">Settings</h3>
+      <h3 className="mb-4 font-heading text-[15px] font-bold">Instellingen</h3>
       <div className="space-y-2">
         <button
           type="button"
@@ -36,7 +36,7 @@ export function ProfileSettings() {
             <Moon className="size-4" />
           )}
           <span className="text-[13px] font-medium">
-            {mounted && theme === "dark" ? "Light Mode" : "Dark Mode"}
+            {mounted && theme === "dark" ? "Lichte modus" : "Donkere modus"}
           </span>
         </button>
 

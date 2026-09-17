@@ -56,10 +56,10 @@ export default function LoginPage() {
         <form onSubmit={handleLoginSubmit} className="space-y-6 animate-fadeIn">
           <div className="space-y-2 mb-6">
             <h1 className="text-3xl font-bold tracking-tight text-foreground">
-              Sign in to your account
+              Inloggen op jouw account
             </h1>
             <p className="text-sm text-muted-foreground">
-              Training access is now handled from your company QR link.
+              Trainingstoegang verloopt via de QR-code van jouw organisatie.
             </p>
           </div>
 
@@ -68,7 +68,7 @@ export default function LoginPage() {
               <div className="relative flex items-center">
                 <Input
                   type="email"
-                  placeholder="Email"
+                  placeholder="E-mailadres"
                   required
                   value={email}
                   onChange={(event) => setEmail(event.target.value)}
@@ -82,7 +82,7 @@ export default function LoginPage() {
               <div className="relative flex items-center">
                 <Input
                   type={showPassword ? "text" : "password"}
-                  placeholder="Password"
+                  placeholder="Wachtwoord"
                   required
                   value={password}
                   onChange={(event) => setPassword(event.target.value)}
@@ -92,6 +92,7 @@ export default function LoginPage() {
                   type="button"
                   onClick={() => setShowPassword((current) => !current)}
                   className="absolute right-3.5 text-muted-foreground hover:text-foreground focus:outline-none"
+                  aria-label={showPassword ? "Wachtwoord verbergen" : "Wachtwoord tonen"}
                 >
                   {showPassword ? (
                     <EyeOff className="h-5 w-5" />
@@ -105,14 +106,14 @@ export default function LoginPage() {
                   href="/auth/forgot-password"
                   className="text-xs font-medium text-muted-foreground underline underline-offset-2 hover:text-foreground"
                 >
-                  Forgot Password?
+                  Wachtwoord vergeten?
                 </Link>
               </div>
             </Field>
           </FieldGroup>
 
           <Button type="submit" size="lg-full" disabled={isPending}>
-            {isPending ? "Logging in..." : "Log In"}
+            {isPending ? "Inloggen..." : "Inloggen"}
             {!isPending && <ArrowRight />}
           </Button>
         </form>
@@ -121,7 +122,7 @@ export default function LoginPage() {
       </section>
 
       <div className="flex items-center justify-center gap-1.5 text-[10px] font-bold uppercase tracking-widest text-muted-foreground">
-        <span>Powered By</span>
+        <span>POWERED BY</span>
         <Image
           src="/acme-inc.svg"
           alt="Act Inc Logo"

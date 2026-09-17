@@ -60,10 +60,10 @@ export default function ForgotPasswordPage() {
         <form onSubmit={handleSubmit} className="space-y-8 animate-fadeIn">
           <div className="space-y-2">
             <h1 className="text-[28px] font-bold font-heading tracking-tight text-foreground leading-[1.2]">
-              Forgot Password?
+              Wachtwoord vergeten?
             </h1>
             <p className="text-sm text-muted-foreground leading-relaxed">
-              Enter your email and we&apos;ll send you a link to reset your password
+              Vul je e-mailadres in en we sturen je een code om je wachtwoord opnieuw in te stellen.
             </p>
           </div>
 
@@ -72,7 +72,7 @@ export default function ForgotPasswordPage() {
               <div className="relative flex items-center">
                 <Input
                   type="email"
-                  placeholder="Email"
+                  placeholder="E-mailadres"
                   required
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
@@ -88,7 +88,7 @@ export default function ForgotPasswordPage() {
               size="lg-full"
               disabled={isPending}
             >
-              {isPending ? "SENDING..." : "SEND OTP"}
+              {isPending ? "VERZENDEN..." : "CODE VERZENDEN"}
             </Button>
         </form>
         <AuthPageLinks />
@@ -96,7 +96,7 @@ export default function ForgotPasswordPage() {
 
       {/* Bottom Footer Section */}
       <div className="flex items-center justify-center gap-1.5 text-[10px] tracking-widest text-muted-foreground font-bold uppercase">
-        <span>Powered By</span>
+        <span>POWERED BY</span>
         <Image
           src="/acme-inc.svg"
           alt="Act Inc Logo"

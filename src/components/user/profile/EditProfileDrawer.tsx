@@ -48,7 +48,7 @@ export function EditProfileDrawer() {
         ? imageValue
         : undefined;
 
-    if (!firstName) return ErrorToast("First name is required");
+    if (!firstName) return ErrorToast("Voornaam is verplicht");
 
     setIsSaving(true);
     try {
@@ -58,12 +58,12 @@ export function EditProfileDrawer() {
       });
       if (!response.success) throw new Error(response.message);
 
-      SuccessToast(response.message || "Profile updated successfully");
+      SuccessToast(response.message || "Profiel succesvol bijgewerkt");
       setOpen(false);
       setImagePreview("");
     } catch (error: unknown) {
       ErrorToast(
-        error instanceof Error ? error.message : "Unable to update profile",
+        error instanceof Error ? error.message : "Niet mogelijk om profiel bij te werken",
       );
     } finally {
       setIsSaving(false);
@@ -79,31 +79,31 @@ export function EditProfileDrawer() {
       }}
     >
       <DrawerTrigger asChild>
-        <SettingsButton icon={Pencil} label="Edit Profile" />
+        <SettingsButton icon={Pencil} label="Profiel bewerken" />
       </DrawerTrigger>
       <DrawerContent>
         <form onSubmit={handleSubmit} className="mx-auto w-full max-w-120">
           <DrawerHeader>
-            <DrawerTitle>Edit Profile</DrawerTitle>
+            <DrawerTitle>Profiel bewerken</DrawerTitle>
             <DrawerDescription>
-              Update your personal details below.
+              Werk hieronder je persoonlijke gegevens bij.
             </DrawerDescription>
           </DrawerHeader>
           <div className="space-y-4 p-4 pb-0">
             <div className="grid grid-cols-2 gap-3">
               <ProfileField
                 id="firstName"
-                label="First Name"
+                label="Voornaam"
                 defaultValue={user?.firstName}
               />
               <ProfileField
                 id="lastName"
-                label="Last Name"
+                label="Achternaam"
                 defaultValue={user?.lastName}
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="profileImage">Profile Image</Label>
+              <Label htmlFor="profileImage">Profielfoto</Label>
               <label
                 htmlFor="profileImage"
                 className="flex cursor-pointer items-center gap-4 rounded-md border border-dashed p-3 hover:bg-muted/50"
@@ -112,15 +112,15 @@ export function EditProfileDrawer() {
                   {(imagePreview || user?.image) && (
                     <AvatarImage
                       src={imagePreview || user?.image}
-                      alt="Profile preview"
+                      alt="Profielfoto voorbeeld"
                     />
                   )}
                   <AvatarFallback>{getInitials(displayName)}</AvatarFallback>
                 </Avatar>
                 <div>
-                  <p className="text-sm font-medium">Choose profile image</p>
+                  <p className="text-sm font-medium">Kies een profielfoto</p>
                   <p className="mt-1 text-xs text-muted-foreground">
-                    JPG, PNG or WebP
+                    JPG, PNG of WebP
                   </p>
                 </div>
                 <Input
@@ -137,7 +137,7 @@ export function EditProfileDrawer() {
               </label>
             </div>
             <div className="space-y-2">
-              <Label htmlFor="profileEmail">Email Address</Label>
+              <Label htmlFor="profileEmail">E-mailadres</Label>
               <Input
                 id="profileEmail"
                 value={user?.email || ""}
@@ -148,7 +148,7 @@ export function EditProfileDrawer() {
           </div>
           <DrawerFooter className="mt-4">
             <Button type="submit" disabled={isSaving}>
-              {isSaving ? "Saving..." : "Save changes"}
+              {isSaving ? "Opslaan..." : "Wijzigingen opslaan"}
             </Button>
             <Button
               type="button"
@@ -156,7 +156,7 @@ export function EditProfileDrawer() {
               onClick={() => setOpen(false)}
               disabled={isSaving}
             >
-              Cancel
+              Annuleren
             </Button>
           </DrawerFooter>
         </form>

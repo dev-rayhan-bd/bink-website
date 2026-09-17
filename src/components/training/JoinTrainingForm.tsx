@@ -18,27 +18,31 @@ type JoinTrainingFormProps = {
 
 const authLabels: Record<
   TrainingAuthType,
-  { title: string; label: string; placeholder: string }
+  { title: string; label: string; placeholder: string; description: string }
 > = {
   passcode: {
-    title: "Passcode Login",
-    label: "Passcode",
-    placeholder: "Enter passcode",
+    title: "Inloggen met toegangscode",
+    label: "Toegangscode",
+    placeholder: "Voer toegangscode in",
+    description: "Vul je toegangscode in om deel te nemen aan deze training.",
   },
   email: {
-    title: "Email Login",
-    label: "Email",
-    placeholder: "name@example.com",
+    title: "Inloggen met e-mail",
+    label: "E-mailadres",
+    placeholder: "naam@voorbeeld.nl",
+    description: "Vul je e-mailadres in om deel te nemen aan deze training.",
   },
   employeeId: {
-    title: "Employee ID Login",
-    label: "Employee ID",
+    title: "Inloggen met werknemers-ID",
+    label: "Werknemers-ID",
     placeholder: "EMP001",
+    description: "Vul je werknemers-ID in om deel te nemen aan deze training.",
   },
   guest: {
-    title: "Guest Login",
-    label: "Name",
-    placeholder: "Guest User",
+    title: "Inloggen als gast",
+    label: "Naam",
+    placeholder: "Jouw naam",
+    description: "Vul je naam in om deel te nemen aan deze training.",
   },
 };
 
@@ -67,7 +71,7 @@ export function JoinTrainingForm({
     event.preventDefault();
 
     if (!selectedAuthType) {
-      ErrorToast("This training link has an invalid auth type");
+      ErrorToast("Deze trainingslink heeft een ongeldig verificatietype");
       return;
     }
 
@@ -75,7 +79,7 @@ export function JoinTrainingForm({
     const value = String(formData.get("credential") || "").trim();
 
     if (!value) {
-      ErrorToast(`${copy?.label || "Credential"} is required`);
+      ErrorToast(`${copy?.label || "Gegeven"} is verplicht`);
       return;
     }
 
@@ -90,12 +94,12 @@ export function JoinTrainingForm({
 
       if (!response.success) throw new Error(response.message);
 
-      SuccessToast(response.message || "Training login successful");
+      SuccessToast(response.message || "Succesvol ingelogd bij de training");
       router.replace("/");
       router.refresh();
     } catch (error: unknown) {
       ErrorToast(
-        error instanceof Error ? error.message : "Unable to join training",
+        error instanceof Error ? error.message : "Kan niet deelnemen aan training",
       );
     } finally {
       setIsSubmitting(false);
@@ -106,10 +110,10 @@ export function JoinTrainingForm({
     return (
       <div className="space-y-3 text-center">
         <h1 className="font-heading text-2xl font-bold">
-          Invalid Training Link
+          Ongeldige trainingslink
         </h1>
         <p className="text-sm text-muted-foreground">
-          This link is missing a supported auth type.
+          Deze link mist een ondersteund verificatietype.
         </p>
       </div>
     );
@@ -120,7 +124,7 @@ export function JoinTrainingForm({
       <div className="space-y-2 text-center">
         <h1 className="font-heading text-2xl font-bold">{copy.title}</h1>
         <p className="text-sm text-muted-foreground">
-          Enter your {copy.label.toLowerCase()} to join this training.
+          {copy.description}
         </p>
       </div>
 
@@ -141,7 +145,7 @@ export function JoinTrainingForm({
         ) : (
           <ArrowRight />
         )}
-        {isSubmitting ? "Joining..." : "Join Training"}
+        {isSubmitting ? "Bezig..." : "Naar de training"}
       </Button>
     </form>
   );

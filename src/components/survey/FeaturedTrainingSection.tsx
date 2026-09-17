@@ -32,9 +32,9 @@ export function FeaturedTrainingSection({
       <div className="flex items-center gap-2">
         <Sparkles className="size-5 text-primary" />
         <div>
-          <h2 className="font-heading text-lg font-bold">Featured training</h2>
+          <h2 className="font-heading text-lg font-bold">Uitgelichte training</h2>
           <p className="text-xs text-muted-foreground">
-            Prioritised learning selected for your team.
+            Geselecteerde leermodule voor jouw team.
           </p>
         </div>
       </div>
@@ -49,7 +49,7 @@ export function FeaturedTrainingSection({
       <div className="space-y-3">
         {activeItems.map((item) => {
           const moduleId = getModuleId(item);
-          const module =
+          const moduleData =
             typeof item.moduleId === "string" ? null : item.moduleId;
           const training =
             typeof item.trainingId === "string"
@@ -57,24 +57,25 @@ export function FeaturedTrainingSection({
               : (item.trainingId as Training);
           const topic =
             typeof item.topicId === "string" ? null : (item.topicId as Topic);
+          const qCount = moduleData?.questions?.length ?? 0;
 
           return (
             <article
               key={moduleId}
               className="overflow-hidden rounded-lg border-2 border-primary/30 bg-primary/5 shadow-sm"
             >
-              {module?.thumbnailImage && (
+              {moduleData?.thumbnailImage && (
                 // eslint-disable-next-line @next/next/no-img-element
                 <img
-                  src={module.thumbnailImage}
-                  alt={module.title}
+                  src={moduleData.thumbnailImage}
+                  alt={moduleData.title}
                   className="h-40 w-full border-b object-cover"
                 />
               )}
 
               <div className="space-y-4 p-5">
                 <div className="flex flex-wrap items-center gap-2">
-                  <Badge variant="active">Featured</Badge>
+                  <Badge variant="active">Uitgelicht</Badge>
                   {training?.title && (
                     <Badge variant="outline">{training.title}</Badge>
                   )}
@@ -85,28 +86,28 @@ export function FeaturedTrainingSection({
 
                 <div className="space-y-2">
                   <p className="text-sm font-semibold text-primary">
-                    {item.customText || "Recommended for your team"}
+                    {item.customText || "Aanbevolen voor jouw team"}
                   </p>
                   <h3 className="font-heading text-xl font-bold leading-tight">
-                    {module?.title || "Featured module"}
+                    {moduleData?.title || "Uitgelichte module"}
                   </h3>
                   <p className="line-clamp-2 text-sm text-muted-foreground">
-                    {module?.description ||
-                      "Open this prioritised module to continue learning."}
+                    {moduleData?.description ||
+                      "Open deze module om verder te leren."}
                   </p>
                 </div>
 
                 <div className="flex items-center justify-between gap-3 rounded-md border bg-background p-3">
                   <span className="text-xs text-muted-foreground">
-                    {module
-                      ? `${module.questions?.length ?? 0} questions`
-                      : "Priority module"}
+                    {moduleData
+                      ? `${qCount} ${qCount === 1 ? "vraag" : "vragen"}`
+                      : "Belangrijke module"}
                   </span>
                   <Link
                     href={`/modules/${moduleId}`}
                     className="group flex items-center gap-1 text-sm font-bold text-primary hover:underline"
                   >
-                    Start featured module
+                    Start uitgelichte module
                     <ArrowRight className="size-4 transition-transform group-hover:translate-x-0.5" />
                   </Link>
                 </div>

@@ -195,7 +195,7 @@ export function QuestionAnswer({
         {options.length > 0 ? (
           <div className="mt-auto shrink-0 space-y-3 rounded-2xl border border-black/10 bg-background p-4 shadow-md shadow-black/5 dark:border-white/15">
             <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
-              Choose your response
+              Kies jouw reactie
             </p>
             {options.map((option, optionIndex) => {
               const selected = answer === option;
@@ -254,7 +254,7 @@ export function QuestionAnswer({
             onClick={() => onAnswer("completed")}
             className="w-full"
           >
-            <MessageCircle /> I reviewed this conversation
+            <MessageCircle /> Ik heb dit gesprek bekeken
           </Button>
         )}
       </div>
@@ -390,7 +390,7 @@ export function QuestionAnswer({
     <Textarea
       value={typeof answer === "string" ? answer : ""}
       disabled={disabled}
-      placeholder="Write your answer..."
+      placeholder="Schrijf jouw antwoord..."
       className="min-h-36 bg-background"
       onChange={(event) => onAnswer(event.target.value)}
     />

@@ -30,21 +30,21 @@ export function ChangePasswordDrawer() {
     const confirmPassword = String(formData.get("confirmPassword") || "");
 
     if (!oldPassword || !newPassword) {
-      return ErrorToast("Current and new password are required");
+      return ErrorToast("Huidig en nieuw wachtwoord zijn verplicht");
     }
     if (newPassword !== confirmPassword) {
-      return ErrorToast("New passwords do not match");
+      return ErrorToast("Nieuwe wachtwoorden komen niet overeen");
     }
 
     setIsPending(true);
     try {
       const response = await changePassword({ oldPassword, newPassword });
       if (!response.success) throw new Error(response.message);
-      SuccessToast(response.message || "Password changed successfully");
+      SuccessToast(response.message || "Wachtwoord succesvol gewijzigd");
       setOpen(false);
     } catch (error: unknown) {
       ErrorToast(
-        error instanceof Error ? error.message : "Unable to change password",
+        error instanceof Error ? error.message : "Kan wachtwoord niet wijzigen",
       );
     } finally {
       setIsPending(false);
@@ -54,24 +54,24 @@ export function ChangePasswordDrawer() {
   return (
     <Drawer open={open} onOpenChange={setOpen}>
       <DrawerTrigger asChild>
-        <SettingsButton icon={ShieldCheck} label="Change Password" />
+        <SettingsButton icon={ShieldCheck} label="Wachtwoord wijzigen" />
       </DrawerTrigger>
       <DrawerContent>
         <form onSubmit={handleSubmit} className="mx-auto w-full max-w-120">
           <DrawerHeader>
-            <DrawerTitle>Change Password</DrawerTitle>
+            <DrawerTitle>Wachtwoord wijzigen</DrawerTitle>
             <DrawerDescription>
-              Secure your account with a new password.
+              Beveilig jouw account met een nieuw wachtwoord.
             </DrawerDescription>
           </DrawerHeader>
           <div className="space-y-4 p-4 pb-0">
-            <PasswordField id="oldPassword" label="Current Password" />
-            <PasswordField id="newPassword" label="New Password" />
-            <PasswordField id="confirmPassword" label="Confirm Password" />
+            <PasswordField id="oldPassword" label="Huidig wachtwoord" />
+            <PasswordField id="newPassword" label="Nieuw wachtwoord" />
+            <PasswordField id="confirmPassword" label="Bevestig nieuw wachtwoord" />
           </div>
           <DrawerFooter className="mt-4">
             <Button type="submit" disabled={isPending}>
-              {isPending ? "Changing..." : "Change Password"}
+              {isPending ? "Bezig met opslaan..." : "Wachtwoord bijwerken"}
             </Button>
             <Button
               type="button"
@@ -79,7 +79,7 @@ export function ChangePasswordDrawer() {
               onClick={() => setOpen(false)}
               disabled={isPending}
             >
-              Cancel
+              Annuleren
             </Button>
           </DrawerFooter>
         </form>

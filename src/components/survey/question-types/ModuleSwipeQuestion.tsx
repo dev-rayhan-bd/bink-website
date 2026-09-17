@@ -8,7 +8,6 @@ import {
   useTransform,
   type PanInfo,
 } from "framer-motion";
-import { Check, X } from "lucide-react";
 import { RichQuestionContent } from "@/components/ui/custom/RichQuestionContent";
 import { cn } from "@/lib/utils";
 import { hasQuestionContent } from "@/lib/question-content";
@@ -36,9 +35,9 @@ export function ModuleSwipeQuestion({
     x,
     [-160, 0, 160],
     [
-      "rgba(239, 68, 68, 0.35)",
+      "rgba(239, 68, 68, 0.25)",
       "rgba(255, 255, 255, 0)",
-      "rgba(34, 197, 94, 0.35)",
+      "rgba(34, 197, 94, 0.25)",
     ],
   );
 
@@ -84,7 +83,7 @@ export function ModuleSwipeQuestion({
   return (
     <div
       className={cn(
-        "flex w-full min-w-0 max-w-full grow shrink-0 flex-col overflow-x-hidden",
+        "flex w-full min-w-0 max-w-full grow shrink-0 flex-col justify-between overflow-x-hidden",
         isDismissed && "invisible pointer-events-none",
       )}
       aria-hidden={isDismissed || undefined}
@@ -103,7 +102,7 @@ export function ModuleSwipeQuestion({
         }}
         animate={controls}
         className={cn(
-          "relative z-10 w-full max-w-full cursor-grab overflow-hidden rounded-[28px] border border-black/10 shadow-lg shadow-black/5 will-change-transform active:cursor-grabbing dark:border-white/15",
+          "relative z-10 flex w-full max-w-full cursor-grab flex-col justify-between overflow-hidden rounded-[24px] border border-black/10 shadow-lg shadow-black/5 will-change-transform active:cursor-grabbing dark:border-white/15 max-h-[calc(100dvh-220px)]",
           !blockColor && "bg-card text-card-foreground",
         )}
       >
@@ -113,19 +112,17 @@ export function ModuleSwipeQuestion({
         />
         {!question.image ? (
           /* Text-only swipe card */
-          <div className="relative z-10 flex min-h-[380px] w-full flex-col justify-between p-6 sm:min-h-[420px] sm:p-8">
-            {/* Text Content */}
+          <div className="relative z-10 flex min-h-[260px] max-h-full w-full flex-col justify-between p-5 sm:min-h-[300px] sm:p-6">
             {hasContent && (
-              <div className="my-auto flex min-h-[200px] flex-1 items-center justify-center py-6 text-center">
+              <div className="my-auto flex flex-1 items-center justify-center py-4 text-center">
                 <RichQuestionContent
                   value={question.content}
-                  className="font-heading text-lg font-bold leading-relaxed text-foreground sm:text-xl"
+                  className="font-heading text-base font-bold leading-relaxed text-foreground sm:text-lg"
                 />
               </div>
             )}
 
-            {/* Bottom Card Direction Hints */}
-            <div className="flex w-full items-center justify-between pt-3 text-xs font-semibold text-muted-foreground/80">
+            <div className="flex w-full items-center justify-between pt-2 text-xs font-semibold text-muted-foreground/80">
               <span className="flex items-center gap-1">
                 ← {question.leftLabel || "Nee"}
               </span>
@@ -135,36 +132,31 @@ export function ModuleSwipeQuestion({
             </div>
           </div>
         ) : (
-          /* Image Swipe Card - Image fills the card */
-          <div className="relative z-10 flex min-h-[420px] w-full flex-col justify-between sm:min-h-[460px]">
-            {/* Full-bleed Card Image */}
+          /* Image Swipe Card */
+          <div className="relative z-10 flex max-h-full w-full flex-col justify-between">
             <div
               className={cn(
                 "relative w-full overflow-hidden bg-muted/20",
-                hasContent
-                  ? "aspect-4/3 w-full shrink-0"
-                  : "min-h-[320px] flex-1",
+                hasContent ? "aspect-16/10 max-h-[32dvh]" : "aspect-4/3 min-h-[220px]",
               )}
             >
               <MediaImage
                 value={question.image as MediaValue}
-                alt="Swipe question"
+                alt="Swipe vraag"
                 className="block h-full w-full object-cover object-center"
               />
             </div>
 
-            {/* Text Content below image */}
             {hasContent && (
-              <div className="my-auto flex min-h-[100px] flex-1 items-center justify-center p-5 text-center sm:p-6">
+              <div className="my-auto flex min-h-[60px] flex-1 items-center justify-center p-4 text-center sm:p-5">
                 <RichQuestionContent
                   value={question.content}
-                  className="font-heading text-base font-bold leading-snug text-foreground sm:text-lg"
+                  className="font-heading text-sm font-bold leading-snug text-foreground sm:text-base"
                 />
               </div>
             )}
 
-            {/* Bottom Card Direction Hints */}
-            <div className="flex w-full items-center justify-between px-5 pb-4 pt-2 text-xs font-semibold text-muted-foreground/80 sm:px-6">
+            <div className="flex w-full items-center justify-between px-4 pb-3 pt-1 text-xs font-semibold text-muted-foreground/80 sm:px-5">
               <span className="flex items-center gap-1">
                 ← {question.leftLabel || "Nee"}
               </span>
@@ -177,8 +169,8 @@ export function ModuleSwipeQuestion({
       </motion.div>
 
       {/* Action Controls Under Card */}
-      <div className="mt-auto flex w-full max-w-full flex-col gap-3 pt-5">
-        <div className="flex items-center justify-center gap-2 text-xs font-medium text-muted-foreground/90">
+      <div className="mt-auto flex w-full max-w-full flex-col gap-2 pt-3">
+        <div className="flex items-center justify-center gap-2 text-[11px] font-medium text-muted-foreground/90">
           <span>Sleep de kaart of tik hieronder</span>
         </div>
         <div className="flex w-full gap-3">
@@ -186,18 +178,16 @@ export function ModuleSwipeQuestion({
             type="button"
             disabled={isDisabled}
             onClick={() => void submitSwipe("left")}
-            className="flex flex-1 items-center justify-center gap-2 rounded-2xl border border-black/10 bg-card px-4 py-3.5 text-sm font-bold text-foreground shadow-sm transition-all hover:bg-muted active:scale-95 disabled:pointer-events-none disabled:opacity-50 dark:border-white/15"
+            className="flex flex-1 items-center justify-center rounded-xl border border-black/10 bg-card px-4 py-3 text-sm font-bold text-foreground shadow-sm transition-all hover:bg-muted active:scale-95 disabled:pointer-events-none disabled:opacity-50 dark:border-white/15"
           >
-            <X className="size-4 stroke-3 text-destructive" />
             <span className="truncate">{question.leftLabel || "Nee"}</span>
           </button>
           <button
             type="button"
             disabled={isDisabled}
             onClick={() => void submitSwipe("right")}
-            className="flex flex-1 items-center justify-center gap-2 rounded-2xl bg-primary px-4 py-3.5 text-sm font-bold text-primary-foreground shadow-md transition-all hover:bg-primary/90 active:scale-95 disabled:pointer-events-none disabled:opacity-50"
+            className="flex flex-1 items-center justify-center rounded-xl bg-primary px-4 py-3 text-sm font-bold text-primary-foreground shadow-sm transition-all hover:bg-primary/90 active:scale-95 disabled:pointer-events-none disabled:opacity-50"
           >
-            <Check className="size-4 stroke-3" />
             <span className="truncate">{question.rightLabel || "Ja"}</span>
           </button>
         </div>
@@ -205,3 +195,4 @@ export function ModuleSwipeQuestion({
     </div>
   );
 }
+

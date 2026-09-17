@@ -44,27 +44,27 @@ function QrLoginContent() {
   return (
     <main className="mx-auto flex min-h-dvh w-full max-w-sm flex-col items-center justify-center px-6 text-center">
       <div className="mb-10 flex items-center gap-3">
-        <Image src="/acme-logo.svg" alt="Acme Inc" width={36} height={36} priority />
-        <span className="font-heading text-2xl font-bold">Acme Inc</span>
+        <Image src="/acme-logo.svg" alt="Act Inc" width={36} height={36} priority />
+        <span className="font-heading text-2xl font-bold">Act Inc</span>
       </div>
 
       {errorMessage ? (
         <div className="w-full space-y-5">
           <div className="space-y-2">
-            <h1 className="font-heading text-2xl font-bold">QR Login Failed</h1>
+            <h1 className="font-heading text-2xl font-bold">QR-inloggen mislukt</h1>
             <p className="text-sm text-muted-foreground">{errorMessage}</p>
           </div>
           <Button asChild size="lg-full">
-            <Link href="/auth/login">Go to login</Link>
+            <Link href="/auth/login">Naar inloggen</Link>
           </Button>
         </div>
       ) : (
         <div className="space-y-4">
           <LoaderCircle className="mx-auto size-8 animate-spin text-primary" />
           <div className="space-y-1">
-            <h1 className="font-heading text-2xl font-bold">Signing you in</h1>
+            <h1 className="font-heading text-2xl font-bold">Je wordt ingelogd</h1>
             <p className="text-sm text-muted-foreground">
-              Please wait while we verify your QR code.
+              Even geduld terwijl we jouw QR-code verifiëren.
             </p>
           </div>
         </div>

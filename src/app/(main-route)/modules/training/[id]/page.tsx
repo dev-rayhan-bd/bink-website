@@ -9,7 +9,7 @@ const TrainingUnavailable = ({ message }: { message: string }) => (
   <div className="flex flex-1 min-h-0 flex-col gap-4 pb-8 animate-fadeIn overflow-y-auto pr-1">
     <div className="flex min-h-72 flex-col items-center justify-center rounded-lg border bg-card px-6 text-center">
       <BookOpen className="mb-3 size-9 text-primary" />
-      <h1 className="font-heading text-xl font-bold">Training unavailable</h1>
+      <h1 className="font-heading text-xl font-bold">Training niet beschikbaar</h1>
       <p className="mt-2 max-w-sm text-sm text-muted-foreground">{message}</p>
     </div>
   </div>
@@ -30,7 +30,7 @@ export default async function TrainingModulesPage({
     const message =
       trainingResult.reason instanceof Error
         ? trainingResult.reason.message
-        : "Unable to load this training.";
+        : "Niet mogelijk om deze training te laden.";
 
     return <TrainingUnavailable message={message} />;
   }
@@ -42,7 +42,7 @@ export default async function TrainingModulesPage({
   if (!trainingResponse?.success) {
     return (
       <TrainingUnavailable
-        message={trainingResponse?.message || "Unable to load this training."}
+        message={trainingResponse?.message || "Niet mogelijk om deze training te laden."}
       />
     );
   }
@@ -52,6 +52,11 @@ export default async function TrainingModulesPage({
     topicsResponse?.success && topicsResponse.data.length > 0
       ? topicsResponse.data
       : training.topics || [];
+
+  const totalModules = topics.reduce(
+    (acc, t) => acc + (t.moduleCount ?? t.modules?.length ?? 0),
+    0,
+  );
 
   return (
     <div className="flex flex-1 min-h-0 flex-col gap-4 pb-8 animate-fadeIn overflow-y-auto">
@@ -67,16 +72,16 @@ export default async function TrainingModulesPage({
         <div className="space-y-4 p-5">
           <div className="flex flex-wrap items-center gap-2">
             <Badge variant="outline" className="border-primary-foreground/30 bg-primary-foreground/10 text-primary-foreground">
-              {training.status}
+              {training.status === "published" ? "Gepubliceerd" : training.status}
             </Badge>
             <Badge variant="secondary">
-              {topics.length} topics
+              {topics.length} {topics.length === 1 ? "onderwerp" : "onderwerpen"}
             </Badge>
           </div>
           <div className="space-y-1">
             <h1 className="font-heading text-2xl font-bold">{training.title}</h1>
             <p className="text-sm text-primary-foreground/80">
-              {training.description || "Training overview"}
+              {training.description || "Training overzicht"}
             </p>
           </div>
 
@@ -85,14 +90,18 @@ export default async function TrainingModulesPage({
               <p className="text-2xl font-bold text-primary">
                 {topics.length}
               </p>
-              <p className="mt-0.5 text-xs text-muted-foreground">Topics</p>
+              <p className="mt-0.5 text-xs text-muted-foreground">
+                {topics.length === 1 ? "Onderwerp" : "Onderwerpen"}
+              </p>
             </div>
             <div className="h-10 w-px bg-border"></div>
             <div className="flex-1">
               <p className="text-2xl font-bold text-primary">
-                {topics.reduce((acc, t) => acc + (t.moduleCount ?? t.modules?.length ?? 0), 0)}
+                {totalModules}
               </p>
-              <p className="mt-0.5 text-xs text-muted-foreground">Modules</p>
+              <p className="mt-0.5 text-xs text-muted-foreground">
+                {totalModules === 1 ? "Module" : "Modules"}
+              </p>
             </div>
           </div>
         </div>
@@ -102,43 +111,47 @@ export default async function TrainingModulesPage({
         {topics.length === 0 ? (
           <div className="flex min-h-56 flex-col items-center justify-center rounded-lg border bg-card px-6 text-center">
             <BookOpen className="mb-3 size-9 text-primary" />
-            <h2 className="font-heading text-lg font-bold">No topics available</h2>
+            <h2 className="font-heading text-lg font-bold">Geen onderwerpen beschikbaar</h2>
             <p className="mt-2 text-sm text-muted-foreground">
-              Topics will appear here when this training is configured.
+              Onderwerpen verschijnen hier zodra deze training is geconfigureerd.
             </p>
           </div>
         ) : (
-          topics.map((topic) => (
-            <Link
-              key={topic._id}
-              href={`/modules/training/${id}/topics/${topic._id}`}
-              className="group block rounded-lg border border-border bg-secondary/20 p-5 shadow-sm transition-colors hover:border-secondary/50"
-            >
-              <article className="space-y-3">
-                <div className="flex items-center justify-between gap-3">
-                  <div className="flex flex-wrap items-center gap-2">
-                    <Badge variant="outline">Topic {(topic.order ?? 0) + 1}</Badge>
-                    <Badge variant="secondary">
-                      {topic.moduleCount ?? topic.modules?.length ?? 0} modules
-                    </Badge>
+          topics.map((topic) => {
+            const moduleCount = topic.moduleCount ?? topic.modules?.length ?? 0;
+
+            return (
+              <Link
+                key={topic._id}
+                href={`/modules/training/${id}/topics/${topic._id}`}
+                className="group block rounded-lg border border-border bg-secondary/20 p-5 shadow-sm transition-colors hover:border-secondary/50"
+              >
+                <article className="space-y-3">
+                  <div className="flex items-center justify-between gap-3">
+                    <div className="flex flex-wrap items-center gap-2">
+                      <Badge variant="outline">Onderwerp {(topic.order ?? 0) + 1}</Badge>
+                      <Badge variant="secondary">
+                        {moduleCount} {moduleCount === 1 ? "module" : "modules"}
+                      </Badge>
+                    </div>
+                    <ArrowRight className="size-4 text-primary transition-transform group-hover:translate-x-0.5" />
                   </div>
-                  <ArrowRight className="size-4 text-primary transition-transform group-hover:translate-x-0.5" />
-                </div>
-                <div className="space-y-1">
-                  <h2 className="font-heading text-xl font-bold leading-tight">
-                    {topic.title}
-                  </h2>
-                  <p className="line-clamp-2 text-sm text-muted-foreground">
-                    {topic.description || "No description"}
-                  </p>
-                </div>
-                <div className="flex items-center gap-2 text-xs font-medium text-muted-foreground">
-                  <Layers3 className="size-4 text-secondary" />
-                  Open topic to view modules
-                </div>
-              </article>
-            </Link>
-          ))
+                  <div className="space-y-1">
+                    <h2 className="font-heading text-xl font-bold leading-tight">
+                      {topic.title}
+                    </h2>
+                    <p className="line-clamp-2 text-sm text-muted-foreground">
+                      {topic.description || "Geen beschrijving"}
+                    </p>
+                  </div>
+                  <div className="flex items-center gap-2 text-xs font-medium text-muted-foreground">
+                    <Layers3 className="size-4 text-secondary" />
+                    Open onderwerp om modules te bekijken
+                  </div>
+                </article>
+              </Link>
+            );
+          })
         )}
       </section>
     </div>

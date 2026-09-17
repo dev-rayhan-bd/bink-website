@@ -53,6 +53,7 @@ export const getMyTrainings = async () =>
 
 export const getTraining = async (trainingId: string) =>
   nextServerFetch<ApiResponse<Training>>(`/training/${trainingId}`, {
+    auth: "optional",
     next: { tags: [TRAININGS_TAG, `training-${trainingId}`], revalidate: 3600 },
   });
 

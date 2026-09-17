@@ -55,14 +55,14 @@ function ResetPasswordForm() {
           <div className="flex items-center gap-3">
             <Image
               src="/acme-logo.svg"
-              alt="Acme Inc Logo"
+              alt="Act Inc Logo"
               width={36}
               height={36}
               priority
               style={{ height: "auto" }}
             />
             <span className="text-2xl font-bold font-heading tracking-tight text-foreground">
-              Acme Inc
+              Act Inc
             </span>
           </div>
         </div>
@@ -70,22 +70,22 @@ function ResetPasswordForm() {
         <form onSubmit={handleSubmit} className="space-y-8 animate-fadeIn">
           <div className="space-y-2">
             <h1 className="text-[28px] font-bold font-heading tracking-tight text-foreground leading-[1.2]">
-              Create a New Password
+              Nieuw wachtwoord instellen
             </h1>
             <p className="text-sm text-muted-foreground leading-relaxed">
-              Almost there! Set a new password to get back into your account.
+              Kies een nieuw wachtwoord om weer in te loggen op jouw account.
             </p>
           </div>
 
           <FieldGroup className="space-y-4">
             <Field>
-              <Input value={otp} onChange={(e) => setOtp(e.target.value)} placeholder="OTP" maxLength={6} required />
+              <Input value={otp} onChange={(e) => setOtp(e.target.value)} placeholder="Verificatiecode (OTP)" maxLength={6} required />
             </Field>
             <Field>
               <div className="relative flex items-center">
                 <Input
                   type={showPassword ? "text" : "password"}
-                  placeholder="Create Password"
+                  placeholder="Nieuw wachtwoord"
                   required
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
@@ -95,6 +95,7 @@ function ResetPasswordForm() {
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
                   className="absolute right-3.5 text-muted-foreground hover:text-foreground focus:outline-none"
+                  aria-label={showPassword ? "Wachtwoord verbergen" : "Wachtwoord tonen"}
                 >
                   {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
                 </button>
@@ -107,7 +108,7 @@ function ResetPasswordForm() {
               size="lg-full"
               disabled={isPending}
             >
-              {isPending ? "SAVING..." : "SET PASSWORD"}
+              {isPending ? "OPSLAAN..." : "WACHTWOORD INSTELLEN"}
             </Button>
         </form>
         <AuthPageLinks />
@@ -115,7 +116,7 @@ function ResetPasswordForm() {
 
       {/* Bottom Footer Section */}
       <div className="flex items-center justify-center gap-1.5 text-[10px] tracking-widest text-muted-foreground font-bold uppercase">
-        <span>Powered By</span>
+        <span>POWERED BY</span>
         <Image
           src="/acme-inc.svg"
           alt="Act Inc Logo"
