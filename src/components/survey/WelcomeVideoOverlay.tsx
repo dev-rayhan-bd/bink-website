@@ -2,9 +2,10 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import Image from "next/image";
 import { ArrowRight, Play } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { BrandFooter } from "@/components/common/BrandFooter";
+import { formatBrandingVideoTitle, getParticipantFirstName } from "@/lib/utils";
 
 const WELCOME_SESSION_PREFIX = "welcome-video-shown:";
 
@@ -86,14 +87,12 @@ export function WelcomeVideoOverlay({
     }
   };
 
-  const participantName =
-    user?.firstName ||
-    (user?.fullName && user.fullName !== "User" ? user.fullName : "") ||
-    (user?.name && user.name !== "User" ? user.name : "");
-
-  const greeting = participantName
-    ? `Hoi ${participantName}, welkom bij het programma`
-    : "Hoi, welkom bij het programma";
+  const participantFirstName = getParticipantFirstName(user);
+  const greeting = formatBrandingVideoTitle(
+    branding?.videoTitle,
+    participantFirstName,
+    "nl",
+  );
 
   return (
     <div className="fixed inset-0 z-50 mx-auto flex max-w-120 flex-col justify-between overflow-hidden bg-black text-white animate-fadeIn select-none">
@@ -165,16 +164,7 @@ export function WelcomeVideoOverlay({
             DOOR NAAR HET PROGRAMMA <ArrowRight className="ml-2 size-4" />
           </Button>
 
-          <div className="flex items-center justify-center gap-1.5 text-[10px] font-bold tracking-widest uppercase text-white/70">
-            <span>MOGELIJK GEMAAKT DOOR</span>
-            <Image
-              src="/acme-inc.svg"
-              alt="Act Inc"
-              width={60}
-              height={16}
-              className="h-3.5 w-auto object-contain brightness-0 invert opacity-80"
-            />
-          </div>
+          <BrandFooter variant="white" />
         </div>
       </div>
     </div>

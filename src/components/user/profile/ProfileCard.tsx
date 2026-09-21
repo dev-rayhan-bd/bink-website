@@ -13,8 +13,13 @@ export function ProfileCard({
   if (isLoading) return <ProfileCardSkeleton />;
 
   const displayName =
-    [user?.firstName, user?.lastName].filter(Boolean).join(" ").trim() ||
-    user?.fullName ||
+    [user?.firstName, user?.lastName]
+      .filter((n) => n && !/^(user|guest|admin)$/i.test(n.trim()))
+      .join(" ")
+      .trim() ||
+    (user?.fullName && !/^(user|guest|admin)$/i.test(user.fullName.trim())
+      ? user.fullName
+      : "") ||
     "Deelnemer";
 
   const email = user?.role === "user" ? user.email : null;

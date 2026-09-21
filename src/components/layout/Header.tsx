@@ -4,7 +4,7 @@ import { ThemeToggle } from "@/components/common/ThemeToggle";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { getInitials } from "@/lib/utils";
+import { getInitials, getParticipantFirstName } from "@/lib/utils";
 import { useUserContext } from "@/providers/UserProvider";
 
 interface HeaderProps {
@@ -22,6 +22,16 @@ export default function Header({ onMenuClick }: HeaderProps) {
         ? "Company"
         : "Admin";
   const profileLink = isSuperAdmin ? "/super-admin/profile" : "/company/profile";
+  const userFirstName = getParticipantFirstName(user);
+  const greeting = userFirstName
+    ? `Welcome back, ${userFirstName}`
+    : user?.role === "superAdmin" || user?.role === "company"
+      ? `Welcome back, ${roleTitle}`
+      : "Welcome back";
+  const userDisplayName =
+    user?.fullName && !/^(user|admin|guest)$/i.test(user.fullName.trim())
+      ? user.fullName
+      : roleTitle;
 
   return (
     <header className="absolute top-0 right-0 left-0 h-16 bg-background/80 backdrop-blur-md border-b border-border z-20 flex items-center justify-between px-4 lg:px-8 transition-all">
@@ -35,7 +45,7 @@ export default function Header({ onMenuClick }: HeaderProps) {
           <Menu className="h-6 w-6" />
         </Button>
         <h1 className="text-xl font-bold font-heading hidden sm:block">
-          Welcome back, {user?.firstName || "Admin"}
+          {greeting}
         </h1>
       </div>
 
@@ -48,13 +58,13 @@ export default function Header({ onMenuClick }: HeaderProps) {
           <div className="flex items-center gap-3 pl-4 border-l border-border cursor-pointer hover:opacity-80 transition-opacity">
             <div className="flex-col items-end hidden sm:flex">
               <span className="text-sm font-medium leading-none">
-                {user?.fullName || "Admin User"}
+                {userDisplayName}
               </span>
               <span className="text-xs text-muted-foreground mt-1">{roleTitle}</span>
             </div>
             <Avatar size="lg">
-              {user?.image && <AvatarImage src={user.image} alt={user.fullName} />}
-              <AvatarFallback>{getInitials(user?.fullName || "Admin")}</AvatarFallback>
+              {user?.image && <AvatarImage src={user.image} alt={userDisplayName} />}
+              <AvatarFallback>{getInitials(userDisplayName)}</AvatarFallback>
             </Avatar>
           </div>
         </Link>

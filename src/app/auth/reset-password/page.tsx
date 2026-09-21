@@ -7,6 +7,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { Eye, EyeOff, ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { AuthPageLinks } from "@/components/auth/AuthPageLinks";
+import { BrandFooter } from "@/components/common/BrandFooter";
 import { Input } from "@/components/ui/input";
 import { Field, FieldGroup } from "@/components/ui/field";
 import { ErrorToast, SuccessToast } from "@/lib/utils";
@@ -114,18 +115,7 @@ function ResetPasswordForm() {
         <AuthPageLinks />
       </div>
 
-      {/* Bottom Footer Section */}
-      <div className="flex items-center justify-center gap-1.5 text-[10px] tracking-widest text-muted-foreground font-bold uppercase">
-        <span>POWERED BY</span>
-        <Image
-          src="/acme-inc.svg"
-          alt="Act Inc Logo"
-          width={60}
-          height={16}
-          className="opacity-70 dark:invert"
-        />
-      </div>
-
+      <BrandFooter />
     </div>
   );
 }

@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Field, FieldGroup } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { AuthPageLinks } from "@/components/auth/AuthPageLinks";
+import { BrandFooter } from "@/components/common/BrandFooter";
 import { ErrorToast, SuccessToast } from "@/lib/utils";
 import { login } from "@/services/auth.service";
 
@@ -121,16 +122,7 @@ export default function LoginPage() {
         <AuthPageLinks />
       </section>
 
-      <div className="flex items-center justify-center gap-1.5 text-[10px] font-bold uppercase tracking-widest text-muted-foreground">
-        <span>POWERED BY</span>
-        <Image
-          src="/acme-inc.svg"
-          alt="Act Inc Logo"
-          width={60}
-          height={16}
-          className="opacity-70 dark:invert"
-        />
-      </div>
+      <BrandFooter />
     </main>
   );
 }

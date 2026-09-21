@@ -7,6 +7,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { ArrowLeft, Eye, EyeOff } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { AuthPageLinks } from "@/components/auth/AuthPageLinks";
+import { BrandFooter } from "@/components/common/BrandFooter";
 import { Field, FieldGroup } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import {
@@ -143,10 +144,7 @@ function AdminResetPasswordForm() {
         <AuthPageLinks />
       </main>
 
-      <div className="flex items-center justify-center gap-1.5 text-[10px] font-bold uppercase tracking-widest text-muted-foreground">
-        <span>Powered By</span>
-        <Image src="/acme-inc.svg" alt="Act Inc" width={60} height={16} className="opacity-70 dark:invert" />
-      </div>
+      <BrandFooter />
     </div>
   );
 }

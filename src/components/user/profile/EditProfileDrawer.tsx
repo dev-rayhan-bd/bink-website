@@ -25,10 +25,20 @@ export function EditProfileDrawer() {
   const [open, setOpen] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [imagePreview, setImagePreview] = useState("");
+  const initialFirstName =
+    user?.firstName && !/^(user|guest|admin)$/i.test(user.firstName.trim())
+      ? user.firstName
+      : "";
+  const initialLastName =
+    user?.lastName && !/^(user|guest|admin)$/i.test(user.lastName.trim())
+      ? user.lastName
+      : "";
   const displayName =
-    [user?.firstName, user?.lastName].filter(Boolean).join(" ").trim() ||
-    user?.fullName ||
-    "User";
+    [initialFirstName, initialLastName].filter(Boolean).join(" ").trim() ||
+    (user?.fullName && !/^(user|guest|admin)$/i.test(user.fullName.trim())
+      ? user.fullName
+      : "") ||
+    "Deelnemer";
 
   useEffect(
     () => () => {
@@ -94,12 +104,12 @@ export function EditProfileDrawer() {
               <ProfileField
                 id="firstName"
                 label="Voornaam"
-                defaultValue={user?.firstName}
+                defaultValue={initialFirstName}
               />
               <ProfileField
                 id="lastName"
                 label="Achternaam"
-                defaultValue={user?.lastName}
+                defaultValue={initialLastName}
               />
             </div>
             <div className="space-y-2">

@@ -3,6 +3,7 @@
 import { useState, useRef } from "react";
 import Image from "next/image";
 import { Phone, ChevronUp } from "lucide-react";
+import { formatBrandingVideoTitle, getParticipantFirstName } from "@/lib/utils";
 
 interface WelcomeCallScreenProps {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -93,8 +94,11 @@ export function WelcomeCallScreen({
                   Welcome Message
                 </p>
                 <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-foreground">
-                  {user?.branding?.videoTitle ||
-                    `Hi ${user?.firstName || "there"}, welcome to the program`}
+                  {formatBrandingVideoTitle(
+                    user?.branding?.videoTitle,
+                    getParticipantFirstName(user),
+                    "en",
+                  )}
                 </h1>
                 <p className="text-muted-foreground text-xs sm:text-sm leading-relaxed">
                   {user?.branding?.videoDescription ||

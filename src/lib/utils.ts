@@ -69,3 +69,84 @@ export const generateSlug = (title: string) => {
 export const clamp = (value: number, min: number, max: number): number => {
   return Math.min(Math.max(value, min), max);
 };
+
+/**
+ * Extracts a valid participant first name, ignoring generic placeholders like "User", "Guest", "Admin".
+ */
+export const getParticipantFirstName = (user?: {
+  firstName?: string | null;
+  fullName?: string | null;
+  name?: string | null;
+} | null): string => {
+  if (!user) return "";
+  const isGeneric = (name: string) =>
+    /^(user|guest|admin|deelnemer|company)$/i.test(name.trim());
+
+  const firstName = user.firstName?.trim();
+  if (firstName && !isGeneric(firstName)) {
+    return firstName;
+  }
+
+  const fullName = (user.fullName || user.name || "").trim();
+  if (fullName && !isGeneric(fullName)) {
+    const firstWord = fullName.split(/\s+/)[0];
+    if (firstWord && !isGeneric(firstWord)) {
+      return firstWord;
+    }
+  }
+
+  return "";
+};
+
+/**
+ * Formats a welcome greeting according to participant name and language.
+ * If first name is missing/generic, it returns the greeting without a name.
+ */
+export const formatWelcomeGreeting = (
+  firstName?: string,
+  lang: "nl" | "en" = "nl"
+): string => {
+  const cleanName = firstName?.trim();
+  if (lang === "en") {
+    return cleanName
+      ? `Hi ${cleanName}, welcome to the program`
+      : "Hi, welcome to the program";
+  }
+  return cleanName
+    ? `Hoi ${cleanName}, welkom bij het programma`
+    : "Hoi, welkom bij het programma";
+};
+
+/**
+ * Formats custom branding video titles, replacing placeholders like "{name}", "{firstName}", "Hi User", or "Hoi User".
+ * If no participant name is available, generic phrases like "Hi User" / "Hoi User" are replaced without the name.
+ */
+export const formatBrandingVideoTitle = (
+  title?: string | null,
+  firstName?: string,
+  lang: "nl" | "en" = "nl"
+): string => {
+  const cleanName = firstName?.trim();
+  if (!title || !title.trim()) {
+    return formatWelcomeGreeting(cleanName, lang);
+  }
+
+  let formatted = title.trim();
+
+  if (cleanName) {
+    formatted = formatted
+      .replace(/\{(?:first_?name|name)\}/gi, cleanName)
+      .replace(/\bHi\s+User\b/gi, `Hi ${cleanName}`)
+      .replace(/\bHoi\s+User\b/gi, `Hoi ${cleanName}`);
+  } else {
+    formatted = formatted
+      .replace(/\s*\{(?:first_?name|name)\}\s*,?/gi, "")
+      .replace(/\bHi\s+User,\s*/gi, "Hi, ")
+      .replace(/\bHi\s+User\b/gi, "Hi")
+      .replace(/\bHoi\s+User,\s*/gi, "Hoi, ")
+      .replace(/\bHoi\s+User\b/gi, "Hoi");
+  }
+
+  return formatted.trim();
+};
+

@@ -65,7 +65,7 @@ export default function OnboardPage() {
         </span>
         
         <h1 className="text-[28px] font-bold font-heading leading-[1.2] tracking-tight mb-5 text-foreground">
-          Hi Sujon, welcome to the program
+          Welcome to the program
         </h1>
         
         <p className="text-sm text-muted-foreground leading-relaxed mb-8">
