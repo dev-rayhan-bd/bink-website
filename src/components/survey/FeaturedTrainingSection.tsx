@@ -34,7 +34,7 @@ export function FeaturedTrainingSection({
         <div>
           <h2 className="font-heading text-lg font-bold">Uitgelichte training</h2>
           <p className="text-xs text-muted-foreground">
-            Geselecteerde leermodule voor jouw team.
+            Speciaal geselecteerd voor jouw team.
           </p>
         </div>
       </div>

@@ -75,10 +75,10 @@ export default async function ModulesPage() {
         <div className="relative z-10 space-y-4">
           <div className="space-y-1">
             <span className="block text-[10px] font-bold uppercase tracking-widest">
-              Toegewezen trainingen
+              TOEGEWEZEN TRAININGEN
             </span>
             <h1 className="font-heading text-2xl font-bold tracking-tight">
-              Jouw leerroute
+              Jouw leerpad
             </h1>
           </div>
 
