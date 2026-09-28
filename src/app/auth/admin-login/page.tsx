@@ -38,7 +38,7 @@ export default function AdminLoginPage() {
       ErrorToast(
         error instanceof Error
           ? error.message
-          : "Unable to log in. Please try again.",
+          : "Inloggen mislukt. Probeer het opnieuw.",
       );
     } finally {
       setIsPending(false);
@@ -64,10 +64,10 @@ export default function AdminLoginPage() {
         <form onSubmit={handleSubmit} className="space-y-6 animate-fadeIn">
           <div className="mb-6 space-y-2">
             <h1 className="text-3xl font-bold tracking-tight text-foreground">
-              Welcome Back
+              Welkom terug
             </h1>
             <p className="text-sm text-muted-foreground">
-              Sign in to manage the Act Inc platform.
+              Log in om het Act Inc platform te beheren.
             </p>
           </div>
 
@@ -77,7 +77,7 @@ export default function AdminLoginPage() {
                 <Input
                   name="identifier"
                   type="email"
-                  placeholder="Email"
+                  placeholder="E-mailadres"
                   autoComplete="email"
                   value={identifier}
                   onChange={(event) => setIdentifier(event.target.value)}
@@ -93,7 +93,7 @@ export default function AdminLoginPage() {
                 <Input
                   name="password"
                   type={showPassword ? "text" : "password"}
-                  placeholder="Password"
+                  placeholder="Wachtwoord"
                   autoComplete="current-password"
                   value={password}
                   onChange={(event) => setPassword(event.target.value)}
@@ -104,7 +104,7 @@ export default function AdminLoginPage() {
                   type="button"
                   onClick={() => setShowPassword((current) => !current)}
                   className="absolute right-3.5 text-muted-foreground hover:text-foreground focus:outline-none"
-                  aria-label={showPassword ? "Hide password" : "Show password"}
+                  aria-label={showPassword ? "Wachtwoord verbergen" : "Wachtwoord tonen"}
                 >
                   {showPassword ? (
                     <EyeOff className="h-5 w-5" />
@@ -118,14 +118,14 @@ export default function AdminLoginPage() {
                   href="/auth/admin-forgot-password"
                   className="text-xs font-medium text-muted-foreground underline underline-offset-2 hover:text-foreground"
                 >
-                  Forgot Password?
+                  Wachtwoord vergeten?
                 </Link>
               </div>
             </Field>
           </FieldGroup>
 
           <Button type="submit" size="lg-full" disabled={isPending}>
-            {isPending ? "Logging in..." : "Log In"}
+            {isPending ? "Inloggen..." : "Inloggen"}
             {!isPending && <ArrowRight />}
           </Button>
         </form>

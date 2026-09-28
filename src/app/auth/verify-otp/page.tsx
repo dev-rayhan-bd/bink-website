@@ -25,29 +25,37 @@ function VerifyOtpForm() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!identifier) return ErrorToast("Email address is missing");
+    if (!identifier) return ErrorToast("E-mailadres ontbreekt");
     setIsPending(true);
     try {
       const response = await verifyRegistrationOtp({ identifier, otp });
       if (!response.success) throw new Error(response.message);
-      SuccessToast(response.message || "Account verified successfully");
+      SuccessToast(response.message || "Account succesvol geverifieerd");
       router.replace("/");
       router.refresh();
     } catch (error: unknown) {
-      ErrorToast(error instanceof Error ? error.message : "Unable to verify OTP");
+      ErrorToast(
+        error instanceof Error
+          ? error.message
+          : "Kan code niet verifiëren. Probeer het opnieuw.",
+      );
     } finally {
       setIsPending(false);
     }
   };
 
   const handleResend = async () => {
-    if (!identifier) return ErrorToast("Email address is missing");
+    if (!identifier) return ErrorToast("E-mailadres ontbreekt");
     try {
       const response = await resendOtp({ identifier });
       if (!response.success) throw new Error(response.message);
-      SuccessToast(response.message || "OTP sent successfully");
+      SuccessToast(response.message || "Code opnieuw verzonden");
     } catch (error: unknown) {
-      ErrorToast(error instanceof Error ? error.message : "Unable to resend OTP");
+      ErrorToast(
+        error instanceof Error
+          ? error.message
+          : "Kan code niet opnieuw verzenden. Probeer het opnieuw.",
+      );
     }
   };
 
@@ -84,10 +92,10 @@ function VerifyOtpForm() {
         <form onSubmit={handleSubmit} className="space-y-8 animate-fadeIn">
           <div className="space-y-2">
             <h1 className="text-[28px] font-bold font-heading tracking-tight text-foreground leading-[1.2]">
-              Verifieer jouw code
+              Verifieer je code
             </h1>
             <p className="text-sm text-muted-foreground leading-relaxed">
-              We hebben een code gestuurd naar {identifier || "jouw e-mailadres"}. Vul deze hieronder in om verder te gaan.
+              We hebben een code gestuurd naar {identifier || "je e-mailadres"}. Vul deze hieronder in om verder te gaan.
             </p>
           </div>
 
@@ -112,17 +120,17 @@ function VerifyOtpForm() {
             </div>
             
             <div className="text-center text-xs text-muted-foreground">
-              Geen code ontvangen? <button type="button" onClick={handleResend} className="text-primary hover:underline font-medium">Code opnieuw versturen.</button>
+              Geen code ontvangen? <button type="button" onClick={handleResend} className="text-primary hover:underline font-medium">Code opnieuw versturen</button>
             </div>
           </div>
 
-            <Button
-              type="submit"
-              size="lg-full"
-              disabled={isPending || otp.length !== 6}
-            >
-              {isPending ? "VERIFIËREN..." : "CODE VERIFIËREN"}
-            </Button>
+          <Button
+            type="submit"
+            size="lg-full"
+            disabled={isPending || otp.length !== 6}
+          >
+            {isPending ? "Verifiëren..." : "Code verifiëren"}
+          </Button>
         </form>
         <AuthPageLinks />
       </div>

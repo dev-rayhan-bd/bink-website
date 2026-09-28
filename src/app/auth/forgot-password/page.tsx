@@ -24,10 +24,14 @@ export default function ForgotPasswordPage() {
     try {
       const response = await forgotPassword({ identifier: email });
       if (!response.success) throw new Error(response.message);
-      SuccessToast(response.message || "OTP sent successfully");
+      SuccessToast(response.message || "Code succesvol verzonden");
       router.push(`/auth/reset-password?identifier=${encodeURIComponent(email)}`);
     } catch (error: unknown) {
-      ErrorToast(error instanceof Error ? error.message : "Unable to send OTP");
+      ErrorToast(
+        error instanceof Error
+          ? error.message
+          : "Kan code niet verzenden. Probeer het opnieuw.",
+      );
     } finally {
       setIsPending(false);
     }
@@ -84,13 +88,13 @@ export default function ForgotPasswordPage() {
             </Field>
           </FieldGroup>
 
-            <Button
-              type="submit"
-              size="lg-full"
-              disabled={isPending}
-            >
-              {isPending ? "VERZENDEN..." : "CODE VERZENDEN"}
-            </Button>
+          <Button
+            type="submit"
+            size="lg-full"
+            disabled={isPending}
+          >
+            {isPending ? "Verzenden..." : "Code verzenden"}
+          </Button>
         </form>
         <AuthPageLinks />
       </div>

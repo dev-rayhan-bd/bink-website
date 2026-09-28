@@ -38,7 +38,7 @@ export default async function ModulesPage() {
     redirect("/auth/login");
   }
 
-  const trainings = response.data;
+  const trainings = Array.isArray(response?.data) ? response.data : [];
   const user = profileResponse.success ? profileResponse.data : null;
   const branding = user?.branding;
   const featuredResponse = featuredResult.value;

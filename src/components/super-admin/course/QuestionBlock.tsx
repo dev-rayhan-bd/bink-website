@@ -468,15 +468,44 @@ export function QuestionBlock({
       )}
 
       {currentQuestion.type === "Swipe" && (
-        <div className="grid gap-4 sm:grid-cols-2">
-          <Field>
-            <FieldLabel>Left Label</FieldLabel>
-            <Input {...register(`questions.${index}.leftLabel`)} />
-          </Field>
-          <Field>
-            <FieldLabel>Right Label</FieldLabel>
-            <Input {...register(`questions.${index}.rightLabel`)} />
-          </Field>
+        <div className="space-y-4">
+          <div className="grid gap-4 sm:grid-cols-2">
+            <Field>
+              <FieldLabel>Left Label</FieldLabel>
+              <Input {...register(`questions.${index}.leftLabel`)} />
+            </Field>
+            <Field>
+              <FieldLabel>Right Label</FieldLabel>
+              <Input {...register(`questions.${index}.rightLabel`)} />
+            </Field>
+          </div>
+          {currentQuestion.isScored && (
+            <Field>
+              <FieldLabel>Correct Direction</FieldLabel>
+              <Controller
+                control={control}
+                name={`questions.${index}.correctDirection`}
+                render={({ field }) => (
+                  <Select
+                    value={field.value || "left"}
+                    onValueChange={field.onChange}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select correct direction" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="left">
+                        Left ({currentQuestion.leftLabel || "Left"})
+                      </SelectItem>
+                      <SelectItem value="right">
+                        Right ({currentQuestion.rightLabel || "Right"})
+                      </SelectItem>
+                    </SelectContent>
+                  </Select>
+                )}
+              />
+            </Field>
+          )}
         </div>
       )}
 

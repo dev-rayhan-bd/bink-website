@@ -156,6 +156,17 @@ export const questionSchema = questionUnionSchema.superRefine((question, context
       message: "Correct answer is required for scored questions",
     });
   }
+
+  if (
+    question.type === "Swipe" &&
+    !question.correctDirection
+  ) {
+    context.addIssue({
+      code: "custom",
+      path: ["correctDirection"],
+      message: "Correct direction is required for scored swipe questions",
+    });
+  }
 });
 
 export const createModuleSchema = z.object({
@@ -196,6 +207,7 @@ export const getDefaultQuestionValues = (
         type,
         leftLabel: "",
         rightLabel: "",
+        correctDirection: "left",
       };
     case "Ordering":
       return { ...base, type, items: ["", "", "", ""] };

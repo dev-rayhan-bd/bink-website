@@ -6,17 +6,17 @@ export default function NotFound() {
       <div className="max-w-md space-y-4">
         <h1 className="font-heading text-6xl font-extrabold text-primary">404</h1>
         <h2 className="font-heading text-2xl font-bold text-foreground">
-          Page Not Found
+          Pagina niet gevonden
         </h2>
         <p className="text-sm text-muted-foreground">
-          Could not find requested resource.
+          De opgevraagde pagina kon niet worden gevonden.
         </p>
         <div>
           <Link
             href="/"
             className="inline-flex h-10 items-center justify-center rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground shadow transition-colors hover:bg-primary/90"
           >
-            Return Home
+            Terug naar startpagina
           </Link>
         </div>
       </div>

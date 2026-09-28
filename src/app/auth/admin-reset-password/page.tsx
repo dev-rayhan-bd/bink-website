@@ -42,10 +42,14 @@ function AdminResetPasswordForm() {
       const response = await adminResetPassword({ identifier, otp, newPassword });
       if (!response.success) throw new Error(response.message);
 
-      SuccessToast(response.message || "Password reset successfully");
+      SuccessToast(response.message || "Wachtwoord succesvol gewijzigd");
       router.replace("/auth/admin-login");
     } catch (error: unknown) {
-      ErrorToast(error instanceof Error ? error.message : "Unable to reset password");
+      ErrorToast(
+        error instanceof Error
+          ? error.message
+          : "Kan wachtwoord niet opnieuw instellen. Probeer het opnieuw.",
+      );
     } finally {
       setIsPending(false);
     }
@@ -57,10 +61,14 @@ function AdminResetPasswordForm() {
     try {
       const response = await resendAdminOtp({ identifier });
       if (!response.success) throw new Error(response.message);
-      SuccessToast(response.message || "OTP resent successfully");
+      SuccessToast(response.message || "Code opnieuw verzonden");
       startCountdown();
     } catch (error: unknown) {
-      ErrorToast(error instanceof Error ? error.message : "Unable to resend OTP");
+      ErrorToast(
+        error instanceof Error
+          ? error.message
+          : "Kan code niet opnieuw verzenden. Probeer het opnieuw.",
+      );
     } finally {
       setIsResending(false);
     }
@@ -71,7 +79,7 @@ function AdminResetPasswordForm() {
       <div className="w-full px-6 pt-8">
         <Link href="/auth/admin-forgot-password" className="inline-flex h-10 w-10 items-center justify-center rounded-sm bg-muted/40 hover:bg-muted/60">
           <ArrowLeft className="h-5 w-5" />
-          <span className="sr-only">Back</span>
+          <span className="sr-only">Terug</span>
         </Link>
       </div>
 
@@ -89,8 +97,8 @@ function AdminResetPasswordForm() {
 
         <form onSubmit={handleSubmit} className="space-y-8">
           <div className="space-y-2">
-            <h1 className="font-heading text-3xl font-bold tracking-tight">Reset Password</h1>
-            <p className="text-sm text-muted-foreground">Enter the OTP sent to {identifier} and create a new password.</p>
+            <h1 className="font-heading text-3xl font-bold tracking-tight">Wachtwoord opnieuw instellen</h1>
+            <p className="text-sm text-muted-foreground">Vul de verificatiecode in die is verzonden naar {identifier || "je e-mailadres"} en kies een nieuw wachtwoord.</p>
           </div>
 
           <FieldGroup>
@@ -110,7 +118,7 @@ function AdminResetPasswordForm() {
               <div className="relative flex items-center">
                 <Input
                   type={showPassword ? "text" : "password"}
-                  placeholder="New password"
+                  placeholder="Nieuw wachtwoord"
                   value={newPassword}
                   onChange={(event) => setNewPassword(event.target.value)}
                   minLength={8}
@@ -120,7 +128,7 @@ function AdminResetPasswordForm() {
                   type="button"
                   onClick={() => setShowPassword((current) => !current)}
                   className="absolute right-3.5 text-muted-foreground hover:text-foreground"
-                  aria-label={showPassword ? "Hide password" : "Show password"}
+                  aria-label={showPassword ? "Wachtwoord verbergen" : "Wachtwoord tonen"}
                 >
                   {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
                 </button>
@@ -130,18 +138,18 @@ function AdminResetPasswordForm() {
 
           <div className="space-y-4">
             <Button type="submit" size="lg-full" disabled={isPending || otp.length !== 6}>
-              {isPending ? "Resetting..." : "Reset Password"}
+              {isPending ? "Bezig met instellen..." : "Wachtwoord opnieuw instellen"}
             </Button>
             <button type="button" onClick={handleResend} disabled={isResending || isCountdownRunning} className="w-full text-center text-xs font-semibold text-primary hover:underline disabled:opacity-50">
               {isResending
-                ? "Resending..."
+                ? "Verzenden..."
                 : isCountdownRunning
-                  ? `Resend OTP in ${secondsLeft}`
-                  : "Resend OTP"}
+                  ? `Code opnieuw verzenden in ${secondsLeft}s`
+                  : "Code opnieuw verzenden"}
             </button>
           </div>
         </form>
-        <AuthPageLinks />
+        <AuthPageLinks showUserLogin />
       </main>
 
       <BrandFooter />

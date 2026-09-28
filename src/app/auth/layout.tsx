@@ -8,19 +8,20 @@ export default function AuthLayout({
 }>) {
   return (
     <div className="min-h-dvh w-full bg-white flex flex-col md:flex-row relative">
-      {/* Left Side: Image */}
-      <div className="hidden md:block md:w-1/2 relative bg-zinc-200">
+      {/* Left Side: Image (Fills left half on desktop, hidden on mobile) */}
+      <div className="hidden md:block md:w-1/2 relative bg-muted overflow-hidden">
         <Image
-          src="https://images.unsplash.com/photo-1522071820081-009f0129c71c?auto=format&fit=crop&w=1600&q=80"
-          alt="Act Inc team collaboration"
+          src="https://images.pexels.com/photos/8374254/pexels-photo-8374254.jpeg"
+          alt="Act Inc team"
           fill
-          className="object-cover"
+          sizes="50vw"
+          className="object-cover object-center"
           priority
         />
       </div>
 
       {/* Right Side: Auth Content */}
-      <div className="w-full md:w-1/2 flex flex-col relative bg-white overflow-y-auto h-dvh">
+      <div className="w-full md:w-1/2 flex flex-col relative bg-background overflow-y-auto h-dvh">
         {children}
       </div>
     </div>

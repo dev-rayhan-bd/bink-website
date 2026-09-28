@@ -24,15 +24,19 @@ function ResetPasswordForm() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!identifier) return ErrorToast("Email address is missing");
+    if (!identifier) return ErrorToast("E-mailadres ontbreekt");
     setIsPending(true);
     try {
       const response = await resetPassword({ identifier, otp, newPassword: password });
       if (!response.success) throw new Error(response.message);
-      SuccessToast(response.message || "Password reset successfully");
+      SuccessToast(response.message || "Wachtwoord succesvol gewijzigd");
       router.replace("/auth/login");
     } catch (error: unknown) {
-      ErrorToast(error instanceof Error ? error.message : "Unable to reset password");
+      ErrorToast(
+        error instanceof Error
+          ? error.message
+          : "Kan wachtwoord niet opnieuw instellen. Probeer het opnieuw.",
+      );
     } finally {
       setIsPending(false);
     }
@@ -74,7 +78,7 @@ function ResetPasswordForm() {
               Nieuw wachtwoord instellen
             </h1>
             <p className="text-sm text-muted-foreground leading-relaxed">
-              Kies een nieuw wachtwoord om weer in te loggen op jouw account.
+              Kies een nieuw wachtwoord om weer in te loggen op je account.
             </p>
           </div>
 
@@ -104,13 +108,13 @@ function ResetPasswordForm() {
             </Field>
           </FieldGroup>
 
-            <Button
-              type="submit"
-              size="lg-full"
-              disabled={isPending}
-            >
-              {isPending ? "OPSLAAN..." : "WACHTWOORD INSTELLEN"}
-            </Button>
+          <Button
+            type="submit"
+            size="lg-full"
+            disabled={isPending}
+          >
+            {isPending ? "Opslaan..." : "Wachtwoord instellen"}
+          </Button>
         </form>
         <AuthPageLinks />
       </div>

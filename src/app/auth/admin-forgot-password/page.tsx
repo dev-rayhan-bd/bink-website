@@ -31,13 +31,17 @@ export default function AdminForgotPasswordPage() {
       const response = await adminForgotPassword({ identifier });
       if (!response.success) throw new Error(response.message);
 
-      SuccessToast(response.message || "OTP sent successfully");
+      SuccessToast(response.message || "Code succesvol verzonden");
       startResendCountdown();
       router.push(
         `/auth/admin-reset-password?identifier=${encodeURIComponent(identifier)}`
       );
     } catch (error: unknown) {
-      ErrorToast(error instanceof Error ? error.message : "Unable to send OTP");
+      ErrorToast(
+        error instanceof Error
+          ? error.message
+          : "Kan code niet verzenden. Probeer het opnieuw.",
+      );
     } finally {
       setIsPending(false);
     }
@@ -48,7 +52,7 @@ export default function AdminForgotPasswordPage() {
       <div className="w-full px-6 pt-8">
         <Link href="/auth/admin-login" className="inline-flex h-10 w-10 items-center justify-center rounded-sm bg-muted/40 hover:bg-muted/60">
           <ArrowLeft className="h-5 w-5" />
-          <span className="sr-only">Back to admin login</span>
+          <span className="sr-only">Terug naar inloggen</span>
         </Link>
       </div>
 
@@ -66,15 +70,15 @@ export default function AdminForgotPasswordPage() {
 
         <form onSubmit={handleSubmit} className="space-y-8">
           <div className="space-y-2">
-            <h1 className="font-heading text-3xl font-bold tracking-tight">Forgot Password?</h1>
-            <p className="text-sm text-muted-foreground">Enter your admin email to receive an OTP.</p>
+            <h1 className="font-heading text-3xl font-bold tracking-tight">Wachtwoord vergeten?</h1>
+            <p className="text-sm text-muted-foreground">Vul je beheerders-e-mailadres in om een verificatiecode te ontvangen.</p>
           </div>
 
           <Field>
             <div className="relative flex items-center">
               <Input
                 type="email"
-                placeholder="Admin email"
+                placeholder="Beheerders-e-mailadres"
                 value={identifier}
                 onChange={(event) => setIdentifier(event.target.value)}
                 required
@@ -84,10 +88,10 @@ export default function AdminForgotPasswordPage() {
           </Field>
 
           <Button type="submit" size="lg-full" disabled={isPending}>
-            {isPending ? "Sending..." : "Send OTP"}
+            {isPending ? "Verzenden..." : "Code verzenden"}
           </Button>
         </form>
-        <AuthPageLinks />
+        <AuthPageLinks showUserLogin />
       </main>
 
       <BrandFooter />

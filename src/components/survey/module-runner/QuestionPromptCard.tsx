@@ -8,7 +8,7 @@ import { MediaImage } from "./media";
 import type { MediaValue } from "./types";
 
 const QUESTION_TYPE_LABELS: Record<string, string> = {
-  MCQ: "Meerkeuze",
+  MCQ: "Meerkeuzevraag",
   Information: "Informatie",
   Ordering: "Volgorde",
   Swipe: "Swipe",
@@ -28,9 +28,9 @@ export function QuestionPromptCard({ question }: { question: ModuleQuestion }) {
   const typeLabel = QUESTION_TYPE_LABELS[question.type] || question.type;
 
   return (
-    <div className="mb-2 shrink-0 space-y-2.5 overflow-hidden bg-transparent">
-      <div className="flex items-center">
-        <span className="inline-flex shrink-0 items-center justify-center rounded-full bg-primary px-3 py-1 text-[11px] font-bold tracking-wide text-primary-foreground shadow-xs whitespace-nowrap">
+    <div className="mb-2 shrink-0 space-y-2.5 pt-1 overflow-visible bg-transparent">
+      <div className="flex items-center pt-0.5">
+        <span className="inline-flex shrink-0 items-center justify-center rounded-full bg-primary px-3 py-1 text-[10px] font-bold uppercase tracking-wider text-primary-foreground shadow-xs whitespace-nowrap">
           {typeLabel}
         </span>
       </div>
@@ -46,8 +46,8 @@ export function QuestionPromptCard({ question }: { question: ModuleQuestion }) {
           {question.image && (
             <div
               className={cn(
-                "relative w-full overflow-hidden bg-muted/20",
-                hasContent ? "aspect-16/10 sm:aspect-16/9" : "aspect-4/3",
+                "relative w-full overflow-hidden shrink-0",
+                hasContent ? "aspect-16/10 max-h-[28dvh] sm:max-h-[32dvh]" : "aspect-4/3 min-h-[200px] max-h-[36dvh]",
               )}
             >
               <MediaImage

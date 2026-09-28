@@ -23,8 +23,5 @@ export function UserProvider({
 
 export function useUserContext() {
   const context = React.useContext(UserContext);
-  if (context === undefined) {
-    throw new Error("useUserContext must be used within a UserProvider");
-  }
-  return context;
+  return context ?? { user: null };
 }

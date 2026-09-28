@@ -49,12 +49,14 @@ export default async function TrainingModulesPage({
 
   const training = trainingResponse.data as UserTrainingView;
   const topics: Topic[] =
-    topicsResponse?.success && topicsResponse.data.length > 0
+    topicsResponse?.success && Array.isArray(topicsResponse.data) && topicsResponse.data.length > 0
       ? topicsResponse.data
-      : training.topics || [];
+      : Array.isArray(training?.topics)
+        ? training.topics
+        : [];
 
   const totalModules = topics.reduce(
-    (acc, t) => acc + (t.moduleCount ?? t.modules?.length ?? 0),
+    (acc, t) => acc + (t.moduleCount ?? (Array.isArray(t.modules) ? t.modules.length : 0)),
     0,
   );
 

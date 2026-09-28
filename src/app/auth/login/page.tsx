@@ -28,11 +28,15 @@ export default function LoginPage() {
       const response = await login({ identifier: email, password });
       if (!response.success) throw new Error(response.message);
 
-      SuccessToast(response.message || "Logged in successfully");
+      SuccessToast(response.message || "Succesvol ingelogd");
       router.replace(response.data.user?.role === "company" ? "/company" : "/");
       router.refresh();
     } catch (error: unknown) {
-      ErrorToast(error instanceof Error ? error.message : "Unable to log in");
+      ErrorToast(
+        error instanceof Error
+          ? error.message
+          : "Inloggen mislukt. Probeer het opnieuw.",
+      );
     } finally {
       setIsPending(false);
     }
@@ -55,13 +59,10 @@ export default function LoginPage() {
         </div>
 
         <form onSubmit={handleLoginSubmit} className="space-y-6 animate-fadeIn">
-          <div className="space-y-2 mb-6">
+          <div className="mb-6">
             <h1 className="text-3xl font-bold tracking-tight text-foreground">
-              Inloggen op jouw account
+              Inloggen op je account
             </h1>
-            <p className="text-sm text-muted-foreground">
-              Trainingstoegang verloopt via de QR-code van jouw organisatie.
-            </p>
           </div>
 
           <FieldGroup>

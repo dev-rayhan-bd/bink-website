@@ -132,12 +132,12 @@ export function ModuleSwipeQuestion({
             </div>
           </div>
         ) : (
-          /* Image Swipe Card */
+          /* Image Swipe Card - One continuous card, full-width image at top, never scrolling */
           <div className="relative z-10 flex max-h-full w-full flex-col justify-between">
             <div
               className={cn(
-                "relative w-full overflow-hidden bg-muted/20",
-                hasContent ? "aspect-16/10 max-h-[32dvh]" : "aspect-4/3 min-h-[220px]",
+                "relative w-full overflow-hidden shrink-0",
+                hasContent ? "aspect-16/10 max-h-[26dvh] sm:max-h-[30dvh]" : "aspect-4/3 min-h-[200px] max-h-[35dvh]",
               )}
             >
               <MediaImage
@@ -148,7 +148,7 @@ export function ModuleSwipeQuestion({
             </div>
 
             {hasContent && (
-              <div className="my-auto flex min-h-[60px] flex-1 items-center justify-center p-4 text-center sm:p-5">
+              <div className="my-auto flex min-h-[50px] flex-1 items-center justify-center p-4 text-center sm:p-5">
                 <RichQuestionContent
                   value={question.content}
                   className="font-heading text-sm font-bold leading-snug text-foreground sm:text-base"
@@ -170,8 +170,10 @@ export function ModuleSwipeQuestion({
 
       {/* Action Controls Under Card */}
       <div className="mt-auto flex w-full max-w-full flex-col gap-2 pt-3">
-        <div className="flex items-center justify-center gap-2 text-[11px] font-medium text-muted-foreground/90">
-          <span>Sleep de kaart of tik hieronder</span>
+        <div className="flex items-center justify-center py-0.5">
+          <span className="inline-flex items-center justify-center rounded-full bg-background/90 px-3.5 py-1 text-[11px] font-semibold text-foreground shadow-xs backdrop-blur-xs border border-border/40">
+            Sleep de kaart of tik hieronder
+          </span>
         </div>
         <div className="flex w-full gap-3">
           <button

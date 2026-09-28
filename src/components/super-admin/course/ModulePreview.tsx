@@ -148,6 +148,10 @@ export function ModulePreview({
       const correctOrder = question.items || [];
       isCorrect = JSON.stringify(submittedAnswer) === JSON.stringify(correctOrder);
       correctAnswer = correctOrder;
+    } else if (question.type === "Swipe") {
+      const correctDir = question.correctDirection;
+      isCorrect = submittedAnswer === correctDir;
+      correctAnswer = correctDir;
     } else if (question.type === "Chat Scenario") {
       isCorrect = submittedAnswer === question.correctAnswer;
       correctAnswer = question.correctAnswer;
@@ -158,8 +162,8 @@ export function ModulePreview({
 
     setResult({
       isCorrect:
+        !question.isScored ||
         question.type === "Free Input" ||
-        question.type === "Swipe" ||
         question.type === "Rating" ||
         question.type === "Simulated Call" ||
         (question.type === "Video" && !question.correctAnswer)
@@ -190,19 +194,28 @@ export function ModulePreview({
     if (!isStarted && !isCompleted) {
       return (
         <SurveyIntro
-          title={title || "Course Title"}
-          description={description || "Course description will appear here..."}
-          badge="Learning module"
+          title={title || "Titel leermodule"}
+          description={description || "Beschrijving van de module..."}
+          badge="Leermodule"
           imageUrl={previewUrl || "/window.svg"}
           questionCount={totalQuestions}
-          format="Interactive"
+          format="Interactief"
           startLabel="Start"
           onStart={() => setIsStarted(true)}
         />
       );
     }
 
+    const isModuleScored = safeQuestions.some(
+      (q) => q.isScored === true || String(q.isScored) === "true",
+    );
+
     if (isCompleted) {
+      const questionText =
+        totalQuestions === 1
+          ? `Je hebt de vraag van ${title || "deze module"} beantwoord.`
+          : `Je hebt alle ${totalQuestions} vragen van ${title || "deze module"} beantwoord.`;
+
       return (
         <AnimationWrapper
           direction="up"
@@ -214,50 +227,60 @@ export function ModulePreview({
             <div className="rounded-lg bg-primary p-3 text-center text-primary-foreground shadow-sm">
               <CheckCircle2 className="mx-auto mb-2.5 size-10" />
               <h1 className="font-heading text-xl font-bold">
-                Module completed
+                Module afgerond
               </h1>
               <p className="mt-1.5 text-xs text-primary-foreground/85">
-                You completed all {totalQuestions} questions in {title}.
+                {questionText}
               </p>
             </div>
 
-            <div className="grid grid-cols-2 gap-3 rounded-lg border border-secondary-foreground/10 bg-secondary/30 p-3 text-center">
-              <div>
-                <p className="text-xl font-bold text-primary">100</p>
-                <p className="text-xs text-muted-foreground">Module score</p>
+            {isModuleScored ? (
+              <div className="grid grid-cols-2 gap-3 rounded-lg border border-secondary-foreground/10 bg-secondary/30 p-3 text-center">
+                <div>
+                  <p className="text-xl font-bold text-primary">100</p>
+                  <p className="text-xs text-muted-foreground">Modulescore</p>
+                </div>
+                <div>
+                  <p className="text-xl font-bold text-primary">100%</p>
+                  <p className="text-xs text-muted-foreground">Voortgang</p>
+                </div>
               </div>
-              <div>
-                <p className="text-xl font-bold text-primary">100%</p>
-                <p className="text-xs text-muted-foreground">Progress</p>
+            ) : (
+              <div className="rounded-lg border border-secondary-foreground/10 bg-secondary/30 p-3 text-center">
+                <div>
+                  <p className="text-xl font-bold text-primary">100%</p>
+                  <p className="text-xs text-muted-foreground">Voortgang</p>
+                </div>
               </div>
-            </div>
+            )}
 
             <div className="flex flex-col items-center px-4 pt-8 text-center">
               <div className="mb-4 flex size-16 items-center justify-center rounded-full bg-primary/10 text-primary">
                 <PartyPopper className="size-8" />
               </div>
               <p className="font-heading text-xl font-bold text-foreground">
-                Thank you for completing this module!
+                Bedankt voor het afronden van deze module!
               </p>
               <p className="mt-2 text-sm text-muted-foreground">
-                Your feedback and participation are greatly appreciated.
+                We waarderen je deelname en feedback enorm.
               </p>
             </div>
           </div>
 
-          <Button
-            type="button"
-            size="lg"
-            className="mt-auto w-full"
-            onClick={() => {
-              setIsStarted(false);
-              setIsCompleted(false);
-              setCurrentIndex(0);
-              setResult(null);
-            }}
-          >
-            Restart Preview
-          </Button>
+          <div className="mt-auto pt-6">
+            <Button
+              type="button"
+              size="lg-full"
+              onClick={() => {
+                setIsStarted(false);
+                setIsCompleted(false);
+                setCurrentIndex(0);
+                setResult(null);
+              }}
+            >
+              Voorbeeld herstarten
+            </Button>
+          </div>
           </div>
         </AnimationWrapper>
       );
@@ -266,23 +289,27 @@ export function ModulePreview({
     if (!question) {
       return (
         <div className="flex min-h-64 items-center justify-center text-sm text-muted-foreground">
-          No questions are available in this module.
+          Er zijn geen vragen beschikbaar in deze module.
         </div>
       );
     }
 
+    const isQuestionScored = Boolean(question?.isScored);
     const displayedProgress =
       totalQuestions > 0
         ? ((result ? currentIndex + 1 : currentIndex) / totalQuestions) * 100
         : 0;
-    const canShowCorrectAnswer = ![
-      "Information",
-      "Rating",
-      "Free Input",
-      "Simulated Call",
-    ].includes(question.type);
+    const canShowCorrectAnswer =
+      isQuestionScored &&
+      ![
+        "Information",
+        "Rating",
+        "Free Input",
+        "Simulated Call",
+      ].includes(question.type);
     const isOptionFeedback =
       ["MCQ", "Chat Scenario", "Video"].includes(question.type) &&
+      isQuestionScored &&
       Boolean(result);
     const hasFeedbackCorrectAnswer =
       result?.correctAnswer !== undefined &&
@@ -295,13 +322,28 @@ export function ModulePreview({
       question.type === "Ordering" && result?.isCorrect === false;
     const feedbackTitle = canShowCorrectAnswer
       ? result?.isCorrect === false
-        ? "Not quite right"
+        ? "Niet helemaal goed"
         : result?.isCorrect === true
-          ? "Correct answer"
-          : "Answer submitted"
+          ? "Juist antwoord"
+          : "Antwoord verzonden"
       : question.type === "Information" && answer === "reviewed"
-        ? "Reviewed"
-        : "Answer submitted";
+        ? "Bekeken"
+        : "Antwoord verzonden";
+
+    const getFormattedCorrectAnswer = (
+      correct: AnswerValue | string | string[] | undefined,
+    ) => {
+      if (!correct) return "";
+      if (question.type === "Swipe") {
+        if (correct === "left") return question.leftLabel || "Nee";
+        if (correct === "right") return question.rightLabel || "Ja";
+        return String(correct);
+      }
+      if (Array.isArray(correct)) {
+        return correct.join(" -> ");
+      }
+      return String(correct);
+    };
 
     const isSimulatedCall = question?.type === "Simulated Call";
     const questionBackgroundColor = /^#[0-9A-Fa-f]{6}$/.test(
@@ -320,15 +362,12 @@ export function ModulePreview({
         {!isSimulatedCall && (
           <div className="mb-4 shrink-0 px-1 py-2">
             <h2 className="mb-2 font-heading text-lg font-bold leading-tight text-secondary-foreground">
-              {title || "Course Title"}
+              {title || "Titel leermodule"}
             </h2>
             <div className="flex flex-col gap-1.5">
-              <div className="flex items-end justify-between">
-                <span className="rounded-sm bg-primary px-1.5 py-0.5 text-[10px] font-bold leading-none text-primary-foreground">
-                  Q{currentIndex + 1}/{totalQuestions}
-                </span>
-                <span className="text-[10px] font-bold leading-none text-secondary-foreground/80">
-                  {currentIndex + 1}/{totalQuestions}
+              <div className="flex items-center">
+                <span className="rounded-sm bg-primary px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider leading-none text-primary-foreground">
+                  VRAAG {currentIndex + 1} VAN {totalQuestions}
                 </span>
               </div>
               <Progress
@@ -400,20 +439,20 @@ export function ModulePreview({
                   >
                     {result.isCorrect === false
                       ? hasFeedbackCorrectAnswer
-                        ? "Incorrect - correct answer is highlighted."
-                        : "Incorrect."
+                        ? "Helaas, het juiste antwoord is gemarkeerd."
+                        : "Helaas."
                       : result.isCorrect === true
                         ? hasFeedbackCorrectAnswer
-                          ? "Correct - answer is highlighted."
-                          : "Correct."
-                        : "Answer submitted."}
+                          ? "Juist - antwoord is gemarkeerd."
+                          : "Juist."
+                        : "Antwoord verzonden."}
                   </div>
-                ) : !["Rating", "Free Input", "Information"].includes(question.type) ? (
+                ) : isQuestionScored && !["Rating", "Free Input", "Information"].includes(question.type) ? (
                   <div
                     className={cn(
                       "min-w-0 overflow-hidden rounded-sm border px-3 py-2 text-sm wrap-break-word",
                       result.isCorrect === false
-                        ? "border-destructive/50 text-destructive-foreground bg-background text-red-500"
+                        ? "border-destructive/50 text-destructive bg-background"
                         : result.isCorrect === true
                           ? "border-2 border-success bg-background text-foreground"
                           : "border-2 border-border bg-background text-foreground",
@@ -422,7 +461,7 @@ export function ModulePreview({
                     <p className="font-medium">{feedbackTitle}</p>
                     {isOrderingRetry && (
                       <p className="mt-2 wrap-break-word font-medium">
-                        Rearrange the items and try again.
+                        Zet de onderdelen in de juiste volgorde en probeer opnieuw.
                       </p>
                     )}
                     {canShowCorrectAnswer &&
@@ -430,10 +469,8 @@ export function ModulePreview({
                       result.isCorrect === false &&
                       result.correctAnswer && (
                         <p className="mt-2 wrap-break-word font-medium">
-                          Correct answer:{" "}
-                          {Array.isArray(result.correctAnswer)
-                            ? result.correctAnswer.join(" -> ")
-                            : result.correctAnswer}
+                          Juiste antwoord:{" "}
+                          {getFormattedCorrectAnswer(result.correctAnswer)}
                         </p>
                       )}
                   </div>
@@ -457,35 +494,32 @@ export function ModulePreview({
               isOrderingRetry ? (
                 <Button
                   type="button"
-                  size="lg"
-                  className="w-full"
+                  size="lg-full"
                   onClick={handleRetryOrdering}
                 >
-                  Try again
+                  Opnieuw proberen
                   <ArrowRight />
-                  </Button>
+                </Button>
               ) : (
                 <Button
-                type="button"
-                size="lg"
-                className="w-full"
-                onClick={handleContinue}
-              >
-                {currentIndex === totalQuestions - 1
-                  ? "View result"
-                  : "Continue"}
-                <ArrowRight />
+                  type="button"
+                  size="lg-full"
+                  onClick={handleContinue}
+                >
+                  {currentIndex === totalQuestions - 1
+                    ? "Bekijk resultaat"
+                    : "Verder"}
+                  <ArrowRight />
                 </Button>
               )
             ) : question?.type !== "Swipe" ? (
               <Button
                 type="button"
-                size="lg"
-                className="w-full"
+                size="lg-full"
                 disabled={!hasAnswer(answer)}
                 onClick={() => handleSubmit()}
               >
-                Next
+                {question?.type === "Information" ? "Verder" : "Volgende"}
                 <ArrowRight />
               </Button>
             ) : null}

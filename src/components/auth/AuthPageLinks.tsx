@@ -7,7 +7,7 @@ export function AuthPageLinks({ showUserLogin = false }: { showUserLogin?: boole
         href={showUserLogin ? "/auth/login" : "/auth/admin-login"}
         className="text-xs font-semibold text-primary hover:underline"
       >
-        {showUserLogin ? "Company login" : "Admin login"}
+        {showUserLogin ? "Inloggen als organisatie" : "Inloggen als beheerder"}
       </Link>
     </div>
   );

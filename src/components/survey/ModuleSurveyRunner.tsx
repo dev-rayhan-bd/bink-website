@@ -172,29 +172,33 @@ export function ModuleSurveyRunner({
     return () => window.clearTimeout(timer);
   }, [currentIndex, module.questions, question?.type, question?.isScored, result, totalQuestions]);
 
-  const isModuleScored = module.questions.some((q) => Boolean(q.isScored));
+  const isModuleScored = module.questions.some(
+    (q) => q.isScored === true || String(q.isScored) === "true",
+  );
   const isQuestionScored = Boolean(question?.isScored);
 
   if (!isStarted && !isCompleted) {
     return (
-      <SurveyIntro
-        title={module.title}
-        description={module.description}
-        badge="Leermodule"
-        imageUrl={module.thumbnailImage || "/window.svg"}
-        questionCount={module.questions.length}
-        format="Interactief"
-        startLabel={userProgress.completedQuestions > 0 ? "Doorgaan" : "Starten"}
-        onStart={() => setIsStarted(true)}
-      />
+      <div className="-m-3 flex flex-1 h-[calc(100%+1.5rem)] min-h-[calc(100%+1.5rem)] flex-col overflow-hidden">
+        <SurveyIntro
+          title={module.title}
+          description={module.description}
+          badge="Leermodule"
+          imageUrl={module.thumbnailImage || "/window.svg"}
+          questionCount={module.questions.length}
+          format="Interactief"
+          startLabel={userProgress.completedQuestions > 0 ? "Doorgaan" : "Start"}
+          onStart={() => setIsStarted(true)}
+        />
+      </div>
     );
   }
 
   if (isCompleted) {
     const questionText =
       totalQuestions === 1
-        ? `Je hebt de vraag in ${module.title} voltooid.`
-        : `Je hebt alle ${totalQuestions} vragen in ${module.title} voltooid.`;
+        ? `Je hebt de vraag van ${module.title} beantwoord.`
+        : `Je hebt alle ${totalQuestions} vragen van ${module.title} beantwoord.`;
 
     return (
       <AnimationWrapper
@@ -207,7 +211,7 @@ export function ModuleSurveyRunner({
             <div className="rounded-lg bg-primary p-3 text-center text-primary-foreground shadow-sm">
               <CheckCircle2 className="mx-auto mb-2.5 size-10" />
               <h1 className="font-heading text-xl font-bold">
-                Module voltooid
+                Module afgerond
               </h1>
               <p className="mt-1.5 text-xs text-primary-foreground/85">
                 {questionText}
@@ -246,21 +250,20 @@ export function ModuleSurveyRunner({
                 <PartyPopper className="size-8" />
               </div>
               <p className="font-heading text-xl font-bold text-foreground">
-                Bedankt voor het voltooien van deze module!
+                Bedankt voor het afronden van deze module!
               </p>
               <p className="mt-2 text-sm text-muted-foreground">
-                Jouw feedback en deelname worden zeer gewaardeerd.
+                We waarderen je deelname en feedback enorm.
               </p>
             </div>
           </div>
 
           <div className="mt-auto pt-6">
             <Button
-              size="lg"
-              className="w-full"
+              size="lg-full"
               onClick={() => router.push("/modules")}
             >
-              Terug naar leerroute <ArrowRight />
+              Terug naar leerpad <ArrowRight />
             </Button>
           </div>
         </div>
@@ -297,7 +300,6 @@ export function ModuleSurveyRunner({
       "Rating",
       "Free Input",
       "Simulated Call",
-      "Swipe",
     ].includes(question.type);
   const isOptionFeedback =
     ["MCQ", "Chat Scenario", "Video"].includes(question.type) &&
@@ -314,13 +316,28 @@ export function ModuleSurveyRunner({
     question.type === "Ordering" && result?.isCorrect === false;
   const feedbackTitle = canShowCorrectAnswer
     ? result?.isCorrect === false
-      ? "Niet helemaal juist"
+      ? "Niet helemaal goed"
       : result?.isCorrect === true
         ? "Juist antwoord"
         : "Antwoord verzonden"
     : question.type === "Information" && answer === "reviewed"
       ? "Bekeken"
       : "Antwoord verzonden";
+
+  const getFormattedCorrectAnswer = (
+    correct: AnswerValue | string | string[] | undefined,
+  ) => {
+    if (!correct) return "";
+    if (question.type === "Swipe") {
+      if (correct === "left") return question.leftLabel || "Nee";
+      if (correct === "right") return question.rightLabel || "Ja";
+      return String(correct);
+    }
+    if (Array.isArray(correct)) {
+      return correct.join(" -> ");
+    }
+    return String(correct);
+  };
 
   return (
     <div
@@ -335,9 +352,9 @@ export function ModuleSurveyRunner({
             {module.title}
           </h2>
           <div className="flex flex-col gap-1.5">
-            <div className="flex items-end justify-between">
-              <span className="rounded-sm bg-primary px-2 py-0.5 text-[10px] font-bold leading-none text-primary-foreground">
-                Vraag {currentIndex + 1} van {totalQuestions}
+            <div className="flex items-center">
+              <span className="rounded-sm bg-primary px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider leading-none text-primary-foreground">
+                VRAAG {currentIndex + 1} VAN {totalQuestions}
               </span>
             </div>
             <Progress
@@ -409,15 +426,15 @@ export function ModuleSurveyRunner({
                   >
                     {result.isCorrect === false
                       ? hasFeedbackCorrectAnswer
-                        ? "Onjuist - het juiste antwoord is gemarkeerd."
-                        : "Onjuist."
+                        ? "Helaas, het juiste antwoord is gemarkeerd."
+                        : "Helaas."
                       : result.isCorrect === true
                         ? hasFeedbackCorrectAnswer
                           ? "Juist - antwoord is gemarkeerd."
                           : "Juist."
                         : "Antwoord verzonden."}
                   </div>
-                ) : !["Rating", "Free Input", "Information", "Swipe"].includes(question.type) && isQuestionScored ? (
+                ) : isQuestionScored && !["Rating", "Free Input", "Information"].includes(question.type) ? (
                   <div
                     className={cn(
                       "min-w-0 overflow-hidden rounded-sm border px-3 py-2 text-sm wrap-break-word",
@@ -439,10 +456,8 @@ export function ModuleSurveyRunner({
                       result.isCorrect === false &&
                       result.correctAnswer && (
                         <p className="mt-2 wrap-break-word font-medium">
-                          Juist antwoord:{" "}
-                          {Array.isArray(result.correctAnswer)
-                            ? result.correctAnswer.join(" -> ")
-                            : result.correctAnswer}
+                          Juiste antwoord:{" "}
+                          {getFormattedCorrectAnswer(result.correctAnswer)}
                         </p>
                       )}
                   </div>
@@ -465,26 +480,24 @@ export function ModuleSurveyRunner({
           {result ? (
             isOrderingRetry ? (
               <Button
-                size="lg"
-                className="w-full"
+                size="lg-full"
                 onClick={handleRetryOrdering}
               >
                 Opnieuw proberen
                 <ArrowRight />
               </Button>
             ) : (
-              <Button size="lg" className="w-full" onClick={handleContinue}>
+              <Button size="lg-full" onClick={handleContinue}>
                 {currentIndex === totalQuestions - 1 ||
                 result.moduleStatus === "completed"
                   ? "Bekijk resultaat"
-                  : "Doorgaan"}
+                  : "Verder"}
                 <ArrowRight />
               </Button>
             )
           ) : question?.type !== "Swipe" ? (
             <Button
-              size="lg"
-              className="w-full"
+              size="lg-full"
               aria-busy={isSubmitting}
               disabled={!hasAnswer(answer) || isSubmitting}
               onClick={() => void handleSubmit()}
@@ -496,7 +509,7 @@ export function ModuleSurveyRunner({
                 </>
               ) : (
                 <>
-                  Volgende
+                  {question?.type === "Information" ? "Verder" : "Volgende"}
                   <ArrowRight />
                 </>
               )}
