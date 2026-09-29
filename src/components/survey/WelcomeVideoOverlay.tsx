@@ -58,7 +58,6 @@ export function WelcomeVideoOverlay({
       }
 
       if (sessionStorage.getItem(sessionKey) === "1") return;
-      sessionStorage.setItem(sessionKey, "1");
     } catch {
       // Continue showing the video when session storage is unavailable.
     }
@@ -75,6 +74,12 @@ export function WelcomeVideoOverlay({
   if (!show || !branding?.videoUrl) return null;
 
   const handleSkip = () => {
+    try {
+      const sessionKey = getWelcomeSessionKey(loginSessionId, user);
+      sessionStorage.setItem(sessionKey, "1");
+    } catch {
+      // Continue hiding the video when session storage is unavailable.
+    }
     setShow(false);
   };
 
