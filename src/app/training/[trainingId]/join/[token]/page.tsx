@@ -1,8 +1,8 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { JoinTrainingForm } from "@/components/training/JoinTrainingForm";
 import type { TParams, TSearchParams } from "@/lib/types/global.type";
-import { getTraining, joinTrainingByToken } from "@/services/training.service";
 import { getCompany } from "@/services/company.service";
+import { getTraining, getTrainingInviteByToken } from "@/services/training.service";
 import type { TrainingCompany } from "@/lib/types/training.type";
 
 export default async function TrainingTokenJoinPage({
@@ -14,20 +14,27 @@ export default async function TrainingTokenJoinPage({
 }) {
   const { trainingId, token } = await params;
   const resolvedSearchParams = await searchParams;
-  const authType = (resolvedSearchParams.authType as string) || "guest";
 
   let logoUrl: string | undefined;
   let companyName: string | undefined;
+  let trainingData = null;
 
   try {
-    const tokenRes = token ? await joinTrainingByToken(token).catch(() => null) : null;
-    const trainingData = tokenRes?.success && tokenRes.data ? tokenRes.data : null;
+    if (token) {
+      const tokenRes = await getTrainingInviteByToken(token).catch(() => null);
+      if (tokenRes?.success && tokenRes.data) {
+        trainingData = tokenRes.data;
+      }
+    }
 
     let company = trainingData?.companyId;
-    if (!company) {
+    if (!company && trainingId) {
       const trainingRes = await getTraining(trainingId).catch(() => null);
       if (trainingRes?.success && trainingRes.data) {
         company = trainingRes.data.companyId;
+        if (!trainingData) {
+          trainingData = trainingRes.data;
+        }
       }
     }
 
@@ -45,19 +52,31 @@ export default async function TrainingTokenJoinPage({
     // Ignore error
   }
 
+  const authType =
+    (resolvedSearchParams.authType as string) ||
+    (typeof trainingData?.authType === "string" ? trainingData.authType : undefined) ||
+    "guest";
+
+  const effectiveTrainingId = trainingId || (trainingData && "_id" in trainingData ? String(trainingData._id) : "");
+
   return (
     <main className="mx-auto flex min-h-dvh w-full max-w-sm flex-col items-center justify-center px-6 py-8">
       {logoUrl && (
-        <div className="mb-10 flex items-center justify-center">
+        <div className="mb-8 flex items-center justify-center">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src={logoUrl}
             alt={companyName || "Bedrijfslogo"}
-            className="h-12 max-h-16 max-w-48 object-contain"
+            className="h-14 max-h-20 max-w-52 object-contain"
           />
         </div>
       )}
-      <JoinTrainingForm trainingId={trainingId} authType={authType as any} inviteToken={token} />
+      <JoinTrainingForm
+        trainingId={effectiveTrainingId}
+        authType={authType as any}
+        inviteToken={token}
+      />
     </main>
   );
 }
+

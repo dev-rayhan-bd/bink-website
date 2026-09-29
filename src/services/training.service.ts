@@ -260,11 +260,14 @@ export const resendTrainingInvitation = async (invitationId: string) =>
     { method: "POST" },
   );
 
+export const getTrainingInviteByToken = async (token: string) =>
+  nextServerFetch<ApiResponse<Training>>(`/training-invite/by-token/${token}`, {
+    auth: "none",
+    cache: "no-store",
+  });
+
 export const joinTrainingByToken = async (inviteToken: string) =>
-  nextServerFetch<ApiResponse<UserTrainingView>>(
-    `/training/join/${inviteToken}`,
-    { auth: "none", cache: "no-store" },
-  );
+  getTrainingInviteByToken(inviteToken);
 
 export const getCompanyTrainings = async (companyId: string) =>
   nextServerFetch<ApiResponse<Training[]>>(`/training/company/${companyId}`, {
