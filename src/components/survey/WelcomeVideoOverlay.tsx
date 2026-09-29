@@ -41,7 +41,6 @@ export function WelcomeVideoOverlay({
   const [show, setShow] = useState(false);
   const [isPlaying, setIsPlaying] = useState(false);
   const [isMuted, setIsMuted] = useState(false);
-  const [progress, setProgress] = useState(0);
   const [isHolding, setIsHolding] = useState(false);
   const [showMutedHint, setShowMutedHint] = useState(false);
   const [feedback, setFeedback] = useState<{
@@ -50,9 +49,8 @@ export function WelcomeVideoOverlay({
   } | null>(null);
 
   const videoRef = useRef<HTMLVideoElement>(null);
-  const ambientVideoRef = useRef<HTMLVideoElement>(null);
+  const progressBarRef = useRef<HTMLDivElement>(null);
   const processedSessionKeyRef = useRef<string | null>(null);
-  const rafRef = useRef<number | null>(null);
   const holdTimerRef = useRef<NodeJS.Timeout | null>(null);
   const pointerDownTimeRef = useRef<number>(0);
   const pointerDownPosRef = useRef<{ x: number; y: number }>({ x: 0, y: 0 });
@@ -120,25 +118,26 @@ export function WelcomeVideoOverlay({
     }
   }, [show, branding?.videoUrl]);
 
-  // 60FPS Smooth progress bar tracking
+  // High-performance direct DOM progress tracking without causing React re-renders
   useEffect(() => {
     if (!show) return;
 
+    let animId: number;
+
     const syncProgress = () => {
       const video = videoRef.current;
-      if (video && video.duration) {
+      const bar = progressBarRef.current;
+      if (video && video.duration && bar) {
         const pct = (video.currentTime / video.duration) * 100;
-        setProgress(Math.min(100, Math.max(0, pct)));
+        bar.style.width = `${Math.min(100, Math.max(0, pct))}%`;
       }
-      rafRef.current = requestAnimationFrame(syncProgress);
+      animId = requestAnimationFrame(syncProgress);
     };
 
-    rafRef.current = requestAnimationFrame(syncProgress);
+    animId = requestAnimationFrame(syncProgress);
 
     return () => {
-      if (rafRef.current) {
-        cancelAnimationFrame(rafRef.current);
-      }
+      cancelAnimationFrame(animId);
     };
   }, [show]);
 
@@ -148,21 +147,13 @@ export function WelcomeVideoOverlay({
 
   const togglePlay = useCallback(() => {
     const video = videoRef.current;
-    const ambient = ambientVideoRef.current;
     if (!video) return;
 
     if (video.paused) {
       void video.play();
-      if (ambient && ambient.paused) {
-        ambient.currentTime = video.currentTime;
-        void ambient.play().catch(() => {});
-      }
       setIsPlaying(true);
     } else {
       video.pause();
-      if (ambient && !ambient.paused) {
-        ambient.pause();
-      }
       setIsPlaying(false);
     }
   }, []);
@@ -204,7 +195,6 @@ export function WelcomeVideoOverlay({
       setIsHolding(true);
       if (videoRef.current && !videoRef.current.paused) {
         videoRef.current.pause();
-        if (ambientVideoRef.current) ambientVideoRef.current.pause();
       }
     }, 220);
   };
@@ -221,10 +211,6 @@ export function WelcomeVideoOverlay({
       setIsHolding(false);
       if (videoRef.current && videoRef.current.paused) {
         void videoRef.current.play();
-        if (ambientVideoRef.current) {
-          ambientVideoRef.current.currentTime = videoRef.current.currentTime;
-          void ambientVideoRef.current.play().catch(() => {});
-        }
         setIsPlaying(true);
       }
       return;
@@ -242,9 +228,6 @@ export function WelcomeVideoOverlay({
     if (tapRatio < 0.28) {
       // Tap Left: Rewind 5 seconds
       video.currentTime = Math.max(0, video.currentTime - 5);
-      if (ambientVideoRef.current) {
-        ambientVideoRef.current.currentTime = video.currentTime;
-      }
       triggerFeedback("rewind");
     } else if (tapRatio > 0.72) {
       // Tap Right: Forward 5 seconds
@@ -252,9 +235,6 @@ export function WelcomeVideoOverlay({
         handleSkip();
       } else {
         video.currentTime = Math.min(video.duration || 9999, video.currentTime + 5);
-        if (ambientVideoRef.current) {
-          ambientVideoRef.current.currentTime = video.currentTime;
-        }
         triggerFeedback("forward");
       }
     } else {
@@ -273,10 +253,6 @@ export function WelcomeVideoOverlay({
       setIsHolding(false);
       if (videoRef.current && videoRef.current.paused) {
         void videoRef.current.play();
-        if (ambientVideoRef.current) {
-          ambientVideoRef.current.currentTime = videoRef.current.currentTime;
-          void ambientVideoRef.current.play().catch(() => {});
-        }
         setIsPlaying(true);
       }
     }
@@ -295,15 +271,10 @@ export function WelcomeVideoOverlay({
 
   return (
     <div className="fixed inset-0 z-50 mx-auto flex max-w-120 flex-col justify-between overflow-hidden bg-black text-white animate-fadeIn select-none font-sans">
-      {/* Dynamic Ambient Background Glow from Video */}
-      <video
-        ref={ambientVideoRef}
-        src={branding.videoUrl}
+      {/* Sleek Ambient Dark Background */}
+      <div
+        className="pointer-events-none absolute inset-0 size-full bg-gradient-to-b from-zinc-950 via-black to-zinc-950"
         aria-hidden="true"
-        tabIndex={-1}
-        playsInline
-        muted
-        className="pointer-events-none absolute inset-0 size-full scale-125 object-cover opacity-50 blur-3xl brightness-75 transition-opacity duration-500"
       />
 
       {/* Main Interactive Video Area with Story Gesture Zone */}
@@ -318,20 +289,11 @@ export function WelcomeVideoOverlay({
           src={branding.videoUrl}
           className="relative z-0 size-full max-h-full object-contain"
           playsInline
+          preload="auto"
+          disablePictureInPicture
           onEnded={handleSkip}
-          onPlay={() => {
-            setIsPlaying(true);
-            if (ambientVideoRef.current && ambientVideoRef.current.paused) {
-              ambientVideoRef.current.currentTime = videoRef.current?.currentTime || 0;
-              void ambientVideoRef.current.play().catch(() => {});
-            }
-          }}
-          onPause={() => {
-            setIsPlaying(false);
-            if (ambientVideoRef.current && !ambientVideoRef.current.paused) {
-              ambientVideoRef.current.pause();
-            }
-          }}
+          onPlay={() => setIsPlaying(true)}
+          onPause={() => setIsPlaying(false)}
         />
 
         {/* Story Hold Indicator */}
@@ -380,8 +342,9 @@ export function WelcomeVideoOverlay({
         <div className="w-full">
           <div className="relative h-1 w-full overflow-hidden rounded-full bg-white/30 backdrop-blur-xs">
             <div
+              ref={progressBarRef}
               className="h-full rounded-full bg-white transition-[width] duration-75 ease-linear shadow-xs"
-              style={{ width: `${progress}%` }}
+              style={{ width: "0%" }}
             />
           </div>
         </div>
@@ -518,3 +481,4 @@ export function WelcomeVideoOverlay({
     </div>
   );
 }
+
