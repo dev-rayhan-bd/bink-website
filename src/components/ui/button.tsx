@@ -25,6 +25,10 @@ const buttonVariants = cva(
         link: "text-primary underline-offset-4 hover:underline",
         "sidebar-logout":
           "border-transparent bg-transparent text-muted-foreground hover:bg-destructive/10 hover:text-destructive",
+        "story-primary":
+          "bg-primary text-primary-foreground hover:bg-primary/90 font-bold uppercase tracking-wider shadow-lg border-none",
+        "story-skip":
+          "bg-black/50 hover:bg-black/70 text-white/90 hover:text-white border border-white/20 backdrop-blur-md font-semibold rounded-full shadow-md transition-all active:scale-95",
       },
       size: {
         default:
@@ -33,6 +37,7 @@ const buttonVariants = cva(
         sm: "h-8 gap-1 rounded-[min(var(--radius-md),10px)] px-2.5 in-data-[slot=button-group]:rounded-md has-data-[icon=inline-end]:pr-1.5 has-data-[icon=inline-start]:pl-1.5",
         lg: "h-10 gap-1.5 px-2.5 has-data-[icon=inline-end]:pr-2 has-data-[icon=inline-start]:pl-2",
         "lg-full": "h-10 w-full gap-1.5 px-2.5 has-data-[icon=inline-end]:pr-2 has-data-[icon=inline-start]:pl-2",
+        "xl-full": "h-12 w-full gap-2 px-5 text-sm sm:text-base font-bold",
         "sidebar-logout": "h-full w-full justify-start gap-3 rounded-none px-4",
         icon: "size-9",
         "icon-xs":
