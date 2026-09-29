@@ -33,6 +33,7 @@ const buttonVariants = cva(
         sm: "h-8 gap-1 rounded-[min(var(--radius-md),10px)] px-2.5 in-data-[slot=button-group]:rounded-md has-data-[icon=inline-end]:pr-1.5 has-data-[icon=inline-start]:pl-1.5",
         lg: "h-10 gap-1.5 px-2.5 has-data-[icon=inline-end]:pr-2 has-data-[icon=inline-start]:pl-2",
         "lg-full": "h-10 w-full gap-1.5 px-2.5 has-data-[icon=inline-end]:pr-2 has-data-[icon=inline-start]:pl-2",
+        "story-cta": "h-12 w-full gap-2 px-4 text-sm font-bold uppercase tracking-wider",
         "sidebar-logout": "h-full w-full justify-start gap-3 rounded-none px-4",
         icon: "size-9",
         "icon-xs":
