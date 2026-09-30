@@ -63,20 +63,20 @@ export function QuestionAnswer({
                 // Unsubmitted & Unselected
                 !isSubmitted &&
                   !selected &&
-                  "bg-white dark:bg-card text-zinc-900 dark:text-zinc-100 border-2 border-black/8 dark:border-white/15 hover:border-black/25 dark:hover:border-white/35 hover:shadow-md",
-                // Unsubmitted & Selected (Active choice)
+                  "bg-white text-zinc-900 border-2 border-black/10 hover:border-black/25 hover:shadow-md",
+                // Unsubmitted & Selected (Active choice with prominent border)
                 !isSubmitted &&
                   selected &&
-                  "bg-white dark:bg-card text-zinc-950 dark:text-white border-2 border-zinc-900 dark:border-white ring-2 ring-zinc-900/20 dark:ring-white/25 shadow-lg scale-[1.01] font-semibold",
+                  "bg-white text-zinc-950 border-3 border-zinc-950 ring-4 ring-zinc-950/25 shadow-xl scale-[1.02] font-bold",
                 // Submitted & Correct Option
                 isCorrectOption &&
-                  "bg-emerald-50 dark:bg-emerald-950/50 text-emerald-950 dark:text-emerald-50 border-2 border-success shadow-md font-semibold",
+                  "bg-emerald-50 text-emerald-950 border-3 border-success shadow-md font-semibold",
                 // Submitted & Wrong Option Selected
                 isWrongSelection &&
-                  "bg-rose-50 dark:bg-rose-950/50 text-rose-950 dark:text-rose-50 border-2 border-destructive shadow-md font-semibold",
+                  "bg-rose-50 text-rose-950 border-3 border-destructive shadow-md font-semibold",
                 // Submitted & Dimmed Options
                 isDimmed &&
-                  "bg-white/70 dark:bg-card/50 text-zinc-400 dark:text-zinc-500 border border-black/5 dark:border-white/5 opacity-55 shadow-none",
+                  "bg-white/80 text-zinc-400 border border-black/5 opacity-60 shadow-none",
               )}
             >
               <div className="flex min-w-0 flex-1 items-center gap-3">
@@ -86,17 +86,17 @@ export function QuestionAnswer({
                     // Unselected badge
                     !isSubmitted &&
                       !selected &&
-                      "bg-zinc-100 text-zinc-700 dark:bg-zinc-800 dark:text-zinc-300 border border-zinc-200/80 dark:border-zinc-700 group-hover:bg-zinc-200 dark:group-hover:bg-zinc-700",
+                      "bg-zinc-100 text-zinc-700 border border-zinc-200/80 group-hover:bg-zinc-200",
                     // Selected badge
                     !isSubmitted &&
                       selected &&
-                      "bg-zinc-900 text-white dark:bg-white dark:text-zinc-900 shadow-xs scale-105",
+                      "bg-zinc-950 text-white font-black shadow-sm scale-110",
                     // Correct badge
                     isCorrectOption && "bg-success text-white shadow-xs font-bold",
                     // Wrong badge
                     isWrongSelection && "bg-destructive text-destructive-foreground shadow-xs font-bold",
                     // Dimmed badge
-                    isDimmed && "bg-zinc-100 dark:bg-zinc-800 text-zinc-400 border-0",
+                    isDimmed && "bg-zinc-100 text-zinc-400 border-0",
                   )}
                 >
                   {optionLabel(optionIndex)}
@@ -111,27 +111,27 @@ export function QuestionAnswer({
                 {!isSubmitted && (
                   <div
                     className={cn(
-                      "flex size-5.5 items-center justify-center rounded-full transition-all",
+                      "flex size-6 items-center justify-center rounded-full transition-all shrink-0",
                       selected
-                        ? "bg-zinc-900 text-white dark:bg-white dark:text-zinc-900 shadow-xs scale-105"
-                        : "border-2 border-zinc-300 dark:border-zinc-600 bg-white/50 dark:bg-zinc-800/50 group-hover:border-zinc-400",
+                        ? "bg-zinc-950 text-white shadow-md scale-110 ring-2 ring-zinc-950/20"
+                        : "border-2 border-zinc-300 bg-zinc-50 group-hover:border-zinc-400",
                     )}
                   >
-                    {selected && <Check className="size-3.5 stroke-[3]" />}
+                    {selected && <Check className="size-3.5 stroke-[3.5] text-white" />}
                   </div>
                 )}
                 {isCorrectOption && (
-                  <div className="flex size-5.5 items-center justify-center rounded-full bg-success text-white shadow-xs">
-                    <Check className="size-3.5 stroke-[3]" />
+                  <div className="flex size-6 items-center justify-center rounded-full bg-success text-white shadow-xs">
+                    <Check className="size-3.5 stroke-[3.5]" />
                   </div>
                 )}
                 {isWrongSelection && (
-                  <div className="flex size-5.5 items-center justify-center rounded-full bg-destructive text-destructive-foreground shadow-xs">
-                    <X className="size-3.5 stroke-[3]" />
+                  <div className="flex size-6 items-center justify-center rounded-full bg-destructive text-destructive-foreground shadow-xs">
+                    <X className="size-3.5 stroke-[3.5]" />
                   </div>
                 )}
                 {isDimmed && (
-                  <div className="size-5.5 rounded-full border-2 border-zinc-200/60 dark:border-zinc-700/60" />
+                  <div className="size-6 rounded-full border-2 border-zinc-200/60" />
                 )}
               </div>
             </button>
@@ -299,20 +299,20 @@ export function QuestionAnswer({
                     // Unsubmitted & Unselected
                     !isSubmitted &&
                       !selected &&
-                      "bg-white dark:bg-card text-zinc-900 dark:text-zinc-100 border-2 border-black/8 dark:border-white/15 hover:border-black/25 dark:hover:border-white/35 hover:shadow-md",
+                      "bg-white text-zinc-900 border-2 border-black/10 hover:border-black/25 hover:shadow-md",
                     // Unsubmitted & Selected
                     !isSubmitted &&
                       selected &&
-                      "bg-white dark:bg-card text-zinc-950 dark:text-white border-2 border-zinc-900 dark:border-white ring-2 ring-zinc-900/20 dark:ring-white/25 shadow-lg scale-[1.01] font-semibold",
+                      "bg-white text-zinc-950 border-3 border-zinc-950 ring-4 ring-zinc-950/25 shadow-xl scale-[1.02] font-bold",
                     // Submitted & Correct
                     isCorrectOption &&
-                      "bg-emerald-50 dark:bg-emerald-950/50 text-emerald-950 dark:text-emerald-50 border-2 border-success shadow-md font-semibold",
+                      "bg-emerald-50 text-emerald-950 border-3 border-success shadow-md font-semibold",
                     // Submitted & Wrong
                     isWrongSelection &&
-                      "bg-rose-50 dark:bg-rose-950/50 text-rose-950 dark:text-rose-50 border-2 border-destructive shadow-md font-semibold",
+                      "bg-rose-50 text-rose-950 border-3 border-destructive shadow-md font-semibold",
                     // Submitted & Dimmed
                     isDimmed &&
-                      "bg-white/70 dark:bg-card/50 text-zinc-400 dark:text-zinc-500 border border-black/5 dark:border-white/5 opacity-55 shadow-none",
+                      "bg-white/80 text-zinc-400 border border-black/5 opacity-60 shadow-none",
                   )}
                 >
                   <div className="flex min-w-0 flex-1 items-center gap-3">
@@ -321,13 +321,13 @@ export function QuestionAnswer({
                         "flex size-8 shrink-0 items-center justify-center rounded-xl text-xs font-bold transition-all",
                         !isSubmitted &&
                           !selected &&
-                          "bg-zinc-100 text-zinc-700 dark:bg-zinc-800 dark:text-zinc-300 border border-zinc-200/80 dark:border-zinc-700 group-hover:bg-zinc-200 dark:group-hover:bg-zinc-700",
+                          "bg-zinc-100 text-zinc-700 border border-zinc-200/80 group-hover:bg-zinc-200",
                         !isSubmitted &&
                           selected &&
-                          "bg-zinc-900 text-white dark:bg-white dark:text-zinc-900 shadow-xs scale-105",
+                          "bg-zinc-950 text-white font-black shadow-sm scale-110",
                         isCorrectOption && "bg-success text-white shadow-xs font-bold",
                         isWrongSelection && "bg-destructive text-destructive-foreground shadow-xs font-bold",
-                        isDimmed && "bg-zinc-100 dark:bg-zinc-800 text-zinc-400 border-0",
+                        isDimmed && "bg-zinc-100 text-zinc-400 border-0",
                       )}
                     >
                       {optionLabel(optionIndex)}
@@ -341,27 +341,27 @@ export function QuestionAnswer({
                     {!isSubmitted && (
                       <div
                         className={cn(
-                          "flex size-5.5 items-center justify-center rounded-full transition-all",
+                          "flex size-6 items-center justify-center rounded-full transition-all shrink-0",
                           selected
-                            ? "bg-zinc-900 text-white dark:bg-white dark:text-zinc-900 shadow-xs scale-105"
-                            : "border-2 border-zinc-300 dark:border-zinc-600 bg-white/50 dark:bg-zinc-800/50 group-hover:border-zinc-400",
+                            ? "bg-zinc-950 text-white shadow-md scale-110 ring-2 ring-zinc-950/20"
+                            : "border-2 border-zinc-300 bg-zinc-50 group-hover:border-zinc-400",
                         )}
                       >
-                        {selected && <Check className="size-3.5 stroke-[3]" />}
+                        {selected && <Check className="size-3.5 stroke-[3.5] text-white" />}
                       </div>
                     )}
                     {isCorrectOption && (
-                      <div className="flex size-5.5 items-center justify-center rounded-full bg-success text-white shadow-xs">
-                        <Check className="size-3.5 stroke-[3]" />
+                      <div className="flex size-6 items-center justify-center rounded-full bg-success text-white shadow-xs">
+                        <Check className="size-3.5 stroke-[3.5]" />
                       </div>
                     )}
                     {isWrongSelection && (
-                      <div className="flex size-5.5 items-center justify-center rounded-full bg-destructive text-destructive-foreground shadow-xs">
-                        <X className="size-3.5 stroke-[3]" />
+                      <div className="flex size-6 items-center justify-center rounded-full bg-destructive text-destructive-foreground shadow-xs">
+                        <X className="size-3.5 stroke-[3.5]" />
                       </div>
                     )}
                     {isDimmed && (
-                      <div className="size-5.5 rounded-full border-2 border-zinc-200/60 dark:border-zinc-700/60" />
+                      <div className="size-6 rounded-full border-2 border-zinc-200/60" />
                     )}
                   </div>
                 </button>
