@@ -148,9 +148,9 @@ export function ModuleSurveyRunner({
     let delay: number | null = null;
     if (question?.type === "Simulated Call") delay = 650;
     else if (question?.type === "Information") delay = 300;
-    else if (question?.type === "Swipe") delay = 1200;
-    else if (question?.type === "Rating") delay = 800;
-    else if (question?.type === "Free Input") delay = 800;
+    else if (question?.type === "Swipe") delay = 100;
+    else if (question?.type === "Rating") delay = 400;
+    else if (question?.type === "Free Input") delay = 400;
 
     if (delay === null) return;
 
@@ -465,11 +465,11 @@ export function ModuleSurveyRunner({
                 {isOptionFeedback ? (
                   <div
                     className={cn(
-                      "min-w-0 rounded-sm border bg-background px-3 py-2 text-sm font-medium wrap-break-word",
+                      "min-w-0 rounded-2xl border bg-white p-3.5 text-sm font-medium shadow-sm wrap-break-word dark:bg-card",
                       result.isCorrect === false
-                        ? "border-primary text-primary"
+                        ? "border-2 border-destructive text-destructive"
                         : result.isCorrect === true
-                          ? "border-success text-success"
+                          ? "border-2 border-success text-success"
                           : "border-border text-foreground",
                     )}
                   >
@@ -486,15 +486,15 @@ export function ModuleSurveyRunner({
                 ) : isQuestionScored && !["Rating", "Free Input", "Information"].includes(question.type) ? (
                   <div
                     className={cn(
-                      "min-w-0 overflow-hidden rounded-sm border px-3 py-2 text-sm wrap-break-word",
+                      "min-w-0 overflow-hidden rounded-2xl border bg-white p-3.5 text-sm shadow-sm wrap-break-word dark:bg-card",
                       result.isCorrect === false
-                        ? "border-destructive/50 text-destructive bg-background"
+                        ? "border-2 border-destructive text-destructive"
                         : result.isCorrect === true
-                          ? "border-2 border-success bg-background text-foreground"
-                          : "border-2 border-border bg-background text-foreground",
+                          ? "border-2 border-success text-foreground"
+                          : "border-2 border-border text-foreground",
                     )}
                   >
-                    <p className="font-medium">{feedbackTitle}</p>
+                    <p className="font-semibold">{feedbackTitle}</p>
                     {isOrderingRetry && (
                       <p className="mt-2 wrap-break-word font-medium">
                         Zet de onderdelen in de juiste volgorde en probeer opnieuw.
@@ -512,9 +512,9 @@ export function ModuleSurveyRunner({
                   </div>
                 ) : null}
                 {result.explanation && !isOrderingRetry && (
-                  <div className="min-w-0 rounded-sm border border-border bg-background px-3 py-2 text-sm wrap-break-word">
-                    <span className="font-bold text-primary">Feedback: </span>
-                    <span>{result.explanation}</span>
+                  <div className="min-w-0 rounded-2xl border border-border bg-white p-3.5 text-sm shadow-sm wrap-break-word dark:bg-card">
+                    <span className="font-bold text-foreground">Feedback: </span>
+                    <span className="text-foreground/90">{result.explanation}</span>
                   </div>
                 )}
               </div>
@@ -524,7 +524,7 @@ export function ModuleSurveyRunner({
         </div>
       </AnimationWrapper>
 
-      {!isSimulatedCall && (result || question?.type !== "Swipe") && (
+      {!isSimulatedCall && question?.type !== "Swipe" && (
         <div className="mt-auto shrink-0 pt-3 [&_button]:bg-background [&_button]:text-foreground [&_button]:hover:bg-background/90">
           {result ? (
             isOrderingRetry ? (
@@ -544,7 +544,7 @@ export function ModuleSurveyRunner({
                 <ArrowRight />
               </Button>
             )
-          ) : question?.type !== "Swipe" ? (
+          ) : (
             <Button
               size="lg-full"
               aria-busy={isSubmitting}
@@ -563,7 +563,7 @@ export function ModuleSurveyRunner({
                 </>
               )}
             </Button>
-          ) : null}
+          )}
         </div>
       )}
     </div>

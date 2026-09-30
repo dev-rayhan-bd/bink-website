@@ -20,6 +20,7 @@ import type {
 } from "@/lib/validations/course";
 import { useId } from "react";
 import { Textarea } from "@/components/ui/textarea";
+import { ChatScenarioEditor } from "./ChatScenarioEditor";
 
 interface QuestionBlockProps {
   question: QuestionDataSchemaType;
@@ -87,7 +88,7 @@ export function QuestionBlock({
   };
 
   const setMediaValue = (
-    field: "image" | "videoUrl" | "callerPhoto" | "postCallVideoUrl",
+    field: "image" | "videoUrl" | "callerPhoto" | "postCallVideoUrl" | "senderAvatar",
     file?: File,
   ) => {
     const value = file ?? "";
@@ -115,6 +116,12 @@ export function QuestionBlock({
         shouldValidate: true,
       });
     }
+    if (field === "senderAvatar") {
+      setValue(`questions.${index}.senderAvatar`, value, {
+        shouldDirty: true,
+        shouldValidate: true,
+      });
+    }
   };
 
   const renderMediaInput = ({
@@ -124,7 +131,7 @@ export function QuestionBlock({
     hint,
     error,
   }: {
-    field: "image" | "videoUrl" | "callerPhoto" | "postCallVideoUrl";
+    field: "image" | "videoUrl" | "callerPhoto" | "postCallVideoUrl" | "senderAvatar";
     label: string;
     accept: string;
     hint?: string;
@@ -208,7 +215,7 @@ export function QuestionBlock({
     if (currentQuestion.type !== "Chat Scenario") return;
     setValue(
       `questions.${index}.options`,
-      [...currentQuestion.options, ""],
+      [...(currentQuestion.options || []), ""],
       { shouldDirty: true },
     );
   };
@@ -216,7 +223,7 @@ export function QuestionBlock({
   const removeChatOption = (optionIndex: number) => {
     if (
       currentQuestion.type !== "Chat Scenario" ||
-      currentQuestion.options.length <= 2
+      (currentQuestion.options?.length || 0) <= 2
     )
       return;
     const removed = currentQuestion.options?.[optionIndex];
@@ -560,40 +567,6 @@ export function QuestionBlock({
               )}
             </Field>
           </div>
-          {currentQuestion.isScored && (
-            <Field data-invalid={Boolean(questionErrors?.correctDirection)}>
-              <FieldLabel>
-                Correct Direction <span className="text-destructive">*</span>
-              </FieldLabel>
-              <Controller
-                control={control}
-                name={`questions.${index}.correctDirection`}
-                render={({ field }) => (
-                  <Select
-                    value={field.value || "left"}
-                    onValueChange={field.onChange}
-                  >
-                    <SelectTrigger
-                      aria-invalid={Boolean(questionErrors?.correctDirection)}
-                    >
-                      <SelectValue placeholder="Select correct direction" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="left">
-                        Left ({currentQuestion.leftLabel || "Left"})
-                      </SelectItem>
-                      <SelectItem value="right">
-                        Right ({currentQuestion.rightLabel || "Right"})
-                      </SelectItem>
-                    </SelectContent>
-                  </Select>
-                )}
-              />
-              {questionErrors?.correctDirection?.message && (
-                <FieldError>{questionErrors.correctDirection.message}</FieldError>
-              )}
-            </Field>
-          )}
         </div>
       )}
 
@@ -653,132 +626,11 @@ export function QuestionBlock({
       )}
 
       {currentQuestion.type === "Chat Scenario" && (
-        <div className="space-y-4">
-          <div className="flex items-center justify-between gap-3">
-            <FieldLabel>
-              Message <span className="text-destructive">*</span>
-            </FieldLabel>
-          </div>
-          <div className="grid gap-4 rounded-md border p-3 sm:grid-cols-[1fr_2fr]">
-            <Field data-invalid={Boolean(questionErrors?.messages?.[0]?.sender)}>
-              <FieldLabel>Sender</FieldLabel>
-              <Input
-                aria-invalid={Boolean(questionErrors?.messages?.[0]?.sender)}
-                {...register(
-                  `questions.${index}.messages.0.sender` as const,
-                )}
-              />
-              {questionErrors?.messages?.[0]?.sender?.message && (
-                <FieldError>
-                  {questionErrors.messages[0].sender.message}
-                </FieldError>
-              )}
-            </Field>
-            <Field data-invalid={Boolean(questionErrors?.messages?.[0]?.text)}>
-              <FieldLabel>Message</FieldLabel>
-              <Input
-                aria-invalid={Boolean(questionErrors?.messages?.[0]?.text)}
-                {...register(`questions.${index}.messages.0.text` as const)}
-              />
-              {questionErrors?.messages?.[0]?.text?.message && (
-                <FieldError>{questionErrors.messages[0].text.message}</FieldError>
-              )}
-            </Field>
-          </div>
-          {(questionErrors?.messages?.message ||
-            questionErrors?.messages?.root?.message) && (
-              <FieldError>
-                {questionErrors.messages.message ||
-                  questionErrors.messages.root?.message}
-              </FieldError>
-            )}
-
-          <div className="flex items-center justify-between gap-3 pt-2">
-            <FieldLabel>
-              Response Options <span className="text-destructive">*</span>
-            </FieldLabel>
-            <Button
-              type="button"
-              variant="outline"
-              size="sm"
-              onClick={addChatOption}
-            >
-              <Plus /> Add Response
-            </Button>
-          </div>
-          <div className="grid gap-4 sm:grid-cols-2">
-            {currentQuestion.options.map((_, optionIndex) => {
-              const optError = questionErrors?.options?.[optionIndex]?.message;
-              return (
-                <Field key={optionIndex} data-invalid={Boolean(optError)}>
-                  <div className="flex items-center justify-between gap-2">
-                    <FieldLabel>Response {optionIndex + 1}</FieldLabel>
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      size="icon-xs"
-                      className="text-destructive"
-                      disabled={currentQuestion.options.length <= 2}
-                      onClick={() => removeChatOption(optionIndex)}
-                      aria-label={`Remove response ${optionIndex + 1}`}
-                    >
-                      <X />
-                    </Button>
-                  </div>
-                  <Input
-                    aria-invalid={Boolean(optError)}
-                    {...register(
-                      `questions.${index}.options.${optionIndex}` as const,
-                    )}
-                  />
-                  {optError && <FieldError>{optError}</FieldError>}
-                </Field>
-              );
-            })}
-          </div>
-          {(questionErrors?.options?.message ||
-            questionErrors?.options?.root?.message) && (
-              <FieldError>
-                {questionErrors.options.message ||
-                  questionErrors.options.root?.message}
-              </FieldError>
-            )}
-          {currentQuestion.isScored && (
-            <Field data-invalid={Boolean(questionErrors?.correctAnswer)}>
-              <FieldLabel>
-                Correct Answer <span className="text-destructive">*</span>
-              </FieldLabel>
-              <Controller
-                control={control}
-                name={`questions.${index}.correctAnswer`}
-                render={({ field }) => (
-                  <Select value={field.value} onValueChange={field.onChange}>
-                    <SelectTrigger
-                      aria-invalid={Boolean(questionErrors?.correctAnswer)}
-                    >
-                      <SelectValue placeholder="Select correct response" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {currentQuestion.options
-                        .filter(Boolean)
-                        .map((option, selectIndex) => (
-                          <SelectItem
-                            key={`${option}-${selectIndex}`}
-                            value={option}
-                          >
-                            {option}
-                          </SelectItem>
-                        ))}
-                    </SelectContent>
-                  </Select>
-                )}
-              />
-              {questionErrors?.correctAnswer?.message && (
-                <FieldError>{questionErrors.correctAnswer.message}</FieldError>
-              )}
-            </Field>
-          )}
-        </div>
+        <ChatScenarioEditor
+          questionIndex={index}
+          questionErrors={questionErrors}
+          renderMediaInput={renderMediaInput}
+        />
       )}
 
       {currentQuestion.type === "Video" && (

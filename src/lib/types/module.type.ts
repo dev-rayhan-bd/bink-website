@@ -17,6 +17,26 @@ export type ModuleMessage = {
   text: string;
 };
 
+export interface IChatStepOption {
+  optionId: string;
+  text: string;
+  nextStepId?: string | null;
+  feedback?: string;
+  isCorrect?: boolean;
+}
+
+export interface IChatStepMessage {
+  sender: string;
+  text: string;
+  isUser?: boolean;
+}
+
+export interface IChatStep {
+  stepId: string;
+  messages: IChatStepMessage[];
+  options?: IChatStepOption[];
+}
+
 export type ModuleQuestion = {
   id: string;
   type: ModuleQuestionType;
@@ -25,6 +45,7 @@ export type ModuleQuestion = {
   colorCode?: string;
   blockColor?: string;
   explanation?: string;
+  feedback?: string;
   image?: string;
   options?: string[];
   correctAnswer?: string;
@@ -33,6 +54,10 @@ export type ModuleQuestion = {
   correctDirection?: "left" | "right";
   items?: string[];
   messages?: ModuleMessage[];
+  senderName?: string;
+  senderAvatar?: string;
+  initialStepId?: string;
+  chatSteps?: IChatStep[];
   videoUrl?: string;
   callerName?: string;
   callerPhoto?: string;
@@ -161,17 +186,24 @@ export type LearningPathData = {
   modules: LearningPathModule[];
 };
 
+export type ModuleAnswerValue =
+  | string
+  | number
+  | string[]
+  | { stepId: string; optionId: string }[]
+  | Record<string, unknown>;
+
 export type SubmitModuleAnswerPayload = {
   moduleId: string;
   questionId: string;
-  answer: string | number | string[];
+  answer: ModuleAnswerValue;
 };
 
 export type SubmitModuleAnswerResult = {
   questionId: string;
   isCorrect: boolean | null;
   score: number;
-  correctAnswer?: string | string[];
+  correctAnswer?: ModuleAnswerValue;
   explanation?: string;
   completedQuestions: number;
   totalQuestions: number;

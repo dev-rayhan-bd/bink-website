@@ -47,7 +47,7 @@ export function QuestionPromptCard({ question }: { question: ModuleQuestion }) {
             <div
               className={cn(
                 "relative w-full overflow-hidden shrink-0",
-                hasContent ? "aspect-16/10 max-h-[28dvh] sm:max-h-[32dvh]" : "aspect-4/3 min-h-[200px] max-h-[36dvh]",
+                hasContent ? "aspect-16/10" : "aspect-4/3 min-h-[220px]",
               )}
             >
               <MediaImage

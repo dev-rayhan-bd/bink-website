@@ -58,29 +58,44 @@ const orderingSchema = baseQuestionSchema.extend({
   items: requiredStringList(2, "Add at least two ordering items"),
 });
 
+const chatStepOptionSchema = z.object({
+  optionId: z.string(),
+  text: z.string().trim().min(1, "Option text is required"),
+  nextStepId: z.string().nullable().optional(),
+  feedback: z.string().trim().optional().default(""),
+  isCorrect: z.boolean().optional().default(false),
+});
+
+const chatStepMessageSchema = z.object({
+  sender: z.string().trim().min(1, "Sender is required"),
+  text: z.string().trim().min(1, "Message is required"),
+  isUser: z.boolean().optional().default(false),
+});
+
+const chatStepSchema = z.object({
+  stepId: z.string(),
+  messages: z.array(chatStepMessageSchema).min(1, "Add at least one message to this step"),
+  options: z.array(chatStepOptionSchema).optional().default([]),
+});
+
 const chatScenarioSchema = baseQuestionSchema.omit({ content: true }).extend({
   type: z.literal("Chat Scenario"),
+  content: z.string().optional().default(""),
+  senderName: z.string().trim().optional().default("Henkie Penkie"),
+  senderAvatar: optionalMedia,
+  initialStepId: z.string().optional().default(""),
+  chatSteps: z.array(chatStepSchema).optional(),
+  // Legacy fields compat
   messages: z
     .array(
       z.object({
         sender: z.string().trim(),
         text: z.string().trim(),
+        isUser: z.boolean().optional(),
       }),
     )
-    .transform((messages) =>
-      messages.filter((message) => message.sender || message.text),
-    )
-    .pipe(
-      z
-        .array(
-          z.object({
-            sender: z.string().min(1, "Sender is required"),
-            text: z.string().min(1, "Message is required"),
-          }),
-        )
-        .min(1, "Add at least one message"),
-    ),
-  options: requiredStringList(2, "Add at least two response options"),
+    .optional(),
+  options: z.array(z.string().trim()).optional(),
   correctAnswer: z.string().optional().default(""),
 });
 
@@ -147,24 +162,13 @@ export const questionSchema = questionUnionSchema.superRefine((question, context
   if (!question.isScored) return;
 
   if (
-    (question.type === "MCQ" || question.type === "Chat Scenario") &&
+    question.type === "MCQ" &&
     !question.correctAnswer?.trim()
   ) {
     context.addIssue({
       code: "custom",
       path: ["correctAnswer"],
       message: "Correct answer is required for scored questions",
-    });
-  }
-
-  if (
-    question.type === "Swipe" &&
-    !question.correctDirection
-  ) {
-    context.addIssue({
-      code: "custom",
-      path: ["correctDirection"],
-      message: "Correct direction is required for scored swipe questions",
     });
   }
 });
@@ -205,21 +209,47 @@ export const getDefaultQuestionValues = (
       return {
         ...base,
         type,
+        isScored: false,
         leftLabel: "",
         rightLabel: "",
-        correctDirection: "left",
       };
     case "Ordering":
       return { ...base, type, items: ["", "", "", ""] };
-    case "Chat Scenario":
+    case "Chat Scenario": {
+      const stepId = `step-1`;
       return {
         ...base,
         type,
-        isScored: false,
-        messages: [{ sender: "", text: "" }],
-        options: ["", ""],
+        isScored: true,
+        content: "",
+        senderName: "Henkie Penkie",
+        senderAvatar: "",
+        initialStepId: stepId,
         correctAnswer: "",
+        chatSteps: [
+          {
+            stepId,
+            messages: [{ sender: "Henkie Penkie", text: "", isUser: false }],
+            options: [
+              {
+                optionId: `opt-1a`,
+                text: "",
+                nextStepId: null,
+                feedback: "",
+                isCorrect: true,
+              },
+              {
+                optionId: `opt-1b`,
+                text: "",
+                nextStepId: null,
+                feedback: "",
+                isCorrect: false,
+              },
+            ],
+          },
+        ],
       };
+    }
     case "Video":
       return {
         ...base,

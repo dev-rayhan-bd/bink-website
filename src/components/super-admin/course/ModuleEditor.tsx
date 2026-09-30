@@ -26,6 +26,7 @@ const mediaFields = [
   "videoUrl",
   "callerPhoto",
   "postCallVideoUrl",
+  "senderAvatar",
 ] as const;
 
 const isFileValue = (value: unknown): value is File => value instanceof File;
@@ -104,14 +105,42 @@ export function ModuleEditor({ module }: { module?: LearningModule }) {
           }
 
           if (question.type === "Chat Scenario") {
-            const options = question.options || [];
+            const senderName =
+              question.senderName ||
+              question.messages?.[0]?.sender ||
+              "Henkie Penkie";
+            let chatSteps = question.chatSteps;
+            if (!chatSteps || chatSteps.length === 0) {
+              const stepId = "step-1";
+              const messages =
+                question.messages && question.messages.length > 0
+                  ? question.messages.map((m) => ({
+                      sender: m.sender || senderName,
+                      text: m.text || "",
+                      isUser: false,
+                    }))
+                  : [{ sender: senderName, text: "", isUser: false }];
+              const options = (question.options || ["", ""]).map(
+                (opt, i) => ({
+                  optionId: `opt-1-${i + 1}`,
+                  text: typeof opt === "string" ? opt : "",
+                  nextStepId: null,
+                  feedback: "",
+                  isCorrect: question.correctAnswer
+                    ? question.correctAnswer === opt
+                    : i === 0,
+                }),
+              );
+              chatSteps = [{ stepId, messages, options }];
+            }
+
             return {
               ...questionWithColor,
-              options:
-                options.length >= 2
-                  ? options
-                  : [...options, ...Array(2 - options.length).fill("")],
-              correctAnswer: question.correctAnswer || "",
+              senderName,
+              senderAvatar: question.senderAvatar || "",
+              initialStepId:
+                question.initialStepId || chatSteps[0]?.stepId || "step-1",
+              chatSteps,
             };
           }
 

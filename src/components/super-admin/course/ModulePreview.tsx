@@ -17,8 +17,7 @@ import {
   initialAnswer,
   hasAnswer,
 } from "@/components/survey/module-runner/answer-utils";
-
-type AnswerValue = string | number | string[];
+import type { AnswerValue } from "@/components/survey/module-runner/types";
 
 export function ModulePreview({
   existingThumbnail,
@@ -102,9 +101,9 @@ export function ModulePreview({
     let delay: number | null = null;
     if (question?.type === "Simulated Call") delay = 650;
     else if (question?.type === "Information") delay = 300;
-    else if (question?.type === "Swipe") delay = 1500;
-    else if (question?.type === "Rating") delay = 800;
-    else if (question?.type === "Free Input") delay = 800;
+    else if (question?.type === "Swipe") delay = 100;
+    else if (question?.type === "Rating") delay = 400;
+    else if (question?.type === "Free Input") delay = 400;
 
     if (delay === null) return;
 
@@ -149,11 +148,22 @@ export function ModulePreview({
       isCorrect = JSON.stringify(submittedAnswer) === JSON.stringify(correctOrder);
       correctAnswer = correctOrder;
     } else if (question.type === "Swipe") {
-      const correctDir = question.correctDirection;
-      isCorrect = submittedAnswer === correctDir;
-      correctAnswer = correctDir;
+      isCorrect = true;
+      correctAnswer = undefined;
     } else if (question.type === "Chat Scenario") {
-      isCorrect = submittedAnswer === question.correctAnswer;
+      if (Array.isArray(submittedAnswer) && question.chatSteps) {
+        let allCorrect = true;
+        for (const sel of submittedAnswer as any[]) {
+          const step = question.chatSteps?.find((s) => s.stepId === sel.stepId);
+          const opt = step?.options?.find((o) => o.optionId === sel.optionId);
+          if (opt && opt.isCorrect === false) {
+            allCorrect = false;
+          }
+        }
+        isCorrect = allCorrect;
+      } else {
+        isCorrect = submittedAnswer === question.correctAnswer;
+      }
       correctAnswer = question.correctAnswer;
     } else if (question.type === "Video" && question.correctAnswer) {
       isCorrect = submittedAnswer === question.correctAnswer;
@@ -163,6 +173,7 @@ export function ModulePreview({
     setResult({
       isCorrect:
         !question.isScored ||
+        question.type === "Swipe" ||
         question.type === "Free Input" ||
         question.type === "Rating" ||
         question.type === "Simulated Call" ||
@@ -476,11 +487,11 @@ export function ModulePreview({
                 {isOptionFeedback ? (
                   <div
                     className={cn(
-                      "min-w-0 rounded-sm border bg-background px-3 py-2 text-sm font-medium wrap-break-word",
+                      "min-w-0 rounded-2xl border bg-white p-3.5 text-sm font-medium shadow-sm wrap-break-word dark:bg-card",
                       result.isCorrect === false
-                        ? "border-primary text-primary"
+                        ? "border-2 border-destructive text-destructive"
                         : result.isCorrect === true
-                          ? "border-success text-success"
+                          ? "border-2 border-success text-success"
                           : "border-border text-foreground",
                     )}
                   >
@@ -497,15 +508,15 @@ export function ModulePreview({
                 ) : isQuestionScored && !["Rating", "Free Input", "Information"].includes(question.type) ? (
                   <div
                     className={cn(
-                      "min-w-0 overflow-hidden rounded-sm border px-3 py-2 text-sm wrap-break-word",
+                      "min-w-0 overflow-hidden rounded-2xl border bg-white p-3.5 text-sm shadow-sm wrap-break-word dark:bg-card",
                       result.isCorrect === false
-                        ? "border-destructive/50 text-destructive bg-background"
+                        ? "border-2 border-destructive text-destructive"
                         : result.isCorrect === true
-                          ? "border-2 border-success bg-background text-foreground"
-                          : "border-2 border-border bg-background text-foreground",
+                          ? "border-2 border-success text-foreground"
+                          : "border-2 border-border text-foreground",
                     )}
                   >
-                    <p className="font-medium">{feedbackTitle}</p>
+                    <p className="font-semibold">{feedbackTitle}</p>
                     {isOrderingRetry && (
                       <p className="mt-2 wrap-break-word font-medium">
                         Zet de onderdelen in de juiste volgorde en probeer opnieuw.
@@ -523,9 +534,9 @@ export function ModulePreview({
                   </div>
                 ) : null}
                 {result.explanation && !isOrderingRetry && (
-                  <div className="min-w-0 rounded-sm border border-border bg-background px-3 py-2 text-sm wrap-break-word">
-                    <span className="font-bold text-primary">Feedback: </span>
-                    <span>{result.explanation}</span>
+                  <div className="min-w-0 rounded-2xl border border-border bg-white p-3.5 text-sm shadow-sm wrap-break-word dark:bg-card">
+                    <span className="font-bold text-foreground">Feedback: </span>
+                    <span className="text-foreground/90">{result.explanation}</span>
                   </div>
                 )}
               </div>
@@ -535,7 +546,7 @@ export function ModulePreview({
           </div>
         </AnimationWrapper>
 
-        {!isSimulatedCall && (result || question?.type !== "Swipe") && (
+        {!isSimulatedCall && question?.type !== "Swipe" && (
           <div className="mt-auto shrink-0 pt-0 [&_button]:bg-background [&_button]:text-foreground [&_button]:hover:bg-background/90">
             {result ? (
               isOrderingRetry ? (
@@ -559,7 +570,7 @@ export function ModulePreview({
                   <ArrowRight />
                 </Button>
               )
-            ) : question?.type !== "Swipe" ? (
+            ) : (
               <Button
                 type="button"
                 size="lg-full"
@@ -569,7 +580,7 @@ export function ModulePreview({
                 {question?.type === "Information" ? "Verder" : "Volgende"}
                 <ArrowRight />
               </Button>
-            ) : null}
+            )}
           </div>
         )}
       </div>

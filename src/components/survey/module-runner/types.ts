@@ -1,6 +1,9 @@
-import type { ModuleQuestion } from "@/lib/types/module.type";
+import type {
+  ModuleAnswerValue,
+  ModuleQuestion,
+} from "@/lib/types/module.type";
 
-export type AnswerValue = string | number | string[];
+export type AnswerValue = ModuleAnswerValue;
 export type MediaValue = string | File;
 
 export type AnswerRendererProps = {

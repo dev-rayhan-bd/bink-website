@@ -1,10 +1,11 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { ArrowDown, ArrowUp, MessageCircle } from "lucide-react";
+import { ArrowDown, ArrowUp, Check, MessageCircle, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/lib/utils";
+import { ChatScenarioQuestion } from "../question-types/ChatScenarioQuestion";
 import { ModuleSwipeQuestion } from "../question-types/ModuleSwipeQuestion";
 import { optionLabel } from "./answer-utils";
 import { MediaVideo } from "./media";
@@ -32,7 +33,7 @@ export function QuestionAnswer({
 
   if (question.type === "MCQ") {
     return (
-      <div className="space-y-3">
+      <div className="space-y-2.5">
         {(question.options ?? []).map((option, optionIndex) => {
           const selected = answer === option;
           const hasCorrectAnswer =
@@ -58,35 +59,81 @@ export function QuestionAnswer({
               disabled={disabled}
               onClick={() => onAnswer(option)}
               className={cn(
-                "group flex w-full min-w-0 items-center gap-3.5 rounded-2xl border border-black/10 p-3.5 text-left text-sm shadow-xs transition-all hover:scale-[1.01] active:scale-[0.99] dark:border-white/15",
-                isCorrectOption &&
-                  "border-2 border-success bg-background font-semibold text-foreground shadow-sm",
-                isWrongSelection &&
-                  "border-2 border-primary bg-background font-semibold text-foreground shadow-sm",
-                !isSubmitted &&
-                  selected &&
-                  "border-2 border-success bg-background font-semibold shadow-sm",
+                "group flex w-full min-w-0 items-center justify-between gap-3.5 rounded-2xl p-3.5 sm:p-4 text-left text-sm transition-all duration-150 cursor-pointer shadow-sm active:scale-[0.99]",
+                // Unsubmitted & Unselected
                 !isSubmitted &&
                   !selected &&
-                  "border-border bg-background hover:border-primary/50",
+                  "bg-white dark:bg-card text-zinc-900 dark:text-zinc-100 border-2 border-black/8 dark:border-white/15 hover:border-black/25 dark:hover:border-white/35 hover:shadow-md",
+                // Unsubmitted & Selected (Active choice)
+                !isSubmitted &&
+                  selected &&
+                  "bg-white dark:bg-card text-zinc-950 dark:text-white border-2 border-zinc-900 dark:border-white ring-2 ring-zinc-900/20 dark:ring-white/25 shadow-lg scale-[1.01] font-semibold",
+                // Submitted & Correct Option
+                isCorrectOption &&
+                  "bg-emerald-50 dark:bg-emerald-950/50 text-emerald-950 dark:text-emerald-50 border-2 border-success shadow-md font-semibold",
+                // Submitted & Wrong Option Selected
+                isWrongSelection &&
+                  "bg-rose-50 dark:bg-rose-950/50 text-rose-950 dark:text-rose-50 border-2 border-destructive shadow-md font-semibold",
+                // Submitted & Dimmed Options
                 isDimmed &&
-                  "border-border bg-background text-muted-foreground opacity-60",
+                  "bg-white/70 dark:bg-card/50 text-zinc-400 dark:text-zinc-500 border border-black/5 dark:border-white/5 opacity-55 shadow-none",
               )}
             >
-              <span
-                className={cn(
-                  "flex size-8 shrink-0 items-center justify-center rounded-xl bg-muted text-xs font-bold text-muted-foreground transition-colors",
-                  (isCorrectOption || (!isSubmitted && selected)) &&
-                    "bg-success text-white",
-                  isWrongSelection && "bg-primary text-primary-foreground",
-                  isDimmed && "bg-black/10 text-muted-foreground",
+              <div className="flex min-w-0 flex-1 items-center gap-3">
+                <span
+                  className={cn(
+                    "flex size-8 shrink-0 items-center justify-center rounded-xl text-xs font-bold transition-all",
+                    // Unselected badge
+                    !isSubmitted &&
+                      !selected &&
+                      "bg-zinc-100 text-zinc-700 dark:bg-zinc-800 dark:text-zinc-300 border border-zinc-200/80 dark:border-zinc-700 group-hover:bg-zinc-200 dark:group-hover:bg-zinc-700",
+                    // Selected badge
+                    !isSubmitted &&
+                      selected &&
+                      "bg-zinc-900 text-white dark:bg-white dark:text-zinc-900 shadow-xs scale-105",
+                    // Correct badge
+                    isCorrectOption && "bg-success text-white shadow-xs font-bold",
+                    // Wrong badge
+                    isWrongSelection && "bg-destructive text-destructive-foreground shadow-xs font-bold",
+                    // Dimmed badge
+                    isDimmed && "bg-zinc-100 dark:bg-zinc-800 text-zinc-400 border-0",
+                  )}
+                >
+                  {optionLabel(optionIndex)}
+                </span>
+                <span className="min-w-0 flex-1 whitespace-pre-wrap wrap-break-word leading-snug">
+                  {option}
+                </span>
+              </div>
+
+              {/* Right Selection Indicator */}
+              <div className="shrink-0 pl-1">
+                {!isSubmitted && (
+                  <div
+                    className={cn(
+                      "flex size-5.5 items-center justify-center rounded-full transition-all",
+                      selected
+                        ? "bg-zinc-900 text-white dark:bg-white dark:text-zinc-900 shadow-xs scale-105"
+                        : "border-2 border-zinc-300 dark:border-zinc-600 bg-white/50 dark:bg-zinc-800/50 group-hover:border-zinc-400",
+                    )}
+                  >
+                    {selected && <Check className="size-3.5 stroke-[3]" />}
+                  </div>
                 )}
-              >
-                {optionLabel(optionIndex)}
-              </span>
-              <span className="min-w-0 flex-1 whitespace-pre-wrap wrap-break-word">
-                {option}
-              </span>
+                {isCorrectOption && (
+                  <div className="flex size-5.5 items-center justify-center rounded-full bg-success text-white shadow-xs">
+                    <Check className="size-3.5 stroke-[3]" />
+                  </div>
+                )}
+                {isWrongSelection && (
+                  <div className="flex size-5.5 items-center justify-center rounded-full bg-destructive text-destructive-foreground shadow-xs">
+                    <X className="size-3.5 stroke-[3]" />
+                  </div>
+                )}
+                {isDimmed && (
+                  <div className="size-5.5 rounded-full border-2 border-zinc-200/60 dark:border-zinc-700/60" />
+                )}
+              </div>
             </button>
           );
         })}
@@ -106,11 +153,13 @@ export function QuestionAnswer({
   }
 
   if (question.type === "Ordering") {
-    const items = Array.isArray(answer) ? answer : question.items ?? [];
+    const items: string[] = Array.isArray(answer)
+      ? (answer as string[])
+      : (question.items ?? []);
     const move = (index: number, offset: number) => {
       const nextIndex = index + offset;
       if (nextIndex < 0 || nextIndex >= items.length) return;
-      const updated = [...items];
+      const updated: string[] = [...items];
       [updated[index], updated[nextIndex]] = [updated[nextIndex], updated[index]];
       onAnswer(updated);
     };
@@ -127,9 +176,9 @@ export function QuestionAnswer({
               opacity: { duration: 0.2 },
             }}
             key={`${item}-${index}`}
-            className="flex items-center gap-3 rounded-2xl border border-black/10 bg-background p-3.5 shadow-xs dark:border-white/15"
+            className="flex items-center gap-3 rounded-2xl border-2 border-black/8 bg-white p-3.5 shadow-sm text-zinc-900 dark:border-white/15 dark:bg-card dark:text-zinc-100"
           >
-            <span className="flex size-8 shrink-0 items-center justify-center rounded-xl bg-muted text-sm font-bold">
+            <span className="flex size-8 shrink-0 items-center justify-center rounded-xl bg-zinc-100 text-sm font-bold text-zinc-700 border border-zinc-200 dark:bg-zinc-800 dark:text-zinc-300 dark:border-zinc-700">
               {index + 1}
             </span>
             <span className="min-w-0 flex-1 whitespace-pre-wrap wrap-break-word text-sm">
@@ -162,103 +211,14 @@ export function QuestionAnswer({
   }
 
   if (question.type === "Chat Scenario") {
-    const options = question.options ?? [];
-
     return (
-      <div className="flex w-full shrink-0 flex-col pt-2">
-        <div className="mb-6 space-y-4 px-2">
-          {(question.messages ?? [])
-            .filter((msg) => msg.sender || msg.text)
-            .map((message, index) => (
-              <div
-                key={`${message.sender}-${index}`}
-                className="flex items-start gap-2.5"
-              >
-                <div className="mt-0.5 flex size-7 shrink-0 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-sm">
-                  <MessageCircle className="size-3.5" />
-                </div>
-                <div className="max-w-[85%] rounded-2xl rounded-tl-sm bg-secondary px-3.5 py-2 text-sm text-secondary-foreground shadow-sm">
-                  <p className="whitespace-pre-wrap wrap-break-word">
-                    {message.text}
-                  </p>
-                </div>
-              </div>
-            ))}
-          {typeof answer === "string" && answer !== "completed" && (
-            <div className="mt-3 flex justify-end">
-              <div className="max-w-[85%] rounded-2xl rounded-tr-sm bg-muted px-3.5 py-2 text-sm text-foreground shadow-sm">
-                <p className="whitespace-pre-wrap wrap-break-word">{answer}</p>
-              </div>
-            </div>
-          )}
-        </div>
-
-        {options.length > 0 ? (
-          <div className="mt-auto shrink-0 space-y-3 rounded-2xl border border-black/10 bg-background p-4 shadow-md shadow-black/5 dark:border-white/15">
-            <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
-              Kies jouw reactie
-            </p>
-            {options.map((option, optionIndex) => {
-              const selected = answer === option;
-              const hasCorrectAnswer =
-                correctAnswer !== undefined &&
-                correctAnswer !== null &&
-                !(
-                  typeof correctAnswer === "string" &&
-                  correctAnswer.trim() === ""
-                );
-              const isCorrectOption =
-                isSubmitted && hasCorrectAnswer && correctAnswer === option;
-              const isWrongSelection =
-                isSubmitted &&
-                hasCorrectAnswer &&
-                selected &&
-                correctAnswer !== option;
-              const isDimmed =
-                isSubmitted &&
-                hasCorrectAnswer &&
-                !isCorrectOption &&
-                !isWrongSelection;
-
-              return (
-                <button
-                  key={`${option}-${optionIndex}`}
-                  type="button"
-                  disabled={disabled}
-                  onClick={() => onAnswer(option)}
-                  className={cn(
-                    "w-full min-w-0 whitespace-pre-wrap rounded-xl border border-black/10 p-3 text-left text-sm shadow-xs transition-all hover:scale-[1.01] active:scale-[0.99] wrap-break-word dark:border-white/15",
-                    isCorrectOption &&
-                      "border-2 border-success bg-background font-semibold text-foreground shadow-sm",
-                    isWrongSelection &&
-                      "border-2 border-primary bg-background font-semibold text-foreground shadow-sm",
-                    !isSubmitted &&
-                      selected &&
-                      "border-2 border-primary bg-background font-semibold shadow-sm",
-                    !isSubmitted &&
-                      !selected &&
-                      "border-border bg-background hover:border-primary/50",
-                    isDimmed &&
-                      "border-border bg-background text-muted-foreground opacity-60",
-                  )}
-                >
-                  {option}
-                </button>
-              );
-            })}
-          </div>
-        ) : (
-          <Button
-            type="button"
-            variant={answer === "completed" ? "default" : "outline"}
-            disabled={disabled}
-            onClick={() => onAnswer("completed")}
-            className="w-full"
-          >
-            <MessageCircle /> Ik heb dit gesprek bekeken
-          </Button>
-        )}
-      </div>
+      <ChatScenarioQuestion
+        key={question.id || String(currentIndex)}
+        question={question}
+        disabled={disabled}
+        onAnswer={onAnswer}
+        onAutoSubmit={onAutoSubmit as any}
+      />
     );
   }
 
@@ -291,7 +251,7 @@ export function QuestionAnswer({
 
     return (
       <div className="space-y-4">
-        <div className="aspect-video overflow-hidden rounded-lg bg-black">
+        <div className="aspect-video overflow-hidden rounded-lg bg-black shadow-md">
           {youtubeId ? (
             <iframe
               src={`https://www.youtube.com/embed/${youtubeId}`}
@@ -305,7 +265,7 @@ export function QuestionAnswer({
           )}
         </div>
         {hasOptions ? (
-          <div className="space-y-3 pt-2">
+          <div className="space-y-2.5 pt-2">
             {question.options?.map((option, optionIndex) => {
               const selected = answer === option;
               const hasCorrectAnswer =
@@ -335,22 +295,75 @@ export function QuestionAnswer({
                   disabled={disabled}
                   onClick={() => onAnswer(option)}
                   className={cn(
-                    "w-full min-w-0 whitespace-pre-wrap rounded-sm border p-3 text-left text-sm transition-colors wrap-break-word",
-                    isCorrectOption &&
-                      "border-2 border-success bg-background font-semibold text-foreground",
-                    isWrongSelection &&
-                      "border-2 border-primary bg-background font-semibold text-foreground",
-                    !isSubmitted &&
-                      selected &&
-                      "border-2 border-primary bg-background font-semibold",
+                    "group flex w-full min-w-0 items-center justify-between gap-3.5 rounded-2xl p-3.5 sm:p-4 text-left text-sm transition-all duration-150 cursor-pointer shadow-sm active:scale-[0.99]",
+                    // Unsubmitted & Unselected
                     !isSubmitted &&
                       !selected &&
-                      "border-border bg-background hover:border-primary/50",
+                      "bg-white dark:bg-card text-zinc-900 dark:text-zinc-100 border-2 border-black/8 dark:border-white/15 hover:border-black/25 dark:hover:border-white/35 hover:shadow-md",
+                    // Unsubmitted & Selected
+                    !isSubmitted &&
+                      selected &&
+                      "bg-white dark:bg-card text-zinc-950 dark:text-white border-2 border-zinc-900 dark:border-white ring-2 ring-zinc-900/20 dark:ring-white/25 shadow-lg scale-[1.01] font-semibold",
+                    // Submitted & Correct
+                    isCorrectOption &&
+                      "bg-emerald-50 dark:bg-emerald-950/50 text-emerald-950 dark:text-emerald-50 border-2 border-success shadow-md font-semibold",
+                    // Submitted & Wrong
+                    isWrongSelection &&
+                      "bg-rose-50 dark:bg-rose-950/50 text-rose-950 dark:text-rose-50 border-2 border-destructive shadow-md font-semibold",
+                    // Submitted & Dimmed
                     isDimmed &&
-                      "border-border bg-background text-muted-foreground opacity-60",
+                      "bg-white/70 dark:bg-card/50 text-zinc-400 dark:text-zinc-500 border border-black/5 dark:border-white/5 opacity-55 shadow-none",
                   )}
                 >
-                  {option}
+                  <div className="flex min-w-0 flex-1 items-center gap-3">
+                    <span
+                      className={cn(
+                        "flex size-8 shrink-0 items-center justify-center rounded-xl text-xs font-bold transition-all",
+                        !isSubmitted &&
+                          !selected &&
+                          "bg-zinc-100 text-zinc-700 dark:bg-zinc-800 dark:text-zinc-300 border border-zinc-200/80 dark:border-zinc-700 group-hover:bg-zinc-200 dark:group-hover:bg-zinc-700",
+                        !isSubmitted &&
+                          selected &&
+                          "bg-zinc-900 text-white dark:bg-white dark:text-zinc-900 shadow-xs scale-105",
+                        isCorrectOption && "bg-success text-white shadow-xs font-bold",
+                        isWrongSelection && "bg-destructive text-destructive-foreground shadow-xs font-bold",
+                        isDimmed && "bg-zinc-100 dark:bg-zinc-800 text-zinc-400 border-0",
+                      )}
+                    >
+                      {optionLabel(optionIndex)}
+                    </span>
+                    <span className="min-w-0 flex-1 whitespace-pre-wrap wrap-break-word leading-snug">
+                      {option}
+                    </span>
+                  </div>
+
+                  <div className="shrink-0 pl-1">
+                    {!isSubmitted && (
+                      <div
+                        className={cn(
+                          "flex size-5.5 items-center justify-center rounded-full transition-all",
+                          selected
+                            ? "bg-zinc-900 text-white dark:bg-white dark:text-zinc-900 shadow-xs scale-105"
+                            : "border-2 border-zinc-300 dark:border-zinc-600 bg-white/50 dark:bg-zinc-800/50 group-hover:border-zinc-400",
+                        )}
+                      >
+                        {selected && <Check className="size-3.5 stroke-[3]" />}
+                      </div>
+                    )}
+                    {isCorrectOption && (
+                      <div className="flex size-5.5 items-center justify-center rounded-full bg-success text-white shadow-xs">
+                        <Check className="size-3.5 stroke-[3]" />
+                      </div>
+                    )}
+                    {isWrongSelection && (
+                      <div className="flex size-5.5 items-center justify-center rounded-full bg-destructive text-destructive-foreground shadow-xs">
+                        <X className="size-3.5 stroke-[3]" />
+                      </div>
+                    )}
+                    {isDimmed && (
+                      <div className="size-5.5 rounded-full border-2 border-zinc-200/60 dark:border-zinc-700/60" />
+                    )}
+                  </div>
                 </button>
               );
             })}
@@ -369,19 +382,20 @@ export function QuestionAnswer({
         ).map((rating) => {
           const isSelected = answer === rating;
           return (
-            <Button
+            <button
               key={rating}
               type="button"
-              variant={isSelected ? "default" : "outline"}
               disabled={disabled}
               onClick={() => onAnswer(rating)}
               className={cn(
-                "transition-all font-bold",
-                isSelected && "border-2 border-background shadow-md scale-105"
+                "flex h-12 items-center justify-center rounded-2xl text-base font-bold transition-all duration-150 cursor-pointer shadow-sm active:scale-95",
+                isSelected
+                  ? "bg-zinc-900 text-white dark:bg-white dark:text-zinc-900 ring-2 ring-zinc-900/30 dark:ring-white/30 shadow-md scale-105"
+                  : "bg-white dark:bg-card text-zinc-900 dark:text-zinc-100 border-2 border-black/10 dark:border-white/15 hover:border-black/25 dark:hover:border-white/30 hover:shadow-md",
               )}
             >
               {rating}
-            </Button>
+            </button>
           );
         })}
       </div>
@@ -393,7 +407,7 @@ export function QuestionAnswer({
       value={typeof answer === "string" ? answer : ""}
       disabled={disabled}
       placeholder="Schrijf jouw antwoord..."
-      className="min-h-36 bg-background"
+      className="min-h-36 rounded-2xl border-2 border-black/10 bg-white p-4 text-zinc-900 shadow-sm placeholder:text-zinc-400 focus-visible:border-zinc-900 focus-visible:ring-zinc-900/20 dark:border-white/15 dark:bg-card dark:text-zinc-100 dark:placeholder:text-zinc-500"
       onChange={(event) => onAnswer(event.target.value)}
     />
   );
