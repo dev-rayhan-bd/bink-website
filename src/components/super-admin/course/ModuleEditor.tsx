@@ -168,27 +168,76 @@ export function ModuleEditor({ module }: { module?: LearningModule }) {
   };
 
   const onInvalid = (errors: FieldErrors<CreateModuleFormValues>) => {
-    console.error("[module-save] validation failed", errors);
-    const findMessage = (value: unknown): string | undefined => {
-      if (!value || typeof value !== "object") return undefined;
-      if (
-        "message" in value &&
-        typeof (value as { message?: unknown }).message === "string"
-      ) {
-        return (value as { message: string }).message;
+    let firstErrorMessage = "Please complete all required module fields";
+    let firstErrorElementId: string | null = null;
+
+    if (errors.title?.message) {
+      firstErrorMessage = `Module Title: ${errors.title.message}`;
+      firstErrorElementId = "module-title";
+    } else if (errors.description?.message) {
+      firstErrorMessage = `Module Description: ${errors.description.message}`;
+      firstErrorElementId = "module-desc";
+    } else if (errors.thumbnail?.message) {
+      firstErrorMessage = `Thumbnail Image: ${errors.thumbnail.message}`;
+      firstErrorElementId = "module-thumbnail";
+    } else if (errors.questions) {
+      if (typeof errors.questions.message === "string") {
+        firstErrorMessage = errors.questions.message;
+      } else if ((errors.questions as any).root?.message) {
+        firstErrorMessage = (errors.questions as any).root.message;
+      } else if (typeof errors.questions === "object" && errors.questions !== null) {
+        const entries = Object.entries(errors.questions);
+        for (const [key, qErr] of entries) {
+          if (qErr && typeof qErr === "object") {
+            const index = Number(key);
+            if (!Number.isNaN(index)) {
+              firstErrorElementId = `question-block-${index}`;
+            }
+            const findFirstMsg = (val: unknown): string | undefined => {
+              if (!val || typeof val !== "object") return undefined;
+              if ("message" in val && typeof (val as any).message === "string") {
+                return (val as any).message;
+              }
+              for (const nested of Object.values(val)) {
+                const msg = findFirstMsg(nested);
+                if (msg) return msg;
+              }
+              return undefined;
+            };
+            const innerMsg = findFirstMsg(qErr);
+            const questionNum = !Number.isNaN(index)
+              ? `Question ${index + 1}: `
+              : "";
+            firstErrorMessage = `${questionNum}${innerMsg || "Please fill in required fields"}`;
+            break;
+          }
+        }
+      }
+    }
+
+    ErrorToast(firstErrorMessage);
+
+    setTimeout(() => {
+      let targetElement: HTMLElement | null = null;
+      if (firstErrorElementId) {
+        targetElement = document.getElementById(firstErrorElementId);
+      }
+      if (!targetElement) {
+        targetElement = document.querySelector(
+          "[aria-invalid='true'], [data-invalid='true'], .border-destructive",
+        ) as HTMLElement | null;
       }
 
-      for (const nestedValue of Object.values(value)) {
-        const message = findMessage(nestedValue);
-        if (message) return message;
+      if (targetElement) {
+        targetElement.scrollIntoView({ behavior: "smooth", block: "center" });
+        if (
+          typeof (targetElement as HTMLInputElement).focus === "function" &&
+          targetElement.tagName !== "DIV"
+        ) {
+          (targetElement as HTMLInputElement).focus();
+        }
       }
-
-      return undefined;
-    };
-
-    ErrorToast(
-      findMessage(errors) || "Please complete all required module fields",
-    );
+    }, 100);
   };
 
   return (

@@ -607,20 +607,20 @@ export function TrainingBuilder({ training, modules }: TrainingBuilderProps) {
                         <Plus /> Attach Module
                       </Button>
                     </DialogTrigger>
-                    <DialogContent>
-                      <DialogHeader>
+                    <DialogContent className="flex max-h-[85vh] flex-col p-6 sm:max-w-xl">
+                      <DialogHeader className="shrink-0">
                         <DialogTitle>Attach Modules</DialogTitle>
                         <DialogDescription>
                           Select one or more modules to add under this topic.
                         </DialogDescription>
                       </DialogHeader>
-                      <div className="h-[60vh] space-y-3 overflow-y-auto pr-1 md:h-auto">
+                      <div className="custom-scrollbar flex-1 space-y-3 overflow-y-auto pr-2">
                         {availableModules.map((module) => {
                           const checked = (selectedModules[topic._id] || []).includes(module._id);
                           return (
                             <label
                               key={module._id}
-                              className="flex cursor-pointer items-start gap-3 rounded-md border bg-background p-3"
+                              className="flex cursor-pointer items-start gap-3 rounded-md border bg-background p-3 transition-colors hover:bg-muted/50"
                             >
                               <Checkbox
                                 checked={checked}
@@ -636,7 +636,7 @@ export function TrainingBuilder({ training, modules }: TrainingBuilderProps) {
                           );
                         })}
                       </div>
-                      <DialogFooter>
+                      <DialogFooter className="shrink-0 border-t pt-4">
                         <Button
                           type="button"
                           variant="outline"

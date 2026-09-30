@@ -30,7 +30,7 @@ export function QuestionPromptCard({ question }: { question: ModuleQuestion }) {
   return (
     <div className="mb-2 shrink-0 space-y-2.5 pt-1 overflow-visible bg-transparent">
       <div className="flex items-center pt-0.5">
-        <span className="inline-flex shrink-0 items-center justify-center rounded-full bg-primary px-3 py-1 text-[10px] font-bold uppercase tracking-wider text-primary-foreground shadow-xs whitespace-nowrap">
+        <span className="inline-flex shrink-0 items-center justify-center rounded-full bg-black/75 px-3.5 py-1 text-[10px] font-bold uppercase tracking-wider text-white shadow-sm backdrop-blur-md border border-white/20 whitespace-nowrap">
           {typeLabel}
         </span>
       </div>

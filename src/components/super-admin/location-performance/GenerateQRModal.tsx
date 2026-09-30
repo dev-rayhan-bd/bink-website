@@ -96,16 +96,17 @@ export function GenerateQRModal() {
           Generate New QR
         </Button>
       </DialogTrigger>
-      <DialogContent className="sm:max-w-125 p-6">
-        <DialogHeader className="mb-4">
+      <DialogContent className="flex max-h-[85vh] flex-col p-6 sm:max-w-125">
+        <DialogHeader className="mb-2 shrink-0">
           <DialogTitle className="text-xl font-bold uppercase tracking-wide text-foreground">
             Generate Access QR
           </DialogTitle>
         </DialogHeader>
 
         <FormProvider {...methods}>
-          <form onSubmit={handleSubmit(onSubmit)} className="h-[60vh] overflow-y-auto md:h-auto">
-            <FieldGroup className="gap-4">
+          <form onSubmit={handleSubmit(onSubmit)} className="flex flex-1 flex-col overflow-hidden">
+            <div className="custom-scrollbar flex-1 space-y-4 overflow-y-auto pr-2">
+              <FieldGroup className="gap-4">
               <Field>
                 <FieldLabel>Select Client Company</FieldLabel>
                 <Controller
@@ -201,13 +202,14 @@ export function GenerateQRModal() {
                 <FieldError errors={[errors.courses]} />
               </Field>
             </FieldGroup>
+          </div>
 
-            <div className="flex justify-end mt-6">
-              <Button type="submit" className="w-full sm:w-auto px-8">
-                Add
-              </Button>
-            </div>
-          </form>
+          <div className="flex shrink-0 justify-end border-t pt-4 mt-4">
+            <Button type="submit" className="w-full sm:w-auto px-8">
+              Add
+            </Button>
+          </div>
+        </form>
         </FormProvider>
       </DialogContent>
     </Dialog>

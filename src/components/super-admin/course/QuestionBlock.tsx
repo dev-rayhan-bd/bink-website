@@ -1,9 +1,10 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { Controller, useFormContext, useWatch } from "react-hook-form";
-import { Plus, Trash2, X, ArrowUp, ArrowDown } from "lucide-react";
+import { Plus, Trash2, X, ArrowUp, ArrowDown, AlertCircle } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Field, FieldGroup, FieldLabel } from "@/components/ui/field";
+import { Field, FieldError, FieldGroup, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { RichTextEditor } from "@/components/ui/custom/RichTextEditor";
 import {
@@ -57,19 +58,24 @@ export function QuestionBlock({
   isLast,
 }: QuestionBlockProps) {
   const blockId = useId();
-  const { control, register, setValue } =
-    useFormContext<CreateModuleFormValues>();
+  const {
+    control,
+    register,
+    setValue,
+    formState: { errors },
+  } = useFormContext<CreateModuleFormValues>();
   const currentQuestion = useWatch({
     control,
     name: `questions.${index}`,
   }) as QuestionDataSchemaType;
-  // const supportsCorrectAnswer = ![
-  //   "Free Input",
-  //   "Rating",
-  //   "Information",
-  //   "Simulated Call",
-  //   "Swipe",
-  // ].includes(currentQuestion.type);
+
+  const questionErrors = errors.questions?.[index] as
+    | Record<string, any>
+    | undefined;
+  const hasQuestionErrors = Boolean(
+    questionErrors && Object.keys(questionErrors).length > 0,
+  );
+
   const supportsQuestionImage =
     currentQuestion.type !== "Video" &&
     currentQuestion.type !== "Simulated Call";
@@ -116,22 +122,26 @@ export function QuestionBlock({
     label,
     accept,
     hint,
+    error,
   }: {
     field: "image" | "videoUrl" | "callerPhoto" | "postCallVideoUrl";
     label: string;
     accept: string;
     hint?: string;
+    error?: string;
   }) => {
     const value = currentQuestion[field as keyof typeof currentQuestion];
 
     return (
-      <Field>
+      <Field data-invalid={Boolean(error)}>
         <FieldLabel>{label}</FieldLabel>
         <Input
           type="file"
           accept={accept}
+          aria-invalid={Boolean(error)}
           onChange={(event) => setMediaValue(field, event.target.files?.[0])}
         />
+        {error && <FieldError>{error}</FieldError>}
         {hint && <p className="text-xs text-muted-foreground">{hint}</p>}
         <p className="text-xs text-muted-foreground">{getMediaLabel(value)}</p>
       </Field>
@@ -150,7 +160,7 @@ export function QuestionBlock({
 
   const removeOption = (optionIndex: number) => {
     if (currentQuestion.type !== "MCQ" && currentQuestion.type !== "Video") return;
-    
+
     if (
       currentQuestion.type === "MCQ" &&
       (currentQuestion.options || []).length <= 2
@@ -227,17 +237,35 @@ export function QuestionBlock({
 
   return (
     <div
+      id={`question-block-${index}`}
       className={cn(
-        "space-y-6 rounded-md border border-border p-6 shadow-sm transition-colors duration-300",
-        bgColor,
+        "space-y-6 rounded-md border p-6 shadow-sm transition-all duration-300",
+        hasQuestionErrors
+          ? "border-destructive/60 bg-destructive/5 ring-1 ring-destructive/20"
+          : cn("border-border", bgColor),
       )}
     >
       <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
         <div className="flex items-center gap-3">
-          <div className="flex size-8 shrink-0 items-center justify-center rounded-full bg-primary/10 text-sm font-bold text-primary">
+          <div
+            className={cn(
+              "flex size-8 shrink-0 items-center justify-center rounded-full text-sm font-bold",
+              hasQuestionErrors
+                ? "bg-destructive text-destructive-foreground"
+                : "bg-primary/10 text-primary",
+            )}
+          >
             {index + 1}
           </div>
-          <h3 className="font-semibold">{currentQuestion.type}</h3>
+          <div className="flex items-center gap-2">
+            <h3 className="font-semibold">{currentQuestion.type}</h3>
+            {hasQuestionErrors && (
+              <span className="inline-flex items-center gap-1 rounded-sm bg-destructive/15 px-2 py-0.5 text-xs font-semibold text-destructive">
+                <AlertCircle className="size-3" />
+                Requires attention
+              </span>
+            )}
+          </div>
         </div>
         <div className="flex items-center gap-2">
           <Button
@@ -274,35 +302,41 @@ export function QuestionBlock({
       <div className="grid gap-4 sm:grid-cols-[minmax(0,1fr)_200px] sm:items-start">
         {currentQuestion.type !== "Chat Scenario" &&
           currentQuestion.type !== "Simulated Call" && (
-          <Field>
-            <FieldLabel>Content</FieldLabel>
-            <RichTextEditor
-              value={currentQuestion.content ?? ""}
-              placeholder={
-                currentQuestion.type === "Swipe"
-                  ? "Optional when the swipe uses only an image..."
-                  : "Question or instruction"
-              }
-              onChange={(value) =>
-                setValue(`questions.${index}.content`, value, {
-                  shouldDirty: true,
-                  shouldValidate: true,
-                })
-              }
-            />
-            {currentQuestion.type === "Swipe" && (
-              <p className="text-xs text-muted-foreground">
-                Swipe content is optional when an image is provided. Leave it
-                empty for an image-only swipe card.
-              </p>
-            )}
-          </Field>
-        )}
+            <Field data-invalid={Boolean(questionErrors?.content)}>
+              <FieldLabel>
+                Content {currentQuestion.type !== "Swipe" && <span className="text-destructive">*</span>}
+              </FieldLabel>
+              <RichTextEditor
+                value={currentQuestion.content ?? ""}
+                hasError={Boolean(questionErrors?.content)}
+                placeholder={
+                  currentQuestion.type === "Swipe"
+                    ? "Optional when the swipe uses only an image..."
+                    : "Question or instruction"
+                }
+                onChange={(value) =>
+                  setValue(`questions.${index}.content`, value, {
+                    shouldDirty: true,
+                    shouldValidate: true,
+                  })
+                }
+              />
+              {questionErrors?.content?.message && (
+                <FieldError>{questionErrors.content.message}</FieldError>
+              )}
+              {currentQuestion.type === "Swipe" && (
+                <p className="text-xs text-muted-foreground">
+                  Swipe content is optional when an image is provided. Leave it
+                  empty for an image-only swipe card.
+                </p>
+              )}
+            </Field>
+          )}
         <div
           className={cn(
             "space-y-4",
             ["Chat Scenario", "Simulated Call"].includes(currentQuestion.type) &&
-              "sm:col-start-2",
+            "sm:col-start-2",
           )}
         >
           <Field>
@@ -329,7 +363,7 @@ export function QuestionBlock({
             </Select>
           </Field>
 
-          <Field>
+          <Field data-invalid={Boolean(questionErrors?.colorCode)}>
             <FieldLabel htmlFor={`question-color-${blockId}`}>
               Background Color
             </FieldLabel>
@@ -356,12 +390,16 @@ export function QuestionBlock({
                 maxLength={7}
                 placeholder="#E9308F"
                 className="font-mono uppercase"
+                aria-invalid={Boolean(questionErrors?.colorCode)}
                 {...register(`questions.${index}.colorCode`)}
               />
             </div>
+            {questionErrors?.colorCode?.message && (
+              <FieldError>{questionErrors.colorCode.message}</FieldError>
+            )}
           </Field>
 
-          <Field>
+          <Field data-invalid={Boolean(questionErrors?.blockColor)}>
             <FieldLabel htmlFor={`question-block-color-${blockId}`}>
               Block Color
             </FieldLabel>
@@ -388,100 +426,145 @@ export function QuestionBlock({
                 maxLength={7}
                 placeholder="#FFFFFF"
                 className="font-mono uppercase"
+                aria-invalid={Boolean(questionErrors?.blockColor)}
                 {...register(`questions.${index}.blockColor`)}
               />
             </div>
+            {questionErrors?.blockColor?.message && (
+              <FieldError>{questionErrors.blockColor.message}</FieldError>
+            )}
           </Field>
         </div>
       </div>
 
       {(currentQuestion.type === "MCQ" ||
         currentQuestion.type === "Video") && (
-        <FieldGroup>
-          <div className="flex items-center justify-between gap-3">
-            <FieldLabel>Options</FieldLabel>
-            <Button
-              type="button"
-              variant="outline"
-              size="sm"
-              onClick={addOption}
-            >
-              <Plus /> Add Option
-            </Button>
-          </div>
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-            {(currentQuestion.options || []).map((_, optionIndex) => (
-              <Field key={optionIndex}>
-                <div className="flex items-center justify-between gap-2">
-                  <FieldLabel>Option {optionIndex + 1}</FieldLabel>
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="icon-xs"
-                    className="text-destructive"
-                    onClick={() => removeOption(optionIndex)}
-                    disabled={
-                      currentQuestion.type === "Video"
-                        ? false
-                        : (currentQuestion.options || []).length <= 2
-                    }
-                    aria-label={`Remove option ${optionIndex + 1}`}
-                  >
-                    <X />
-                  </Button>
-                </div>
-                <Input
-                  {...register(
-                    `questions.${index}.options.${optionIndex}` as const,
+          <FieldGroup>
+            <div className="flex items-center justify-between gap-3">
+              <FieldLabel>
+                Options {currentQuestion.type === "MCQ" && <span className="text-destructive">*</span>}
+              </FieldLabel>
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={addOption}
+              >
+                <Plus /> Add Option
+              </Button>
+            </div>
+            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+              {(currentQuestion.options || []).map((_, optionIndex) => {
+                const optError = questionErrors?.options?.[optionIndex]?.message;
+                return (
+                  <Field key={optionIndex} data-invalid={Boolean(optError)}>
+                    <div className="flex items-center justify-between gap-2">
+                      <FieldLabel>Option {optionIndex + 1}</FieldLabel>
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="icon-xs"
+                        className="text-destructive"
+                        onClick={() => removeOption(optionIndex)}
+                        disabled={
+                          currentQuestion.type === "Video"
+                            ? false
+                            : (currentQuestion.options || []).length <= 2
+                        }
+                        aria-label={`Remove option ${optionIndex + 1}`}
+                      >
+                        <X />
+                      </Button>
+                    </div>
+                    <Input
+                      aria-invalid={Boolean(optError)}
+                      {...register(
+                        `questions.${index}.options.${optionIndex}` as const,
+                      )}
+                    />
+                    {optError && <FieldError>{optError}</FieldError>}
+                  </Field>
+                );
+              })}
+            </div>
+            {(questionErrors?.options?.message ||
+              questionErrors?.options?.root?.message) && (
+                <FieldError>
+                  {questionErrors.options.message ||
+                    questionErrors.options.root?.message}
+                </FieldError>
+              )}
+            {currentQuestion.isScored && (
+              <Field data-invalid={Boolean(questionErrors?.correctAnswer)}>
+                <FieldLabel>
+                  Correct Answer <span className="text-destructive">*</span>
+                </FieldLabel>
+                <Controller
+                  control={control}
+                  name={`questions.${index}.correctAnswer`}
+                  render={({ field }) => (
+                    <Select value={field.value} onValueChange={field.onChange}>
+                      <SelectTrigger
+                        aria-invalid={Boolean(questionErrors?.correctAnswer)}
+                      >
+                        <SelectValue placeholder="Select correct answer" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {(currentQuestion.options || [])
+                          .filter(Boolean)
+                          .map((option, selectIndex) => (
+                            <SelectItem
+                              key={`${option}-${selectIndex}`}
+                              value={option}
+                            >
+                              {option}
+                            </SelectItem>
+                          ))}
+                      </SelectContent>
+                    </Select>
                   )}
                 />
+                {questionErrors?.correctAnswer?.message && (
+                  <FieldError>{questionErrors.correctAnswer.message}</FieldError>
+                )}
               </Field>
-            ))}
-          </div>
-          <Field>
-            <FieldLabel>Correct Answer</FieldLabel>
-            <Controller
-              control={control}
-              name={`questions.${index}.correctAnswer`}
-              render={({ field }) => (
-                <Select value={field.value} onValueChange={field.onChange}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select correct answer" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {(currentQuestion.options || [])
-                      .filter(Boolean)
-                      .map((option, selectIndex) => (
-                        <SelectItem
-                          key={`${option}-${selectIndex}`}
-                          value={option}
-                        >
-                          {option}
-                        </SelectItem>
-                      ))}
-                  </SelectContent>
-                </Select>
-              )}
-            />
-          </Field>
-        </FieldGroup>
-      )}
+            )}
+          </FieldGroup>
+        )}
 
       {currentQuestion.type === "Swipe" && (
         <div className="space-y-4">
           <div className="grid gap-4 sm:grid-cols-2">
-            <Field>
-              <FieldLabel>Left Label</FieldLabel>
-              <Input {...register(`questions.${index}.leftLabel`)} />
+            <Field data-invalid={Boolean(questionErrors?.leftLabel)}>
+              <FieldLabel>
+                Left Label <span className="text-destructive">*</span>
+              </FieldLabel>
+              <Input
+                aria-invalid={Boolean(questionErrors?.leftLabel)}
+                {...register(`questions.${index}.leftLabel`)}
+              />
+              {questionErrors?.leftLabel?.message && (
+                <FieldError>{questionErrors.leftLabel.message}</FieldError>
+              )}
             </Field>
-            <Field>
-              <FieldLabel>Right Label</FieldLabel>
-              <Input {...register(`questions.${index}.rightLabel`)} />
+            <Field data-invalid={Boolean(questionErrors?.rightLabel)}>
+              <FieldLabel>
+                Right Label <span className="text-destructive">*</span>
+              </FieldLabel>
+              <Input
+                aria-invalid={Boolean(questionErrors?.rightLabel)}
+                {...register(`questions.${index}.rightLabel`)}
+              />
+              {questionErrors?.rightLabel?.message && (
+                <FieldError>{questionErrors.rightLabel.message}</FieldError>
+              )}
             </Field>
           </div>
           {currentQuestion.isScored && (
-            <Field>
-              <FieldLabel>Correct Direction</FieldLabel>
+            <Field data-invalid={Boolean(questionErrors?.correctDirection)}>
+              <FieldLabel>
+                Correct Direction <span className="text-destructive">*</span>
+              </FieldLabel>
               <Controller
                 control={control}
                 name={`questions.${index}.correctDirection`}
@@ -490,7 +573,9 @@ export function QuestionBlock({
                     value={field.value || "left"}
                     onValueChange={field.onChange}
                   >
-                    <SelectTrigger>
+                    <SelectTrigger
+                      aria-invalid={Boolean(questionErrors?.correctDirection)}
+                    >
                       <SelectValue placeholder="Select correct direction" />
                     </SelectTrigger>
                     <SelectContent>
@@ -504,6 +589,9 @@ export function QuestionBlock({
                   </Select>
                 )}
               />
+              {questionErrors?.correctDirection?.message && (
+                <FieldError>{questionErrors.correctDirection.message}</FieldError>
+              )}
             </Field>
           )}
         </div>
@@ -512,7 +600,9 @@ export function QuestionBlock({
       {currentQuestion.type === "Ordering" && (
         <div className="space-y-4">
           <div className="flex items-center justify-between gap-3">
-            <FieldLabel>Ordering Items</FieldLabel>
+            <FieldLabel>
+              Ordering Items <span className="text-destructive">*</span>
+            </FieldLabel>
             <Button
               type="button"
               variant="outline"
@@ -523,57 +613,90 @@ export function QuestionBlock({
             </Button>
           </div>
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-            {currentQuestion.items.map((_, itemIndex) => (
-              <Field key={itemIndex}>
-                <div className="flex items-center justify-between gap-2">
-                  <FieldLabel>Item {itemIndex + 1}</FieldLabel>
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="icon-xs"
-                    className="text-destructive"
-                    onClick={() => removeOrderingItem(itemIndex)}
-                    disabled={currentQuestion.items.length <= 2}
-                    aria-label={`Remove item ${itemIndex + 1}`}
-                  >
-                    <X />
-                  </Button>
-                </div>
-                <Input
-                  {...register(
-                    `questions.${index}.items.${itemIndex}` as const,
-                  )}
-                />
-              </Field>
-            ))}
+            {currentQuestion.items.map((_, itemIndex) => {
+              const itemError = questionErrors?.items?.[itemIndex]?.message;
+              return (
+                <Field key={itemIndex} data-invalid={Boolean(itemError)}>
+                  <div className="flex items-center justify-between gap-2">
+                    <FieldLabel>Item {itemIndex + 1}</FieldLabel>
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="icon-xs"
+                      className="text-destructive"
+                      onClick={() => removeOrderingItem(itemIndex)}
+                      disabled={currentQuestion.items.length <= 2}
+                      aria-label={`Remove item ${itemIndex + 1}`}
+                    >
+                      <X />
+                    </Button>
+                  </div>
+                  <Input
+                    aria-invalid={Boolean(itemError)}
+                    {...register(
+                      `questions.${index}.items.${itemIndex}` as const,
+                    )}
+                  />
+                  {itemError && <FieldError>{itemError}</FieldError>}
+                </Field>
+              );
+            })}
           </div>
+          {(questionErrors?.items?.message ||
+            questionErrors?.items?.root?.message) && (
+              <FieldError>
+                {questionErrors.items.message ||
+                  questionErrors.items.root?.message}
+              </FieldError>
+            )}
         </div>
       )}
 
       {currentQuestion.type === "Chat Scenario" && (
         <div className="space-y-4">
           <div className="flex items-center justify-between gap-3">
-            <FieldLabel>Message</FieldLabel>
+            <FieldLabel>
+              Message <span className="text-destructive">*</span>
+            </FieldLabel>
           </div>
           <div className="grid gap-4 rounded-md border p-3 sm:grid-cols-[1fr_2fr]">
-            <Field>
+            <Field data-invalid={Boolean(questionErrors?.messages?.[0]?.sender)}>
               <FieldLabel>Sender</FieldLabel>
               <Input
+                aria-invalid={Boolean(questionErrors?.messages?.[0]?.sender)}
                 {...register(
                   `questions.${index}.messages.0.sender` as const,
                 )}
               />
+              {questionErrors?.messages?.[0]?.sender?.message && (
+                <FieldError>
+                  {questionErrors.messages[0].sender.message}
+                </FieldError>
+              )}
             </Field>
-            <Field>
+            <Field data-invalid={Boolean(questionErrors?.messages?.[0]?.text)}>
               <FieldLabel>Message</FieldLabel>
               <Input
+                aria-invalid={Boolean(questionErrors?.messages?.[0]?.text)}
                 {...register(`questions.${index}.messages.0.text` as const)}
               />
+              {questionErrors?.messages?.[0]?.text?.message && (
+                <FieldError>{questionErrors.messages[0].text.message}</FieldError>
+              )}
             </Field>
           </div>
+          {(questionErrors?.messages?.message ||
+            questionErrors?.messages?.root?.message) && (
+              <FieldError>
+                {questionErrors.messages.message ||
+                  questionErrors.messages.root?.message}
+              </FieldError>
+            )}
 
           <div className="flex items-center justify-between gap-3 pt-2">
-            <FieldLabel>Response Options</FieldLabel>
+            <FieldLabel>
+              Response Options <span className="text-destructive">*</span>
+            </FieldLabel>
             <Button
               type="button"
               variant="outline"
@@ -584,74 +707,105 @@ export function QuestionBlock({
             </Button>
           </div>
           <div className="grid gap-4 sm:grid-cols-2">
-            {currentQuestion.options.map((_, optionIndex) => (
-              <Field key={optionIndex}>
-                <div className="flex items-center justify-between gap-2">
-                  <FieldLabel>Response {optionIndex + 1}</FieldLabel>
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="icon-xs"
-                    className="text-destructive"
-                    disabled={currentQuestion.options.length <= 2}
-                    onClick={() => removeChatOption(optionIndex)}
-                    aria-label={`Remove response ${optionIndex + 1}`}
-                  >
-                    <X />
-                  </Button>
-                </div>
-                <Input
-                  {...register(
-                    `questions.${index}.options.${optionIndex}` as const,
-                  )}
-                />
-              </Field>
-            ))}
+            {currentQuestion.options.map((_, optionIndex) => {
+              const optError = questionErrors?.options?.[optionIndex]?.message;
+              return (
+                <Field key={optionIndex} data-invalid={Boolean(optError)}>
+                  <div className="flex items-center justify-between gap-2">
+                    <FieldLabel>Response {optionIndex + 1}</FieldLabel>
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="icon-xs"
+                      className="text-destructive"
+                      disabled={currentQuestion.options.length <= 2}
+                      onClick={() => removeChatOption(optionIndex)}
+                      aria-label={`Remove response ${optionIndex + 1}`}
+                    >
+                      <X />
+                    </Button>
+                  </div>
+                  <Input
+                    aria-invalid={Boolean(optError)}
+                    {...register(
+                      `questions.${index}.options.${optionIndex}` as const,
+                    )}
+                  />
+                  {optError && <FieldError>{optError}</FieldError>}
+                </Field>
+              );
+            })}
           </div>
-          <Field>
-            <FieldLabel>Correct Answer</FieldLabel>
-            <Controller
-              control={control}
-              name={`questions.${index}.correctAnswer`}
-              render={({ field }) => (
-                <Select value={field.value} onValueChange={field.onChange}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select correct response" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {currentQuestion.options
-                      .filter(Boolean)
-                      .map((option, selectIndex) => (
-                        <SelectItem
-                          key={`${option}-${selectIndex}`}
-                          value={option}
-                        >
-                          {option}
-                        </SelectItem>
-                      ))}
-                  </SelectContent>
-                </Select>
+          {(questionErrors?.options?.message ||
+            questionErrors?.options?.root?.message) && (
+              <FieldError>
+                {questionErrors.options.message ||
+                  questionErrors.options.root?.message}
+              </FieldError>
+            )}
+          {currentQuestion.isScored && (
+            <Field data-invalid={Boolean(questionErrors?.correctAnswer)}>
+              <FieldLabel>
+                Correct Answer <span className="text-destructive">*</span>
+              </FieldLabel>
+              <Controller
+                control={control}
+                name={`questions.${index}.correctAnswer`}
+                render={({ field }) => (
+                  <Select value={field.value} onValueChange={field.onChange}>
+                    <SelectTrigger
+                      aria-invalid={Boolean(questionErrors?.correctAnswer)}
+                    >
+                      <SelectValue placeholder="Select correct response" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {currentQuestion.options
+                        .filter(Boolean)
+                        .map((option, selectIndex) => (
+                          <SelectItem
+                            key={`${option}-${selectIndex}`}
+                            value={option}
+                          >
+                            {option}
+                          </SelectItem>
+                        ))}
+                    </SelectContent>
+                  </Select>
+                )}
+              />
+              {questionErrors?.correctAnswer?.message && (
+                <FieldError>{questionErrors.correctAnswer.message}</FieldError>
               )}
-            />
-          </Field>
+            </Field>
+          )}
         </div>
       )}
 
-      {currentQuestion.type === "Video" &&
-        renderMediaInput({
-          field: "videoUrl",
-          label: "Video",
-          accept: "video/*",
-        })}
+      {currentQuestion.type === "Video" && (
+        <div className="space-y-2">
+          {renderMediaInput({
+            field: "videoUrl",
+            label: "Video",
+            accept: "video/*",
+            error: questionErrors?.videoUrl?.message,
+          })}
+        </div>
+      )}
 
       {currentQuestion.type === "Simulated Call" && (
         <div className="grid gap-4 sm:grid-cols-2">
-          <Field>
-            <FieldLabel>Caller Name</FieldLabel>
+          <Field data-invalid={Boolean(questionErrors?.callerName)}>
+            <FieldLabel>
+              Caller Name <span className="text-destructive">*</span>
+            </FieldLabel>
             <Input
               placeholder="John Doe"
+              aria-invalid={Boolean(questionErrors?.callerName)}
               {...register(`questions.${index}.callerName`)}
             />
+            {questionErrors?.callerName?.message && (
+              <FieldError>{questionErrors.callerName.message}</FieldError>
+            )}
           </Field>
           {renderMediaInput({
             field: "callerPhoto",
@@ -659,11 +813,13 @@ export function QuestionBlock({
             accept: "image/*",
             hint:
               "Recommended: 512 × 512 px square, JPG or PNG. Use a clear, centred portrait.",
+            error: questionErrors?.callerPhoto?.message,
           })}
           {renderMediaInput({
             field: "postCallVideoUrl",
             label: "Post-call Video",
             accept: "video/*",
+            error: questionErrors?.postCallVideoUrl?.message,
           })}
           <Field>
             <FieldLabel>Post-call Message</FieldLabel>
@@ -676,24 +832,35 @@ export function QuestionBlock({
       )}
 
       {currentQuestion.type === "Rating" && (
-        <Field>
+        <Field data-invalid={Boolean(questionErrors?.scale)}>
           <FieldLabel>Rating Scale</FieldLabel>
           <Input
             type="number"
             min={2}
             max={10}
+            aria-invalid={Boolean(questionErrors?.scale)}
             {...register(`questions.${index}.scale`, { valueAsNumber: true })}
           />
+          {questionErrors?.scale?.message && (
+            <FieldError>{questionErrors.scale.message}</FieldError>
+          )}
         </Field>
       )}
 
       {currentQuestion.explanation !== undefined && (
-        <Field className="rounded-md border border-border bg-muted/30 p-4">
+        <Field
+          data-invalid={Boolean(questionErrors?.explanation)}
+          className="rounded-md border border-border bg-muted/30 p-4"
+        >
           <FieldLabel>Feedback</FieldLabel>
           <Textarea
             placeholder="Explain the correct answer or add feedback"
+            aria-invalid={Boolean(questionErrors?.explanation)}
             {...register(`questions.${index}.explanation`)}
           />
+          {questionErrors?.explanation?.message && (
+            <FieldError>{questionErrors.explanation.message}</FieldError>
+          )}
         </Field>
       )}
 
@@ -705,6 +872,7 @@ export function QuestionBlock({
           accept: "image/*",
           hint:
             "Recommended: 1080 x 1440 px (3:4 portrait), JPG or PNG. Other ratios fill the frame and may be cropped.",
+          error: questionErrors?.image?.message,
         })}
 
       <div className="flex flex-col justify-between gap-4 border-t border-border pt-4 sm:flex-row sm:items-center">

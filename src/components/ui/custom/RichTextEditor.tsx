@@ -89,10 +89,12 @@ export function RichTextEditor({
   value,
   onChange,
   placeholder = "Write question content...",
+  hasError = false,
 }: {
   value?: string;
   onChange: (value: string) => void;
   placeholder?: string;
+  hasError?: boolean;
 }) {
   const editor = useEditor({
     immediatelyRender: false,
@@ -123,7 +125,14 @@ export function RichTextEditor({
   }
 
   return (
-    <div className="overflow-hidden rounded-md border border-input bg-background shadow-xs focus-within:border-ring focus-within:ring-3 focus-within:ring-ring/50">
+    <div
+      className={cn(
+        "overflow-hidden rounded-md border bg-background shadow-xs transition-all focus-within:ring-3",
+        hasError
+          ? "border-destructive ring-1 ring-destructive/30 focus-within:border-destructive focus-within:ring-destructive/20"
+          : "border-input focus-within:border-ring focus-within:ring-ring/50",
+      )}
+    >
       <div className="flex flex-wrap items-center gap-1 border-b bg-muted/30 p-2">
         <ToolbarButton
           label="Bold"

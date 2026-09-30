@@ -41,10 +41,10 @@ export function ModalWrapper({
         <DialogTrigger asChild>{actionTrigger}</DialogTrigger>
       )}
 
-      <DialogContent className="p-0 gap-0 shadow-md shadow-primary overflow-hidden">
+      <DialogContent className="flex max-h-[85vh] flex-col gap-0 overflow-hidden p-0 shadow-md shadow-primary">
         {/* Header Section */}
         {(title || description) && (
-          <DialogHeader className="p-4 border-b shrink-0 text-left gap-0">
+          <DialogHeader className="shrink-0 border-b p-4 text-left gap-0">
             {title && (
               <DialogTitle className="text-xl font-medium">{title}</DialogTitle>
             )}
@@ -55,12 +55,12 @@ export function ModalWrapper({
         )}
 
         {/* Content Body */}
-        <div className="p-6 flex-1 h-[60vh] overflow-y-auto md:h-auto">
+        <div className="custom-scrollbar flex-1 overflow-y-auto p-6">
           {children}
         </div>
 
         {showClose && (
-          <div className="p-4 border-t bg-muted flex justify-end shrink-0">
+          <div className="flex shrink-0 justify-end border-t bg-muted p-4">
             <DialogClose asChild>
               <Button type="button" variant="outline">Close</Button>
             </DialogClose>

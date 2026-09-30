@@ -10,7 +10,7 @@ import type {
   SubmitModuleAnswerResult,
   UserModuleDetails,
 } from "@/lib/types/module.type";
-import { cn, ErrorToast } from "@/lib/utils";
+import { cn, ErrorToast, isDarkColor } from "@/lib/utils";
 import { submitModuleAnswer } from "@/services/user-progress.service";
 import AnimationWrapper from "@/components/ui/custom/animation-wrapper";
 import { SurveyIntro } from "./SurveyIntro";
@@ -195,10 +195,9 @@ export function ModuleSurveyRunner({
   }
 
   if (isCompleted) {
-    const questionText =
-      totalQuestions === 1
-        ? `Je hebt de vraag van ${module.title} beantwoord.`
-        : `Je hebt alle ${totalQuestions} vragen van ${module.title} beantwoord.`;
+    const formattedTitle = module.title?.trim()
+      ? `"${module.title.trim()}"`
+      : "deze module";
 
     return (
       <AnimationWrapper
@@ -214,7 +213,23 @@ export function ModuleSurveyRunner({
                 Module afgerond
               </h1>
               <p className="mt-1.5 text-xs text-primary-foreground/85">
-                {questionText}
+                {totalQuestions === 1 ? (
+                  <>
+                    Je hebt de vraag van{" "}
+                    <span className="font-semibold text-primary-foreground">
+                      {formattedTitle}
+                    </span>{" "}
+                    beantwoord.
+                  </>
+                ) : (
+                  <>
+                    Je hebt alle {totalQuestions} vragen van{" "}
+                    <span className="font-semibold text-primary-foreground">
+                      {formattedTitle}
+                    </span>{" "}
+                    beantwoord.
+                  </>
+                )}
               </p>
             </div>
 
@@ -250,7 +265,9 @@ export function ModuleSurveyRunner({
                 <PartyPopper className="size-8" />
               </div>
               <p className="font-heading text-xl font-bold text-foreground">
-                Bedankt voor het afronden van deze module!
+                {module.title?.trim()
+                  ? `Bedankt voor het afronden van ${formattedTitle}!`
+                  : "Bedankt voor het afronden van deze module!"}
               </p>
               <p className="mt-2 text-sm text-muted-foreground">
                 We waarderen je deelname en feedback enorm.
@@ -291,6 +308,7 @@ export function ModuleSurveyRunner({
   )
     ? question.colorCode
     : undefined;
+  const isDarkBg = isDarkColor(questionBackgroundColor);
   const canShowCorrectAnswer =
     isQuestionScored &&
     result?.isCorrect !== null &&
@@ -343,24 +361,51 @@ export function ModuleSurveyRunner({
     <div
       className={cn(
         "fixed inset-0 z-100 flex h-dvh min-h-0 w-full flex-col overflow-hidden bg-secondary p-3 text-foreground animate-fadeIn sm:p-5",
-        isSimulatedCall && "p-0",
+        isSimulatedCall && "p-0 bg-black text-white",
       )}
-      style={{ backgroundColor: questionBackgroundColor }}
+      style={{
+        backgroundColor: isSimulatedCall ? undefined : questionBackgroundColor,
+      }}
     >
       {!isSimulatedCall && (
         <div className="mb-4 shrink-0 px-1 py-2">
-          <h2 className="mb-2 font-heading text-lg font-bold leading-tight text-secondary-foreground">
+          <h2
+            className={cn(
+              "mb-2 font-heading text-lg font-bold leading-tight",
+              questionBackgroundColor
+                ? isDarkBg
+                  ? "text-white drop-shadow-sm"
+                  : "text-zinc-950"
+                : "text-secondary-foreground",
+            )}
+          >
             {module.title}
           </h2>
           <div className="flex flex-col gap-1.5">
             <div className="flex items-center">
-              <span className="rounded-sm bg-primary px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider leading-none text-primary-foreground">
+              <span
+                className={cn(
+                  "rounded-sm px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider leading-none shadow-xs",
+                  questionBackgroundColor
+                    ? isDarkBg
+                      ? "bg-black/40 text-white backdrop-blur-xs border border-white/25"
+                      : "bg-black/10 text-zinc-950 border border-black/10"
+                    : "bg-primary text-primary-foreground",
+                )}
+              >
                 VRAAG {currentIndex + 1} VAN {totalQuestions}
               </span>
             </div>
             <Progress
               value={displayedProgress}
-              className="h-1.5 w-full rounded-full bg-primary/25 [&>div]:bg-primary"
+              className={cn(
+                "h-1.5 w-full rounded-full",
+                questionBackgroundColor
+                  ? isDarkBg
+                    ? "bg-white/25 [&>div]:bg-white"
+                    : "bg-black/15 [&>div]:bg-zinc-900"
+                  : "bg-primary/25 [&>div]:bg-primary",
+              )}
             />
           </div>
         </div>
@@ -372,14 +417,14 @@ export function ModuleSurveyRunner({
         duration={0.4}
         className={cn(
           "flex min-h-0 flex-1 flex-col overflow-hidden",
-          isSimulatedCall && "relative h-full",
+          isSimulatedCall && "relative h-full w-full bg-black",
         )}
       >
         <div
           className={cn(
             "flex min-h-0 min-w-0 flex-1 flex-col overflow-x-hidden overflow-y-auto pb-6 scrollbar-none [&::-webkit-scrollbar]:hidden",
             isSimulatedCall
-              ? "relative h-full overflow-hidden rounded-none bg-foreground p-0 pb-0"
+              ? "relative h-full w-full overflow-hidden rounded-none bg-black p-0 pb-0"
               : "space-y-4",
           )}
         >

@@ -171,7 +171,7 @@ export function ModuleSwipeQuestion({
       {/* Action Controls Under Card */}
       <div className="mt-auto flex w-full max-w-full flex-col gap-2 pt-3">
         <div className="flex items-center justify-center py-0.5">
-          <span className="inline-flex items-center justify-center rounded-full bg-background/90 px-3.5 py-1 text-[11px] font-semibold text-foreground shadow-xs backdrop-blur-xs border border-border/40">
+          <span className="inline-flex items-center justify-center rounded-full bg-black/75 px-4 py-1 text-[11px] font-semibold text-white shadow-md backdrop-blur-md border border-white/20">
             Sleep de kaart of tik hieronder
           </span>
         </div>
@@ -180,7 +180,7 @@ export function ModuleSwipeQuestion({
             type="button"
             disabled={isDisabled}
             onClick={() => void submitSwipe("left")}
-            className="flex flex-1 items-center justify-center rounded-xl border border-black/10 bg-card px-4 py-3 text-sm font-bold text-foreground shadow-sm transition-all hover:bg-muted active:scale-95 disabled:pointer-events-none disabled:opacity-50 dark:border-white/15"
+            className="flex flex-1 items-center justify-center rounded-xl border border-black/15 bg-card px-4 py-3 text-sm font-bold text-foreground shadow-md transition-all hover:bg-muted active:scale-95 disabled:pointer-events-none disabled:opacity-50 dark:border-white/20"
           >
             <span className="truncate">{question.leftLabel || "Nee"}</span>
           </button>
@@ -188,7 +188,7 @@ export function ModuleSwipeQuestion({
             type="button"
             disabled={isDisabled}
             onClick={() => void submitSwipe("right")}
-            className="flex flex-1 items-center justify-center rounded-xl bg-primary px-4 py-3 text-sm font-bold text-primary-foreground shadow-sm transition-all hover:bg-primary/90 active:scale-95 disabled:pointer-events-none disabled:opacity-50"
+            className="flex flex-1 items-center justify-center rounded-xl bg-primary px-4 py-3 text-sm font-bold text-primary-foreground shadow-md ring-2 ring-white/30 transition-all hover:bg-primary/90 active:scale-95 disabled:pointer-events-none disabled:opacity-50"
           >
             <span className="truncate">{question.rightLabel || "Ja"}</span>
           </button>

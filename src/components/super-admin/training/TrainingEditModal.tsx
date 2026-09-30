@@ -125,16 +125,16 @@ export function TrainingEditModal({ training }: { training: Training }) {
           <Pencil /> Edit Training
         </Button>
       </DialogTrigger>
-      <DialogContent>
-        <DialogHeader>
+      <DialogContent className="flex max-h-[85vh] flex-col p-6 sm:max-w-xl">
+        <DialogHeader className="shrink-0">
           <DialogTitle>Edit Training</DialogTitle>
           <DialogDescription>
             Update the training details and thumbnail. Company/team assignment
             stays separate.
           </DialogDescription>
         </DialogHeader>
-        <form onSubmit={handleSubmit} className="space-y-5 h-[60vh] overflow-y-auto md:h-auto">
-          <div className="grid gap-4">
+        <form onSubmit={handleSubmit} className="flex flex-1 flex-col overflow-hidden">
+          <div className="custom-scrollbar flex-1 space-y-4 overflow-y-auto pr-2">
             <Field>
               <FieldLabel htmlFor={`edit-training-title-${training._id}`}>
                 Title
@@ -217,7 +217,7 @@ export function TrainingEditModal({ training }: { training: Training }) {
               )}
             </Field>
           </div>
-          <DialogFooter>
+          <DialogFooter className="shrink-0 border-t pt-4 mt-4">
             <Button
               type="button"
               variant="outline"

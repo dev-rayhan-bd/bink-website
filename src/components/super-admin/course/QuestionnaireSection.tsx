@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
 import { Button } from "@/components/ui/button";
@@ -10,7 +11,11 @@ import { AnimatePresence } from "framer-motion";
 import AnimationWrapper from "@/components/ui/custom/animation-wrapper";
 
 export function QuestionnaireSection() {
-  const { control, getValues } = useFormContext<CreateModuleFormValues>();
+  const {
+    control,
+    getValues,
+    formState: { errors },
+  } = useFormContext<CreateModuleFormValues>();
   
   const { fields, append, remove, update, move } = useFieldArray({
     control,
@@ -40,10 +45,24 @@ export function QuestionnaireSection() {
     remove(index);
   };
 
+  const questionsRootError =
+    typeof errors.questions?.message === "string"
+      ? errors.questions.message
+      : (errors.questions as any)?.root?.message;
+
   return (
     <div className="mt-8">
       <div className="sticky -top-5 z-20 bg-secondary/30 p-3 backdrop-blur-sm sm:flex sm:items-center sm:justify-between border-b shadow-sm mb-6">
-        <h2 className="hidden sm:block text-xl font-semibold text-foreground">Create Questionnaire</h2>
+        <div>
+          <h2 className="hidden sm:block text-xl font-semibold text-foreground">
+            Create Questionnaire
+          </h2>
+          {questionsRootError && (
+            <p className="text-xs font-semibold text-destructive mt-1">
+              {questionsRootError}
+            </p>
+          )}
+        </div>
         <Button type="button" onClick={addQuestion} className="flex w-full items-center gap-2 sm:mt-0 sm:w-auto shadow-md hover:shadow-lg transition-all">
           <Plus className="h-4 w-4" />
           Add New Question
