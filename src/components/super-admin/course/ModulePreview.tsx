@@ -356,6 +356,7 @@ export function ModulePreview({
       <div
         className={cn(
           "flex h-full min-h-0 w-full flex-col overflow-hidden bg-secondary p-3 text-foreground animate-fadeIn sm:p-5",
+          isSimulatedCall && "relative p-0",
         )}
         style={{ backgroundColor: questionBackgroundColor }}
       >
@@ -382,13 +383,16 @@ export function ModulePreview({
           key={currentIndex}
           direction="left"
           duration={0.4}
-          className="flex min-h-0 flex-1 flex-col overflow-hidden"
+          className={cn(
+            "flex min-h-0 flex-1 flex-col overflow-hidden",
+            isSimulatedCall && "relative h-full",
+          )}
         >
           <div
             className={cn(
               "flex min-h-0 min-w-0 flex-1 flex-col overflow-x-hidden overflow-y-auto scrollbar-none [&::-webkit-scrollbar]:hidden",
               isSimulatedCall
-                ? "overflow-hidden rounded-lg bg-foreground p-0"
+                ? "relative h-full overflow-hidden rounded-none bg-foreground p-0"
                 : "space-y-4",
             )}
           >

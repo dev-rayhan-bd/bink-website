@@ -343,6 +343,7 @@ export function ModuleSurveyRunner({
     <div
       className={cn(
         "fixed inset-0 z-100 flex h-dvh min-h-0 w-full flex-col overflow-hidden bg-secondary p-3 text-foreground animate-fadeIn sm:p-5",
+        isSimulatedCall && "p-0",
       )}
       style={{ backgroundColor: questionBackgroundColor }}
     >
@@ -369,13 +370,16 @@ export function ModuleSurveyRunner({
         key={currentIndex}
         direction="left"
         duration={0.4}
-        className="flex min-h-0 flex-1 flex-col overflow-hidden"
+        className={cn(
+          "flex min-h-0 flex-1 flex-col overflow-hidden",
+          isSimulatedCall && "relative h-full",
+        )}
       >
         <div
           className={cn(
             "flex min-h-0 min-w-0 flex-1 flex-col overflow-x-hidden overflow-y-auto pb-6 scrollbar-none [&::-webkit-scrollbar]:hidden",
             isSimulatedCall
-              ? "overflow-hidden rounded-lg bg-foreground p-0"
+              ? "relative h-full overflow-hidden rounded-none bg-foreground p-0 pb-0"
               : "space-y-4",
           )}
         >

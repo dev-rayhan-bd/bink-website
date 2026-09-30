@@ -18,10 +18,11 @@ export function SimulatedCallQuestion({
   disabled: boolean;
   onComplete: () => void;
 }) {
-  const [hasAnswered, setHasAnswered] = useState(answer === "completed");
+  const [localAnswered, setLocalAnswered] = useState(false);
   const [dragOffset, setDragOffset] = useState(0);
   const completionRef = useRef(false);
   const isComplete = answer === "completed";
+  const hasAnswered = isComplete || localAnswered;
   const callerName = question.callerName || "Training caller";
 
   const completeOnce = useCallback(() => {
@@ -57,7 +58,7 @@ export function SimulatedCallQuestion({
 
   if (!hasAnswered) {
     return (
-      <div className="fixed inset-0 z-50 flex h-full w-full overflow-hidden bg-foreground text-background">
+      <div className="absolute inset-0 z-20 flex h-full w-full overflow-hidden bg-foreground text-background">
         {question.callerPhoto && (
           <MediaImage
             value={question.callerPhoto as MediaValue}
@@ -122,7 +123,7 @@ export function SimulatedCallQuestion({
                 if (disabled) return;
                 if (info.offset.y < -72) {
                   setDragOffset(-120);
-                  window.setTimeout(() => setHasAnswered(true), 120);
+                  window.setTimeout(() => setLocalAnswered(true), 120);
                   return;
                 }
                 setDragOffset(0);
@@ -142,23 +143,25 @@ export function SimulatedCallQuestion({
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex h-full w-full flex-col overflow-hidden bg-black animate-fadeIn">
+    <div className="absolute inset-0 z-20 flex h-full w-full flex-col overflow-hidden bg-black animate-fadeIn">
       {question.postCallVideoUrl ? (
         <MediaVideo
           value={question.postCallVideoUrl as MediaValue}
           autoPlay
-          className="absolute inset-0 h-full w-full object-cover"
+          className="size-full object-cover"
           onEnded={completeOnce}
         />
       ) : question.callerPhoto ? (
         <MediaImage
           value={question.callerPhoto as MediaValue}
           alt=""
-          className="absolute inset-0 h-full w-full object-cover"
+          className="size-full object-cover"
         />
       ) : (
         <div className="flex h-full w-full flex-col items-center justify-center bg-foreground text-background">
-          <p className="text-xl font-bold">Gesprek beëindigd</p>
+          <p className="text-xl font-bold">
+            {question.postCallMessage || "Gesprek beëindigd"}
+          </p>
           <p className="mt-2 text-sm text-background/60">Even geduld a.u.b....</p>
         </div>
       )}

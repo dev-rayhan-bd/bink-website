@@ -20,6 +20,7 @@ export function QuestionAnswer({
   onAutoSubmit,
   correctAnswer,
   isSubmitted = false,
+  currentIndex,
 }: AnswerRendererProps & {
   onAutoSubmit?: (value: string) => void;
   currentIndex?: number;
@@ -264,6 +265,7 @@ export function QuestionAnswer({
   if (question.type === "Simulated Call") {
     return (
       <SimulatedCallQuestion
+        key={question.id || String(currentIndex)}
         question={question}
         answer={answer}
         disabled={disabled}
