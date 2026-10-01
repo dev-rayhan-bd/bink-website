@@ -33,8 +33,11 @@ export function QuestionAnswer({
   }
 
   if (question.type === "MCQ") {
+    const optionsCount = (question.options ?? []).length;
+    const isManyOptions = optionsCount >= 4;
+
     return (
-      <div className="space-y-3">
+      <div className={cn("w-full", isManyOptions ? "space-y-1.5" : "space-y-2")}>
         {(question.options ?? []).map((option, optionIndex) => {
           const selected = answer === option;
           const hasCorrectAnswer =
@@ -53,6 +56,8 @@ export function QuestionAnswer({
             !isCorrectOption &&
             !isWrongSelection;
 
+          const isLongText = option.length > 50;
+
           return (
             <button
               key={`${option}-${optionIndex}`}
@@ -60,30 +65,32 @@ export function QuestionAnswer({
               disabled={disabled}
               onClick={() => onAnswer(option)}
               className={cn(
-                "group flex w-full min-w-0 items-center justify-between gap-3.5 rounded-2xl p-4 text-left text-sm sm:text-base font-medium transition-all duration-150 cursor-pointer shadow-md active:scale-[0.99]",
+                "group flex w-full min-w-0 items-center justify-between gap-2.5 rounded-xl text-left font-medium transition-all duration-150 cursor-pointer shadow-xs active:scale-[0.99]",
+                isManyOptions ? "p-2.5 sm:p-3" : "p-3 sm:p-3.5",
                 // Unsubmitted & Unselected (Clean solid card)
                 !isSubmitted &&
                   !selected &&
-                  "bg-card text-card-foreground border-2 border-border hover:border-primary/60 hover:shadow-lg",
+                  "bg-card text-card-foreground border border-border/90 hover:border-primary/60 hover:shadow-sm",
                 // Unsubmitted & Selected (Highlighted active card)
                 !isSubmitted &&
                   selected &&
-                  "bg-card text-card-foreground border-2 border-primary ring-4 ring-primary/20 shadow-xl scale-[1.01] font-bold",
+                  "bg-card text-card-foreground border-2 border-primary ring-2 ring-primary/20 shadow-md font-bold",
                 // Submitted & Correct Option
                 isCorrectOption &&
-                  "bg-card text-card-foreground border-2 border-success shadow-md font-bold",
+                  "bg-card text-card-foreground border-2 border-success shadow-xs font-bold",
                 // Submitted & Wrong Option Selected
                 isWrongSelection &&
-                  "bg-card text-card-foreground border-2 border-destructive shadow-md font-bold",
+                  "bg-card text-card-foreground border-2 border-destructive shadow-xs font-bold",
                 // Submitted & Dimmed Options
                 isDimmed &&
                   "bg-card/70 text-muted-foreground border border-border/40 opacity-50 shadow-none",
               )}
             >
-              <div className="flex min-w-0 flex-1 items-center gap-3">
+              <div className="flex min-w-0 flex-1 items-center gap-2.5">
                 <span
                   className={cn(
-                    "flex size-8 shrink-0 items-center justify-center rounded-xl text-xs font-bold transition-all border",
+                    "flex shrink-0 items-center justify-center rounded-lg text-[11px] font-bold transition-all border",
+                    isManyOptions ? "size-6" : "size-6.5 sm:size-7",
                     // Unselected badge
                     !isSubmitted &&
                       !selected &&
@@ -91,7 +98,7 @@ export function QuestionAnswer({
                     // Selected badge
                     !isSubmitted &&
                       selected &&
-                      "bg-primary text-primary-foreground border-primary font-black shadow-xs scale-105",
+                      "bg-primary text-primary-foreground border-primary font-black shadow-xs",
                     // Correct badge
                     isCorrectOption && "bg-success text-success-foreground border-success shadow-xs font-bold",
                     // Wrong badge
@@ -102,7 +109,12 @@ export function QuestionAnswer({
                 >
                   {optionLabel(optionIndex)}
                 </span>
-                <span className="min-w-0 flex-1 whitespace-pre-wrap wrap-break-word leading-snug">
+                <span
+                  className={cn(
+                    "min-w-0 flex-1 whitespace-pre-wrap wrap-break-word leading-snug",
+                    isLongText || isManyOptions ? "text-xs sm:text-sm" : "text-xs sm:text-base",
+                  )}
+                >
                   {option}
                 </span>
               </div>
@@ -112,27 +124,27 @@ export function QuestionAnswer({
                 {!isSubmitted && (
                   <div
                     className={cn(
-                      "flex size-6 items-center justify-center rounded-full transition-all shrink-0",
+                      "flex size-5 sm:size-5.5 items-center justify-center rounded-full transition-all shrink-0",
                       selected
-                        ? "bg-primary text-primary-foreground shadow-xs ring-2 ring-primary/20"
-                        : "border-2 border-border bg-muted/40 group-hover:border-primary/50",
+                        ? "bg-primary text-primary-foreground shadow-xs ring-1 ring-primary/20"
+                        : "border border-border bg-muted/40 group-hover:border-primary/50",
                     )}
                   >
-                    {selected && <Check className="size-3.5 stroke-[3] text-primary-foreground" />}
+                    {selected && <Check className="size-3 stroke-[3] text-primary-foreground" />}
                   </div>
                 )}
                 {isCorrectOption && (
-                  <div className="flex size-6 items-center justify-center rounded-full bg-success text-success-foreground shadow-xs">
-                    <Check className="size-3.5 stroke-[3]" />
+                  <div className="flex size-5 sm:size-5.5 items-center justify-center rounded-full bg-success text-success-foreground shadow-xs">
+                    <Check className="size-3 stroke-[3]" />
                   </div>
                 )}
                 {isWrongSelection && (
-                  <div className="flex size-6 items-center justify-center rounded-full bg-destructive text-destructive-foreground shadow-xs">
-                    <X className="size-3.5 stroke-[3]" />
+                  <div className="flex size-5 sm:size-5.5 items-center justify-center rounded-full bg-destructive text-destructive-foreground shadow-xs">
+                    <X className="size-3 stroke-[3]" />
                   </div>
                 )}
                 {isDimmed && (
-                  <div className="size-6 rounded-full border-2 border-border/40" />
+                  <div className="size-5 rounded-full border border-border/40" />
                 )}
               </div>
             </button>
@@ -166,7 +178,7 @@ export function QuestionAnswer({
     };
 
     return (
-      <div className="space-y-3">
+      <div className="space-y-2 w-full">
         {items.map((item, index) => (
           <motion.div
             layout
@@ -177,32 +189,32 @@ export function QuestionAnswer({
               opacity: { duration: 0.2 },
             }}
             key={`${item}-${index}`}
-            className="flex items-center gap-3 rounded-2xl border-2 border-border bg-card p-4 shadow-md text-card-foreground"
+            className="flex items-center gap-2.5 rounded-xl border border-border bg-card p-3 shadow-xs text-card-foreground"
           >
-            <span className="flex size-8 shrink-0 items-center justify-center rounded-xl bg-muted text-sm font-bold text-foreground border border-border">
+            <span className="flex size-6.5 shrink-0 items-center justify-center rounded-lg bg-muted text-xs font-bold text-foreground border border-border">
               {index + 1}
             </span>
-            <span className="min-w-0 flex-1 whitespace-pre-wrap wrap-break-word text-sm sm:text-base font-medium">
+            <span className="min-w-0 flex-1 whitespace-pre-wrap wrap-break-word text-xs sm:text-sm font-medium">
               {item}
             </span>
-            <div className="flex gap-1">
+            <div className="flex gap-0.5">
               <Button
                 type="button"
-                size="icon"
+                size="icon-xs"
                 variant="ghost"
                 disabled={disabled || index === 0}
                 onClick={() => move(index, -1)}
               >
-                <ArrowUp />
+                <ArrowUp className="size-3.5" />
               </Button>
               <Button
                 type="button"
-                size="icon"
+                size="icon-xs"
                 variant="ghost"
                 disabled={disabled || index === items.length - 1}
                 onClick={() => move(index, 1)}
               >
-                <ArrowDown />
+                <ArrowDown className="size-3.5" />
               </Button>
             </div>
           </motion.div>
@@ -249,10 +261,11 @@ export function QuestionAnswer({
         : undefined;
     const hasOptions =
       Array.isArray(question.options) && question.options.length > 0;
+    const isManyOptions = (question.options?.length ?? 0) >= 4;
 
     return (
-      <div className="space-y-4">
-        <div className="aspect-video overflow-hidden rounded-2xl bg-black shadow-md">
+      <div className="space-y-2.5 w-full">
+        <div className="aspect-video max-h-[22dvh] overflow-hidden rounded-xl bg-black shadow-xs shrink-0">
           {youtubeId ? (
             <iframe
               src={`https://www.youtube.com/embed/${youtubeId}`}
@@ -266,7 +279,7 @@ export function QuestionAnswer({
           )}
         </div>
         {hasOptions ? (
-          <div className="space-y-3 pt-2">
+          <div className={cn("w-full pt-1", isManyOptions ? "space-y-1.5" : "space-y-2")}>
             {question.options?.map((option, optionIndex) => {
               const selected = answer === option;
               const hasCorrectAnswer =
@@ -289,6 +302,8 @@ export function QuestionAnswer({
                 !isCorrectOption &&
                 !isWrongSelection;
 
+              const isLongText = option.length > 50;
+
               return (
                 <button
                   key={`${option}-${optionIndex}`}
@@ -296,31 +311,33 @@ export function QuestionAnswer({
                   disabled={disabled}
                   onClick={() => onAnswer(option)}
                   className={cn(
-                    "group flex w-full min-w-0 items-center justify-between gap-3.5 rounded-2xl p-4 text-left text-sm sm:text-base font-medium transition-all duration-150 cursor-pointer shadow-md active:scale-[0.99]",
+                    "group flex w-full min-w-0 items-center justify-between gap-2.5 rounded-xl text-left font-medium transition-all duration-150 cursor-pointer shadow-xs active:scale-[0.99]",
+                    isManyOptions ? "p-2.5 sm:p-3" : "p-3 sm:p-3.5",
                     !isSubmitted &&
                       !selected &&
-                      "bg-card text-card-foreground border-2 border-border hover:border-primary/60 hover:shadow-lg",
+                      "bg-card text-card-foreground border border-border/90 hover:border-primary/60 hover:shadow-sm",
                     !isSubmitted &&
                       selected &&
-                      "bg-card text-card-foreground border-2 border-primary ring-4 ring-primary/20 shadow-xl scale-[1.01] font-bold",
+                      "bg-card text-card-foreground border-2 border-primary ring-2 ring-primary/20 shadow-md font-bold",
                     isCorrectOption &&
-                      "bg-card text-card-foreground border-2 border-success shadow-md font-bold",
+                      "bg-card text-card-foreground border-2 border-success shadow-xs font-bold",
                     isWrongSelection &&
-                      "bg-card text-card-foreground border-2 border-destructive shadow-md font-bold",
+                      "bg-card text-card-foreground border-2 border-destructive shadow-xs font-bold",
                     isDimmed &&
                       "bg-card/70 text-muted-foreground border border-border/40 opacity-50 shadow-none",
                   )}
                 >
-                  <div className="flex min-w-0 flex-1 items-center gap-3">
+                  <div className="flex min-w-0 flex-1 items-center gap-2.5">
                     <span
                       className={cn(
-                        "flex size-8 shrink-0 items-center justify-center rounded-xl text-xs font-bold transition-all border",
+                        "flex shrink-0 items-center justify-center rounded-lg text-[11px] font-bold transition-all border",
+                        isManyOptions ? "size-6" : "size-6.5 sm:size-7",
                         !isSubmitted &&
                           !selected &&
                           "bg-muted text-foreground border-border group-hover:bg-primary/10 group-hover:text-primary",
                         !isSubmitted &&
                           selected &&
-                          "bg-primary text-primary-foreground border-primary font-black shadow-xs scale-105",
+                          "bg-primary text-primary-foreground border-primary font-black shadow-xs",
                         isCorrectOption && "bg-success text-success-foreground border-success shadow-xs font-bold",
                         isWrongSelection && "bg-destructive text-destructive-foreground border-destructive shadow-xs font-bold",
                         isDimmed && "bg-muted text-muted-foreground border-border/40",
@@ -328,7 +345,12 @@ export function QuestionAnswer({
                     >
                       {optionLabel(optionIndex)}
                     </span>
-                    <span className="min-w-0 flex-1 whitespace-pre-wrap wrap-break-word leading-snug">
+                    <span
+                      className={cn(
+                        "min-w-0 flex-1 whitespace-pre-wrap wrap-break-word leading-snug",
+                        isLongText || isManyOptions ? "text-xs sm:text-sm" : "text-xs sm:text-base",
+                      )}
+                    >
                       {option}
                     </span>
                   </div>
@@ -337,27 +359,27 @@ export function QuestionAnswer({
                     {!isSubmitted && (
                       <div
                         className={cn(
-                          "flex size-6 items-center justify-center rounded-full transition-all shrink-0",
+                          "flex size-5 sm:size-5.5 items-center justify-center rounded-full transition-all shrink-0",
                           selected
-                            ? "bg-primary text-primary-foreground shadow-xs ring-2 ring-primary/20"
-                            : "border-2 border-border bg-muted/40 group-hover:border-primary/50",
+                            ? "bg-primary text-primary-foreground shadow-xs ring-1 ring-primary/20"
+                            : "border border-border bg-muted/40 group-hover:border-primary/50",
                         )}
                       >
-                        {selected && <Check className="size-3.5 stroke-[3] text-primary-foreground" />}
+                        {selected && <Check className="size-3 stroke-[3] text-primary-foreground" />}
                       </div>
                     )}
                     {isCorrectOption && (
-                      <div className="flex size-6 items-center justify-center rounded-full bg-success text-success-foreground shadow-xs">
-                        <Check className="size-3.5 stroke-[3]" />
+                      <div className="flex size-5 sm:size-5.5 items-center justify-center rounded-full bg-success text-success-foreground shadow-xs">
+                        <Check className="size-3 stroke-[3]" />
                       </div>
                     )}
                     {isWrongSelection && (
-                      <div className="flex size-6 items-center justify-center rounded-full bg-destructive text-destructive-foreground shadow-xs">
-                        <X className="size-3.5 stroke-[3]" />
+                      <div className="flex size-5 sm:size-5.5 items-center justify-center rounded-full bg-destructive text-destructive-foreground shadow-xs">
+                        <X className="size-3 stroke-[3]" />
                       </div>
                     )}
                     {isDimmed && (
-                      <div className="size-6 rounded-full border-2 border-border/40" />
+                      <div className="size-5 rounded-full border border-border/40" />
                     )}
                   </div>
                 </button>
@@ -371,7 +393,7 @@ export function QuestionAnswer({
 
   if (question.type === "Rating") {
     return (
-      <div className="grid grid-cols-5 gap-2 pt-1">
+      <div className="grid grid-cols-5 gap-1.5 pt-1 w-full">
         {Array.from(
           { length: question.scale ?? 5 },
           (_, index) => index + 1,
@@ -384,10 +406,10 @@ export function QuestionAnswer({
               disabled={disabled}
               onClick={() => onAnswer(rating)}
               className={cn(
-                "flex h-12 items-center justify-center rounded-2xl text-base font-bold transition-all duration-150 cursor-pointer shadow-sm active:scale-95",
+                "flex h-11 sm:h-12 items-center justify-center rounded-xl text-sm sm:text-base font-bold transition-all duration-150 cursor-pointer shadow-xs active:scale-95",
                 isSelected
-                  ? "bg-primary text-primary-foreground ring-2 ring-primary/30 shadow-md scale-105"
-                  : "bg-card text-card-foreground border-2 border-border hover:border-primary/60 hover:shadow-md",
+                  ? "bg-primary text-primary-foreground ring-2 ring-primary/30 shadow-sm scale-105"
+                  : "bg-card text-card-foreground border border-border hover:border-primary/60 hover:shadow-xs",
               )}
             >
               {rating}
@@ -403,7 +425,7 @@ export function QuestionAnswer({
       value={typeof answer === "string" ? answer : ""}
       disabled={disabled}
       placeholder="Schrijf jouw antwoord..."
-      className="min-h-36 rounded-2xl border-2 border-border bg-card p-4 text-card-foreground shadow-sm placeholder:text-muted-foreground focus-visible:border-primary focus-visible:ring-primary/20"
+      className="min-h-28 sm:min-h-36 rounded-xl border border-border bg-card p-3.5 text-card-foreground shadow-xs placeholder:text-muted-foreground focus-visible:border-primary focus-visible:ring-primary/20 text-xs sm:text-sm"
       onChange={(event) => onAnswer(event.target.value)}
     />
   );

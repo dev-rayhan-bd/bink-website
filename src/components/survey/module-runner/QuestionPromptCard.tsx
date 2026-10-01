@@ -26,11 +26,13 @@ export function QuestionPromptCard({ question }: { question: ModuleQuestion }) {
     : undefined;
 
   const typeLabel = QUESTION_TYPE_LABELS[question.type] || question.type;
+  const rawTextLength = (question.content || "").length;
+  const isLongContent = rawTextLength > 100;
 
   return (
-    <div className="mb-2 shrink-0 space-y-2.5 pt-1 overflow-visible bg-transparent">
-      <div className="flex items-center pt-0.5">
-        <span className="inline-flex shrink-0 items-center justify-center rounded-full bg-black/75 px-3.5 py-1 text-[10px] font-bold uppercase tracking-wider text-white shadow-sm backdrop-blur-md border border-white/20 whitespace-nowrap">
+    <div className="shrink-0 space-y-1.5 overflow-visible bg-transparent">
+      <div className="flex items-center">
+        <span className="inline-flex shrink-0 items-center justify-center rounded-full bg-black/75 px-2.5 py-0.5 text-[9px] font-bold uppercase tracking-wider text-white shadow-xs backdrop-blur-md border border-white/20 whitespace-nowrap">
           {typeLabel}
         </span>
       </div>
@@ -38,7 +40,7 @@ export function QuestionPromptCard({ question }: { question: ModuleQuestion }) {
       {(question.image || hasContent) && (
         <div
           className={cn(
-            "overflow-hidden rounded-[24px] border border-black/10 shadow-md shadow-black/5 dark:border-white/15",
+            "overflow-hidden rounded-2xl border border-black/10 shadow-xs dark:border-white/15",
             blockColor ? "" : "bg-card text-card-foreground",
           )}
           style={blockColor ? { backgroundColor: blockColor } : undefined}
@@ -46,8 +48,10 @@ export function QuestionPromptCard({ question }: { question: ModuleQuestion }) {
           {question.image && (
             <div
               className={cn(
-                "relative w-full overflow-hidden shrink-0",
-                hasContent ? "aspect-16/10" : "aspect-4/3 min-h-[220px]",
+                "relative w-full overflow-hidden shrink-0 bg-black/5",
+                hasContent
+                  ? "max-h-[120px] sm:max-h-[160px] aspect-video"
+                  : "max-h-[180px] sm:max-h-[220px] aspect-video",
               )}
             >
               <MediaImage
@@ -59,10 +63,13 @@ export function QuestionPromptCard({ question }: { question: ModuleQuestion }) {
           )}
 
           {hasContent && (
-            <div className="p-5 sm:p-6">
+            <div className="p-3.5 sm:p-4">
               <RichQuestionContent
                 value={question.content}
-                className="font-heading text-base font-semibold leading-relaxed text-card-foreground sm:text-lg"
+                className={cn(
+                  "font-heading font-semibold leading-snug text-card-foreground",
+                  isLongContent ? "text-xs sm:text-sm" : "text-sm sm:text-base",
+                )}
               />
             </div>
           )}
@@ -71,4 +78,3 @@ export function QuestionPromptCard({ question }: { question: ModuleQuestion }) {
     </div>
   );
 }
-

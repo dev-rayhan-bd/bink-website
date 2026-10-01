@@ -444,10 +444,10 @@ export function ModulePreview({
         >
           <div
             className={cn(
-              "flex min-h-0 min-w-0 flex-1 flex-col overflow-x-hidden overflow-y-auto scrollbar-none [&::-webkit-scrollbar]:hidden",
+              "flex min-h-0 min-w-0 flex-1 flex-col overflow-x-hidden overflow-y-auto pb-2 scrollbar-none [&::-webkit-scrollbar]:hidden",
               isSimulatedCall
                 ? "relative h-full w-full overflow-hidden rounded-none bg-black p-0"
-                : "space-y-4",
+                : "space-y-2.5",
             )}
           >
             {question.type !== "Swipe" &&

@@ -360,7 +360,7 @@ export function ModuleSurveyRunner({
   return (
     <div
       className={cn(
-        "fixed inset-0 z-100 flex h-dvh min-h-0 w-full flex-col overflow-hidden bg-secondary p-3 text-foreground animate-fadeIn sm:p-5",
+        "fixed inset-0 z-100 flex h-dvh min-h-0 w-full flex-col overflow-hidden bg-secondary p-2.5 sm:p-4 text-foreground animate-fadeIn",
         isSimulatedCall && "p-0 bg-black text-white",
       )}
       style={{
@@ -368,10 +368,10 @@ export function ModuleSurveyRunner({
       }}
     >
       {!isSimulatedCall && (
-        <div className="mb-4 shrink-0 px-1 py-2">
+        <div className="mb-2 shrink-0 px-1 py-1">
           <h2
             className={cn(
-              "mb-2 font-heading text-lg font-bold leading-tight",
+              "mb-1 font-heading text-base sm:text-lg font-bold leading-snug truncate",
               questionBackgroundColor
                 ? isDarkBg
                   ? "text-white drop-shadow-sm"
@@ -381,11 +381,11 @@ export function ModuleSurveyRunner({
           >
             {module.title}
           </h2>
-          <div className="flex flex-col gap-1.5">
+          <div className="flex flex-col gap-1">
             <div className="flex items-center">
               <span
                 className={cn(
-                  "rounded-sm px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider leading-none shadow-xs",
+                  "rounded-sm px-2 py-0.5 text-[9px] font-bold uppercase tracking-wider leading-none shadow-xs",
                   questionBackgroundColor
                     ? isDarkBg
                       ? "bg-black/40 text-white backdrop-blur-xs border border-white/25"
@@ -422,10 +422,10 @@ export function ModuleSurveyRunner({
       >
         <div
           className={cn(
-            "flex min-h-0 min-w-0 flex-1 flex-col overflow-x-hidden overflow-y-auto pb-6 scrollbar-none [&::-webkit-scrollbar]:hidden",
+            "flex min-h-0 min-w-0 flex-1 flex-col overflow-x-hidden overflow-y-auto pb-2 scrollbar-none [&::-webkit-scrollbar]:hidden",
             isSimulatedCall
               ? "relative h-full w-full overflow-hidden rounded-none bg-black p-0 pb-0"
-              : "space-y-4",
+              : "space-y-2.5",
           )}
         >
           {question.type !== "Swipe" &&
@@ -525,7 +525,7 @@ export function ModuleSurveyRunner({
       </AnimationWrapper>
 
       {!isSimulatedCall && question?.type !== "Swipe" && (
-        <div className="mt-auto shrink-0 pt-3 [&_button]:bg-background [&_button]:text-foreground [&_button]:hover:bg-background/90">
+        <div className="mt-auto shrink-0 pt-1.5 [&_button]:bg-background [&_button]:text-foreground [&_button]:hover:bg-background/90">
           {result ? (
             isOrderingRetry ? (
               <Button
