@@ -41,23 +41,23 @@ export function QuestionPromptCard({ question }: { question: ModuleQuestion }) {
         <div
           className={cn(
             "overflow-hidden rounded-2xl border border-black/10 shadow-xs dark:border-white/15",
-            blockColor ? "" : "bg-card text-card-foreground",
+            blockColor ? "" : "bg-white text-zinc-950 dark:bg-card dark:text-card-foreground",
           )}
           style={blockColor ? { backgroundColor: blockColor } : undefined}
         >
           {question.image && (
             <div
               className={cn(
-                "relative w-full overflow-hidden shrink-0 bg-black/5",
+                "relative w-full overflow-hidden shrink-0 flex items-center justify-center bg-black/5 dark:bg-black/20",
                 hasContent
-                  ? "max-h-[120px] sm:max-h-[160px] aspect-video"
-                  : "max-h-[180px] sm:max-h-[220px] aspect-video",
+                  ? "max-h-[160px] sm:max-h-[200px] aspect-video"
+                  : "max-h-[220px] sm:max-h-[280px] aspect-video",
               )}
             >
               <MediaImage
                 value={question.image as MediaValue}
                 alt="Vraag afbeelding"
-                className="block h-full w-full object-cover object-center"
+                className="block h-full w-full object-contain object-center"
               />
             </div>
           )}
@@ -67,7 +67,7 @@ export function QuestionPromptCard({ question }: { question: ModuleQuestion }) {
               <RichQuestionContent
                 value={question.content}
                 className={cn(
-                  "font-heading font-semibold leading-snug text-card-foreground",
+                  "font-heading font-semibold leading-snug text-zinc-950 dark:text-card-foreground",
                   isLongContent ? "text-xs sm:text-sm" : "text-sm sm:text-base",
                 )}
               />

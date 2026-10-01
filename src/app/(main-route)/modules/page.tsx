@@ -140,12 +140,14 @@ export default async function ModulesPage() {
                 className="overflow-hidden rounded-lg border border-border bg-secondary/20 shadow-sm transition-colors hover:border-secondary/50"
               >
                 {training.thumbnailImage && (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img
-                    src={training.thumbnailImage}
-                    alt={training.title}
-                    className="h-36 w-full border-b object-cover"
-                  />
+                  <div className="relative w-full aspect-[2/1] sm:aspect-video overflow-hidden border-b bg-muted/30">
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img
+                      src={training.thumbnailImage}
+                      alt={training.title}
+                      className="h-full w-full object-cover object-center"
+                    />
+                  </div>
                 )}
 
                 <div className="space-y-4 p-5">

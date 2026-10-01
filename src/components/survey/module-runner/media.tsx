@@ -56,7 +56,6 @@ export function MediaVideo({
   className,
   autoPlay = false,
   onEnded,
-  controls = true,
   showControls = true,
   muted = false,
   loop = false,

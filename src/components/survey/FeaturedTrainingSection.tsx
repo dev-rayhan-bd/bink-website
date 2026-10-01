@@ -65,12 +65,14 @@ export function FeaturedTrainingSection({
               className="overflow-hidden rounded-lg border-2 border-primary/30 bg-primary/5 shadow-sm"
             >
               {moduleData?.thumbnailImage && (
-                // eslint-disable-next-line @next/next/no-img-element
-                <img
-                  src={moduleData.thumbnailImage}
-                  alt={moduleData.title}
-                  className="h-40 w-full border-b object-cover"
-                />
+                <div className="relative w-full aspect-[2/1] sm:aspect-video overflow-hidden border-b bg-muted/30">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src={moduleData.thumbnailImage}
+                    alt={moduleData.title}
+                    className="h-full w-full object-cover object-center"
+                  />
+                </div>
               )}
 
               <div className="space-y-4 p-5">
