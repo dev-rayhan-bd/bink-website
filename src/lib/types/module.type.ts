@@ -15,6 +15,7 @@ export type ModuleQuestionType =
 export type ModuleMessage = {
   sender: string;
   text: string;
+  isUser?: boolean;
 };
 
 export interface IChatStepOption {

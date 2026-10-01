@@ -211,33 +211,6 @@ export function QuestionBlock({
     );
   };
 
-  const addChatOption = () => {
-    if (currentQuestion.type !== "Chat Scenario") return;
-    setValue(
-      `questions.${index}.options`,
-      [...(currentQuestion.options || []), ""],
-      { shouldDirty: true },
-    );
-  };
-
-  const removeChatOption = (optionIndex: number) => {
-    if (
-      currentQuestion.type !== "Chat Scenario" ||
-      (currentQuestion.options?.length || 0) <= 2
-    )
-      return;
-    const removed = currentQuestion.options?.[optionIndex];
-    setValue(
-      `questions.${index}.options`,
-      (currentQuestion.options || []).filter(
-        (_, itemIndex) => itemIndex !== optionIndex,
-      ),
-      { shouldDirty: true, shouldValidate: true },
-    );
-    if (currentQuestion.correctAnswer === removed) {
-      setValue(`questions.${index}.correctAnswer`, "", { shouldDirty: true });
-    }
-  };
 
   const bgColors = ["bg-card", "bg-primary/5", "bg-secondary/10"];
   const bgColor = bgColors[index % bgColors.length];

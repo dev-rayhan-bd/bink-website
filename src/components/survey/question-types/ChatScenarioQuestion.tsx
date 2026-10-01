@@ -1,8 +1,10 @@
+/* eslint-disable react-hooks/set-state-in-effect */
+/* eslint-disable react-hooks/refs */
 /* eslint-disable @next/next/no-img-element */
 "use client";
 
-import { useEffect, useRef, useState, useCallback } from "react";
-import { CheckCircle2, MessageCircle, Sparkles, XCircle } from "lucide-react";
+import { useEffect, useRef, useState, useCallback, useMemo } from "react";
+import { CheckCircle2, Sparkles, XCircle } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { MediaImage } from "../module-runner/media";
 import type { AnswerValue, MediaValue } from "../module-runner/types";
@@ -30,7 +32,6 @@ interface UserSelection {
 const CHAT_LABELS = {
   chooseResponse: "KIES JE REACTIE",
   typing: "aan het typen...",
-  online: "Online",
   conversationComplete: "Gesprek voltooid",
 };
 
@@ -40,29 +41,139 @@ export function ChatScenarioQuestion({
   onAnswer,
   onAutoSubmit,
 }: ChatScenarioQuestionProps) {
-  // Normalize chat steps from either branching `chatSteps` or legacy `messages`/`options`
-  const steps: IChatStep[] = Array.isArray(question.chatSteps) && question.chatSteps.length > 0
-    ? question.chatSteps
-    : [
-        {
-          stepId: "step-1",
-          messages: (question.messages ?? []).map((msg) => ({
-            sender: msg.sender || question.senderName || "Klant",
-            text: msg.text || "",
-            isUser: false,
-          })),
-          options: (question.options ?? []).map((opt, index) => ({
-            optionId: `opt-${index + 1}`,
-            text: opt,
-            nextStepId: null,
-            feedback: "",
-            isCorrect: question.correctAnswer ? question.correctAnswer === opt : false,
-          })),
-        },
-      ];
-
-  const senderName = question.senderName || steps[0]?.messages?.[0]?.sender || "Klant";
+  const senderName = question.senderName?.trim() || "Klant";
   const senderAvatar = question.senderAvatar;
+
+  // Normalize chat steps from branching `chatSteps` or legacy `messages`/`options`
+  const steps = useMemo<IChatStep[]>(() => {
+    // 1. If branching chatSteps exist
+    if (Array.isArray(question.chatSteps) && question.chatSteps.length > 0) {
+      return question.chatSteps.map((step, sIdx) => {
+        const stepId = step.stepId || `step-${sIdx + 1}`;
+
+        // Normalize messages
+        const messages = (Array.isArray(step.messages) ? step.messages : [])
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          .map((m: any) => ({
+            sender: m?.sender || senderName,
+            text: typeof m?.text === "string" ? m.text : typeof m === "string" ? m : "",
+            isUser: Boolean(m?.isUser),
+          }))
+          .filter((m) => m.text.trim().length > 0);
+
+        // Normalize options
+        const options: IChatStepOption[] = (Array.isArray(step.options) ? step.options : [])
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          .map((opt: any, oIdx: number) => {
+            if (typeof opt === "object" && opt !== null) {
+              return {
+                optionId: opt.optionId || `opt-${sIdx + 1}-${oIdx + 1}`,
+                text: typeof opt.text === "string" ? opt.text : "",
+                nextStepId: opt.nextStepId || null,
+                feedback: typeof opt.feedback === "string" ? opt.feedback : "",
+                isCorrect: typeof opt.isCorrect === "boolean" ? opt.isCorrect : oIdx === 0,
+              };
+            }
+            return {
+              optionId: `opt-${sIdx + 1}-${oIdx + 1}`,
+              text: String(opt || ""),
+              nextStepId: null,
+              feedback: "",
+              isCorrect: oIdx === 0,
+            };
+          })
+          .filter((o) => o.text.trim().length > 0);
+
+        // Fallback message for the first step if no non-empty text was provided
+        const fallbackMessages =
+          messages.length > 0
+            ? messages
+            : sIdx === 0
+              ? [
+                  {
+                    sender: senderName,
+                    text:
+                      question.content && question.content.trim().length > 0
+                        ? question.content.trim()
+                        : "Hallo, hoe kan ik je helpen?",
+                    isUser: false,
+                  },
+                ]
+              : [];
+
+        return {
+          stepId,
+          messages: fallbackMessages,
+          options,
+        };
+      });
+    }
+
+    // 2. Legacy fallback from question.messages / question.options / question.content
+    const legacyOptions: IChatStepOption[] = Array.isArray(question.options)
+      ? question.options
+          .map((opt: unknown, index: number) => {
+            if (typeof opt === "object" && opt !== null) {
+              const optObj = opt as Record<string, unknown>;
+              return {
+                optionId: typeof optObj.optionId === "string" ? optObj.optionId : `opt-1-${index + 1}`,
+                text: typeof optObj.text === "string" ? optObj.text : "",
+                nextStepId: typeof optObj.nextStepId === "string" ? optObj.nextStepId : null,
+                feedback: typeof optObj.feedback === "string" ? optObj.feedback : "",
+                isCorrect:
+                  typeof optObj.isCorrect === "boolean" ? optObj.isCorrect : index === 0,
+              };
+            }
+            return {
+              optionId: `opt-1-${index + 1}`,
+              text: String(opt || ""),
+              nextStepId: null,
+              feedback: "",
+              isCorrect: question.correctAnswer
+                ? question.correctAnswer === opt
+                : index === 0,
+            };
+          })
+          .filter((o) => o.text.trim().length > 0)
+      : [];
+
+    const legacyMessages = Array.isArray(question.messages) && question.messages.length > 0
+      ? question.messages
+          .map((m) => ({
+            sender: m.sender || senderName,
+            text: typeof m.text === "string" ? m.text : "",
+            isUser: Boolean(m.isUser),
+          }))
+          .filter((m) => m.text.trim().length > 0)
+      : [];
+
+    return [
+      {
+        stepId: "step-1",
+        messages:
+          legacyMessages.length > 0
+            ? legacyMessages
+            : [
+                {
+                  sender: senderName,
+                  text:
+                    question.content && question.content.trim().length > 0
+                      ? question.content.trim()
+                      : "Hallo, hoe kan ik je helpen?",
+                  isUser: false,
+                },
+              ],
+        options: legacyOptions,
+      },
+    ];
+  }, [
+    question.chatSteps,
+    question.options,
+    question.messages,
+    question.content,
+    question.correctAnswer,
+    senderName,
+  ]);
 
   const [visibleMessages, setVisibleMessages] = useState<VisibleMessage[]>([]);
   const [currentStepId, setCurrentStepId] = useState<string | null>(null);
@@ -73,118 +184,186 @@ export function ChatScenarioQuestion({
     text: string;
     isCorrect?: boolean;
   } | null>(null);
-  const [userSelections, setUserSelections] = useState<UserSelection[]>([]);
   const [isCompleted, setIsCompleted] = useState(false);
 
+  const chatScrollContainerRef = useRef<HTMLDivElement>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
-  const isInitializedRef = useRef(false);
   const activeStepTimeoutRef = useRef<NodeJS.Timeout[]>([]);
+  const stepsRef = useRef(steps);
+  stepsRef.current = steps;
+
+  const onAnswerRef = useRef(onAnswer);
+  onAnswerRef.current = onAnswer;
+
+  const onAutoSubmitRef = useRef(onAutoSubmit);
+  onAutoSubmitRef.current = onAutoSubmit;
+
+  const userSelectionsRef = useRef<UserSelection[]>([]);
 
   const scrollToBottom = useCallback((smooth = true) => {
-    messagesEndRef.current?.scrollIntoView({
-      behavior: smooth ? "smooth" : "auto",
-      block: "end",
-    });
+    if (chatScrollContainerRef.current) {
+      chatScrollContainerRef.current.scrollTo({
+        top: chatScrollContainerRef.current.scrollHeight,
+        behavior: smooth ? "smooth" : "auto",
+      });
+    } else {
+      messagesEndRef.current?.scrollIntoView({
+        behavior: smooth ? "smooth" : "auto",
+        block: "end",
+      });
+    }
   }, []);
 
   useEffect(() => {
-    scrollToBottom(true);
+    // Small timeout to allow DOM layout to settle before scrolling
+    const timer = setTimeout(() => {
+      scrollToBottom(true);
+    }, 40);
+    return () => clearTimeout(timer);
   }, [visibleMessages, isTyping, showOptions, feedback, scrollToBottom]);
 
-  // Cleanup timeouts on unmount
-  useEffect(() => {
-    return () => {
-      activeStepTimeoutRef.current.forEach(clearTimeout);
-    };
-  }, []);
-
-  // Display a step with realistic typing delay
+  // Display a step with snappy typing delays
   const playStep = useCallback(
     (stepId: string) => {
-      const step = steps.find((s) => s.stepId === stepId);
+      // Clear any pending timers from previous steps
+      activeStepTimeoutRef.current.forEach(clearTimeout);
+      activeStepTimeoutRef.current = [];
+
+      const currentSteps = stepsRef.current;
+      const step =
+        currentSteps.find((s) => s.stepId === stepId) ||
+        currentSteps.find((s) => s.stepId === question.initialStepId) ||
+        currentSteps[0];
+
       if (!step) {
         setIsCompleted(true);
+        setIsTyping(false);
+        const finalSelections =
+          userSelectionsRef.current.length > 0
+            ? userSelectionsRef.current
+            : "completed";
+        onAnswerRef.current(finalSelections);
+        onAutoSubmitRef.current?.(finalSelections);
         return;
       }
 
-      setCurrentStepId(stepId);
+      setCurrentStepId(step.stepId);
       setShowOptions(false);
       setFeedback(null);
 
-      const stepMessages = step.messages.filter((m) => m.text.trim().length > 0);
+      const stepMessages = (step.messages || []).filter(
+        (m) => m && typeof m.text === "string" && m.text.trim().length > 0,
+      );
+
+      const optionsList = (step.options || []).filter(
+        (o) => o && typeof o.text === "string" && o.text.trim().length > 0,
+      );
 
       if (stepMessages.length === 0) {
+        setIsTyping(false);
+        setCurrentOptions(optionsList);
         setShowOptions(true);
-        setCurrentOptions(step.options ?? []);
-        if (!step.options || step.options.length === 0) {
+        if (optionsList.length === 0) {
           setIsCompleted(true);
+          const finalSelections =
+            userSelectionsRef.current.length > 0
+              ? userSelectionsRef.current
+              : "completed";
+          onAnswerRef.current(finalSelections);
+          onAutoSubmitRef.current?.(finalSelections);
         }
         return;
       }
 
-      // Chain message delivery with typing indicators
-      let accumulatedDelay = 250;
+      let accumulatedDelay = 100;
 
       stepMessages.forEach((msg, idx) => {
-        // Show typing indicator
+        // 1. Start typing indicator
         const typingTimer = setTimeout(() => {
           setIsTyping(true);
         }, accumulatedDelay);
         activeStepTimeoutRef.current.push(typingTimer);
 
-        accumulatedDelay += 650 + Math.min(msg.text.length * 15, 600);
+        // Typing duration based on text length (snappy 300ms - 600ms)
+        const typingDuration = 300 + Math.min(msg.text.length * 8, 300);
+        accumulatedDelay += typingDuration;
 
-        // Deliver message & hide typing
+        // 2. Reveal message and stop typing
         const messageTimer = setTimeout(() => {
           setIsTyping(false);
           setVisibleMessages((prev) => [
             ...prev,
             {
-              id: `${stepId}-${idx}-${Date.now()}`,
+              id: `${step.stepId}-${idx}-${Date.now()}-${Math.random()}`,
               sender: msg.sender || senderName,
               text: msg.text,
-              isUser: msg.isUser ?? false,
+              isUser: Boolean(msg.isUser),
             },
           ]);
         }, accumulatedDelay);
         activeStepTimeoutRef.current.push(messageTimer);
 
-        accumulatedDelay += 350;
+        // Small gap between messages
+        accumulatedDelay += 150;
       });
 
-      // After all messages, display response options
+      // 3. Reveal response options after last message
       const optionsTimer = setTimeout(() => {
         setIsTyping(false);
-        const optionsList = step.options ?? [];
         setCurrentOptions(optionsList);
         setShowOptions(true);
 
         if (optionsList.length === 0) {
           setIsCompleted(true);
+          const finalSelections =
+            userSelectionsRef.current.length > 0
+              ? userSelectionsRef.current
+              : "completed";
+          onAnswerRef.current(finalSelections);
+          onAutoSubmitRef.current?.(finalSelections);
         }
       }, accumulatedDelay);
       activeStepTimeoutRef.current.push(optionsTimer);
     },
-    [senderName, steps],
+    [question.initialStepId, senderName],
   );
 
-  // Initialize conversation on mount
+  // Initialize conversation on mount / question change
   useEffect(() => {
-    if (isInitializedRef.current) return;
-    isInitializedRef.current = true;
+    activeStepTimeoutRef.current.forEach(clearTimeout);
+    activeStepTimeoutRef.current = [];
 
-    const startStepId = question.initialStepId || steps[0]?.stepId || "step-1";
+    setVisibleMessages([]);
+    userSelectionsRef.current = [];
+    setIsCompleted(false);
+    setFeedback(null);
+    setShowOptions(false);
+    setIsTyping(false);
+
+    const currentSteps = stepsRef.current;
+    const startStepId =
+      (question.initialStepId &&
+        currentSteps.some((s) => s.stepId === question.initialStepId)
+        ? question.initialStepId
+        : undefined) ||
+      currentSteps[0]?.stepId ||
+      "step-1";
+
     playStep(startStepId);
-  }, [playStep, question.initialStepId, steps]);
+
+    return () => {
+      activeStepTimeoutRef.current.forEach(clearTimeout);
+      activeStepTimeoutRef.current = [];
+    };
+  }, [question.id, question.initialStepId, playStep]);
 
   // Handle participant response selection
-  const handleSelectOption = async (option: IChatStepOption) => {
-    if (disabled || isTyping) return;
+  const handleSelectOption = (option: IChatStepOption) => {
+    if (disabled || isTyping || isCompleted) return;
 
-    // 1. Hide response options immediately
     setShowOptions(false);
 
-    // 2. Add user's selected choice to messages (Right-aligned bubble)
+    // Add user's choice to messages
     setVisibleMessages((prev) => [
       ...prev,
       {
@@ -196,13 +375,14 @@ export function ChatScenarioQuestion({
     ]);
 
     const updatedSelections = [
-      ...userSelections,
+      ...userSelectionsRef.current,
       { stepId: currentStepId || "", optionId: option.optionId },
     ];
-    setUserSelections(updatedSelections);
+    userSelectionsRef.current = updatedSelections;
 
-    // 3. Show feedback if option contains feedback
-    const hasFeedback = option.feedback && option.feedback.trim().length > 0;
+    const hasFeedback = Boolean(
+      option.feedback && option.feedback.trim().length > 0,
+    );
     if (hasFeedback) {
       setFeedback({
         text: option.feedback!.trim(),
@@ -210,31 +390,53 @@ export function ChatScenarioQuestion({
       });
     }
 
-    // 4. Branching navigation
-    const feedbackWaitTime = hasFeedback ? 1600 : 400;
+    const currentSteps = stepsRef.current;
+    const currentStepIndex = currentSteps.findIndex(
+      (s) => s.stepId === currentStepId,
+    );
+
+    // 1. Check if option has an explicit nextStepId pointing to an existing step
+    let targetStepId: string | null = null;
+    if (
+      option.nextStepId &&
+      option.nextStepId !== "__end__" &&
+      option.nextStepId !== "null"
+    ) {
+      const stepFound = currentSteps.find(
+        (s) => s.stepId === option.nextStepId,
+      );
+      if (stepFound) {
+        targetStepId = stepFound.stepId;
+      }
+    }
+
+    // 2. If no explicit nextStepId and not explicitly set to __end__, advance to next sequential step in the tree
+    if (
+      !targetStepId &&
+      option.nextStepId !== "__end__" &&
+      currentStepIndex >= 0 &&
+      currentStepIndex < currentSteps.length - 1
+    ) {
+      const nextSequentialStep = currentSteps[currentStepIndex + 1];
+      if (nextSequentialStep) {
+        targetStepId = nextSequentialStep.stepId;
+      }
+    }
+
+    const feedbackWaitTime = hasFeedback ? 1300 : 400;
 
     const navTimer = setTimeout(() => {
-      if (option.nextStepId) {
-        playStep(option.nextStepId);
+      if (targetStepId) {
+        playStep(targetStepId);
       } else {
-        // Conversation reached terminal node
         setIsCompleted(true);
         setFeedback(null);
+        onAnswerRef.current(updatedSelections);
+        onAutoSubmitRef.current?.(updatedSelections);
       }
     }, feedbackWaitTime);
     activeStepTimeoutRef.current.push(navTimer);
   };
-
-  // Sync completion with parent survey runner
-  useEffect(() => {
-    if (isCompleted) {
-      const finalPayload = userSelections.length > 0 ? userSelections : "completed";
-      onAnswer(finalPayload);
-      if (onAutoSubmit) {
-        onAutoSubmit(finalPayload);
-      }
-    }
-  }, [isCompleted, onAnswer, onAutoSubmit, userSelections]);
 
   return (
     <div className="flex w-full min-w-0 flex-1 flex-col overflow-hidden rounded-[24px] border border-black/10 bg-zinc-950 text-white shadow-xl dark:border-white/15">
@@ -265,28 +467,13 @@ export function ChatScenarioQuestion({
               )}
             </div>
             {/* Green Online Dot */}
-            <span className="absolute bottom-0 right-0 size-3 rounded-full border-2 border-zinc-900 bg-emerald-500 shadow-xs" />
+            <span className="absolute bottom-0 right-0 size-2.5 rounded-full border-2 border-zinc-900 bg-emerald-500 shadow-xs" />
           </div>
 
-          <div className="flex flex-col min-w-0">
-            <div className="flex items-center gap-1.5">
-              <span className="truncate font-heading text-sm font-bold text-white">
-                {senderName}
-              </span>
-            </div>
-            <div className="flex items-center gap-1.5">
-              <span className="size-1.5 rounded-full bg-emerald-500 animate-pulse" />
-              <span className="text-[11px] font-medium text-emerald-400">
-                {CHAT_LABELS.online}
-              </span>
-            </div>
-          </div>
-        </div>
-
-        <div className="flex items-center gap-1">
-          <div className="flex items-center gap-1 rounded-full bg-white/10 px-2.5 py-1 text-[10px] font-semibold text-white/80">
-            <MessageCircle className="size-3 text-primary" />
-            <span>Chat</span>
+          <div className="flex flex-col justify-center min-w-0">
+            <span className="truncate font-heading text-sm font-bold text-white">
+              {senderName}
+            </span>
           </div>
         </div>
       </div>
@@ -310,7 +497,10 @@ export function ChatScenarioQuestion({
       )}
 
       {/* ── Chat Messages Scroll Area ── */}
-      <div className="flex min-h-[260px] max-h-[50dvh] flex-1 flex-col space-y-3 overflow-y-auto p-4 scrollbar-none [&::-webkit-scrollbar]:hidden">
+      <div
+        ref={chatScrollContainerRef}
+        className="flex min-h-[140px] max-h-[55dvh] flex-1 flex-col space-y-3 overflow-y-auto overscroll-contain p-4 scrollbar-none [&::-webkit-scrollbar]:hidden"
+      >
         {visibleMessages.map((msg, index) => {
           const isFirstInGroup =
             index === 0 || visibleMessages[index - 1]?.sender !== msg.sender;
@@ -399,18 +589,18 @@ export function ChatScenarioQuestion({
 
       {/* ── Response Choices (Bottom Sheet / Buttons) ── */}
       {showOptions && currentOptions.length > 0 && !isCompleted && (
-        <div className="relative z-20 border-t border-white/10 bg-zinc-900 p-3.5 space-y-2.5 animate-in slide-in-from-bottom-3 duration-200">
+        <div className="relative z-20 shrink-0 border-t border-white/10 bg-zinc-900 p-3 space-y-2 animate-in slide-in-from-bottom-3 duration-200">
           <p className="text-center text-[10px] font-bold uppercase tracking-wider text-zinc-400">
             {CHAT_LABELS.chooseResponse}
           </p>
-          <div className="space-y-2 max-h-[30dvh] overflow-y-auto pr-1">
+          <div className="space-y-2 max-h-[46dvh] overflow-y-auto pr-1">
             {currentOptions.map((option, idx) => (
               <button
                 key={option.optionId || `opt-${idx}`}
                 type="button"
                 disabled={disabled || isTyping}
-                onClick={() => void handleSelectOption(option)}
-                className="group flex w-full min-w-0 items-center justify-between gap-3 rounded-xl border border-white/15 bg-zinc-800/90 p-3 text-left text-sm font-medium text-white shadow-sm transition-all duration-150 hover:bg-zinc-700/90 hover:border-primary/60 active:scale-[0.99] cursor-pointer disabled:pointer-events-none disabled:opacity-50"
+                onClick={() => handleSelectOption(option)}
+                className="group flex w-full min-w-0 items-center justify-between gap-2.5 rounded-xl border border-white/15 bg-zinc-800/90 px-3.5 py-2.5 text-left text-xs sm:text-sm font-medium text-white shadow-sm transition-all duration-150 hover:bg-zinc-700/90 hover:border-primary/60 active:scale-[0.99] cursor-pointer disabled:pointer-events-none disabled:opacity-50"
               >
                 <span className="min-w-0 flex-1 leading-snug whitespace-pre-wrap wrap-break-word">
                   {option.text}
