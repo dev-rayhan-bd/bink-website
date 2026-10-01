@@ -2,7 +2,7 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { ArrowDown, ArrowUp, Check, MessageCircle, X } from "lucide-react";
+import { ArrowDown, ArrowUp, Check, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/lib/utils";
@@ -34,7 +34,7 @@ export function QuestionAnswer({
 
   if (question.type === "MCQ") {
     return (
-      <div className="space-y-2.5">
+      <div className="space-y-3">
         {(question.options ?? []).map((option, optionIndex) => {
           const selected = answer === option;
           const hasCorrectAnswer =
@@ -60,44 +60,44 @@ export function QuestionAnswer({
               disabled={disabled}
               onClick={() => onAnswer(option)}
               className={cn(
-                "group flex w-full min-w-0 items-center justify-between gap-3.5 rounded-2xl p-3.5 sm:p-4 text-left text-sm transition-all duration-150 cursor-pointer shadow-sm active:scale-[0.99]",
-                // Unsubmitted & Unselected
+                "group flex w-full min-w-0 items-center justify-between gap-3.5 rounded-2xl p-4 text-left text-sm sm:text-base font-medium transition-all duration-150 cursor-pointer shadow-md active:scale-[0.99]",
+                // Unsubmitted & Unselected (Clean solid card)
                 !isSubmitted &&
                   !selected &&
-                  "bg-white text-zinc-900 border-2 border-black/10 hover:border-black/25 hover:shadow-md",
-                // Unsubmitted & Selected (Active choice with prominent border)
+                  "bg-card text-card-foreground border-2 border-border hover:border-primary/60 hover:shadow-lg",
+                // Unsubmitted & Selected (Highlighted active card)
                 !isSubmitted &&
                   selected &&
-                  "bg-white text-zinc-950 border-3 border-zinc-950 ring-4 ring-zinc-950/25 shadow-xl scale-[1.02] font-bold",
+                  "bg-card text-card-foreground border-2 border-primary ring-4 ring-primary/20 shadow-xl scale-[1.01] font-bold",
                 // Submitted & Correct Option
                 isCorrectOption &&
-                  "bg-emerald-50 text-emerald-950 border-3 border-success shadow-md font-semibold",
+                  "bg-card text-card-foreground border-2 border-success shadow-md font-bold",
                 // Submitted & Wrong Option Selected
                 isWrongSelection &&
-                  "bg-rose-50 text-rose-950 border-3 border-destructive shadow-md font-semibold",
+                  "bg-card text-card-foreground border-2 border-destructive shadow-md font-bold",
                 // Submitted & Dimmed Options
                 isDimmed &&
-                  "bg-white/80 text-zinc-400 border border-black/5 opacity-60 shadow-none",
+                  "bg-card/70 text-muted-foreground border border-border/40 opacity-50 shadow-none",
               )}
             >
               <div className="flex min-w-0 flex-1 items-center gap-3">
                 <span
                   className={cn(
-                    "flex size-8 shrink-0 items-center justify-center rounded-xl text-xs font-bold transition-all",
+                    "flex size-8 shrink-0 items-center justify-center rounded-xl text-xs font-bold transition-all border",
                     // Unselected badge
                     !isSubmitted &&
                       !selected &&
-                      "bg-zinc-100 text-zinc-700 border border-zinc-200/80 group-hover:bg-zinc-200",
+                      "bg-muted text-foreground border-border group-hover:bg-primary/10 group-hover:text-primary",
                     // Selected badge
                     !isSubmitted &&
                       selected &&
-                      "bg-zinc-950 text-white font-black shadow-sm scale-110",
+                      "bg-primary text-primary-foreground border-primary font-black shadow-xs scale-105",
                     // Correct badge
-                    isCorrectOption && "bg-success text-white shadow-xs font-bold",
+                    isCorrectOption && "bg-success text-success-foreground border-success shadow-xs font-bold",
                     // Wrong badge
-                    isWrongSelection && "bg-destructive text-destructive-foreground shadow-xs font-bold",
+                    isWrongSelection && "bg-destructive text-destructive-foreground border-destructive shadow-xs font-bold",
                     // Dimmed badge
-                    isDimmed && "bg-zinc-100 text-zinc-400 border-0",
+                    isDimmed && "bg-muted text-muted-foreground border-border/40",
                   )}
                 >
                   {optionLabel(optionIndex)}
@@ -114,25 +114,25 @@ export function QuestionAnswer({
                     className={cn(
                       "flex size-6 items-center justify-center rounded-full transition-all shrink-0",
                       selected
-                        ? "bg-zinc-950 text-white shadow-md scale-110 ring-2 ring-zinc-950/20"
-                        : "border-2 border-zinc-300 bg-zinc-50 group-hover:border-zinc-400",
+                        ? "bg-primary text-primary-foreground shadow-xs ring-2 ring-primary/20"
+                        : "border-2 border-border bg-muted/40 group-hover:border-primary/50",
                     )}
                   >
-                    {selected && <Check className="size-3.5 stroke-[3.5] text-white" />}
+                    {selected && <Check className="size-3.5 stroke-[3] text-primary-foreground" />}
                   </div>
                 )}
                 {isCorrectOption && (
-                  <div className="flex size-6 items-center justify-center rounded-full bg-success text-white shadow-xs">
-                    <Check className="size-3.5 stroke-[3.5]" />
+                  <div className="flex size-6 items-center justify-center rounded-full bg-success text-success-foreground shadow-xs">
+                    <Check className="size-3.5 stroke-[3]" />
                   </div>
                 )}
                 {isWrongSelection && (
                   <div className="flex size-6 items-center justify-center rounded-full bg-destructive text-destructive-foreground shadow-xs">
-                    <X className="size-3.5 stroke-[3.5]" />
+                    <X className="size-3.5 stroke-[3]" />
                   </div>
                 )}
                 {isDimmed && (
-                  <div className="size-6 rounded-full border-2 border-zinc-200/60" />
+                  <div className="size-6 rounded-full border-2 border-border/40" />
                 )}
               </div>
             </button>
@@ -177,12 +177,12 @@ export function QuestionAnswer({
               opacity: { duration: 0.2 },
             }}
             key={`${item}-${index}`}
-            className="flex items-center gap-3 rounded-2xl border-2 border-black/8 bg-white p-3.5 shadow-sm text-zinc-900 dark:border-white/15 dark:bg-card dark:text-zinc-100"
+            className="flex items-center gap-3 rounded-2xl border-2 border-border bg-card p-4 shadow-md text-card-foreground"
           >
-            <span className="flex size-8 shrink-0 items-center justify-center rounded-xl bg-zinc-100 text-sm font-bold text-zinc-700 border border-zinc-200 dark:bg-zinc-800 dark:text-zinc-300 dark:border-zinc-700">
+            <span className="flex size-8 shrink-0 items-center justify-center rounded-xl bg-muted text-sm font-bold text-foreground border border-border">
               {index + 1}
             </span>
-            <span className="min-w-0 flex-1 whitespace-pre-wrap wrap-break-word text-sm">
+            <span className="min-w-0 flex-1 whitespace-pre-wrap wrap-break-word text-sm sm:text-base font-medium">
               {item}
             </span>
             <div className="flex gap-1">
@@ -252,7 +252,7 @@ export function QuestionAnswer({
 
     return (
       <div className="space-y-4">
-        <div className="aspect-video overflow-hidden rounded-lg bg-black shadow-md">
+        <div className="aspect-video overflow-hidden rounded-2xl bg-black shadow-md">
           {youtubeId ? (
             <iframe
               src={`https://www.youtube.com/embed/${youtubeId}`}
@@ -266,7 +266,7 @@ export function QuestionAnswer({
           )}
         </div>
         {hasOptions ? (
-          <div className="space-y-2.5 pt-2">
+          <div className="space-y-3 pt-2">
             {question.options?.map((option, optionIndex) => {
               const selected = answer === option;
               const hasCorrectAnswer =
@@ -296,39 +296,34 @@ export function QuestionAnswer({
                   disabled={disabled}
                   onClick={() => onAnswer(option)}
                   className={cn(
-                    "group flex w-full min-w-0 items-center justify-between gap-3.5 rounded-2xl p-3.5 sm:p-4 text-left text-sm transition-all duration-150 cursor-pointer shadow-sm active:scale-[0.99]",
-                    // Unsubmitted & Unselected
+                    "group flex w-full min-w-0 items-center justify-between gap-3.5 rounded-2xl p-4 text-left text-sm sm:text-base font-medium transition-all duration-150 cursor-pointer shadow-md active:scale-[0.99]",
                     !isSubmitted &&
                       !selected &&
-                      "bg-white text-zinc-900 border-2 border-black/10 hover:border-black/25 hover:shadow-md",
-                    // Unsubmitted & Selected
+                      "bg-card text-card-foreground border-2 border-border hover:border-primary/60 hover:shadow-lg",
                     !isSubmitted &&
                       selected &&
-                      "bg-white text-zinc-950 border-3 border-zinc-950 ring-4 ring-zinc-950/25 shadow-xl scale-[1.02] font-bold",
-                    // Submitted & Correct
+                      "bg-card text-card-foreground border-2 border-primary ring-4 ring-primary/20 shadow-xl scale-[1.01] font-bold",
                     isCorrectOption &&
-                      "bg-emerald-50 text-emerald-950 border-3 border-success shadow-md font-semibold",
-                    // Submitted & Wrong
+                      "bg-card text-card-foreground border-2 border-success shadow-md font-bold",
                     isWrongSelection &&
-                      "bg-rose-50 text-rose-950 border-3 border-destructive shadow-md font-semibold",
-                    // Submitted & Dimmed
+                      "bg-card text-card-foreground border-2 border-destructive shadow-md font-bold",
                     isDimmed &&
-                      "bg-white/80 text-zinc-400 border border-black/5 opacity-60 shadow-none",
+                      "bg-card/70 text-muted-foreground border border-border/40 opacity-50 shadow-none",
                   )}
                 >
                   <div className="flex min-w-0 flex-1 items-center gap-3">
                     <span
                       className={cn(
-                        "flex size-8 shrink-0 items-center justify-center rounded-xl text-xs font-bold transition-all",
+                        "flex size-8 shrink-0 items-center justify-center rounded-xl text-xs font-bold transition-all border",
                         !isSubmitted &&
                           !selected &&
-                          "bg-zinc-100 text-zinc-700 border border-zinc-200/80 group-hover:bg-zinc-200",
+                          "bg-muted text-foreground border-border group-hover:bg-primary/10 group-hover:text-primary",
                         !isSubmitted &&
                           selected &&
-                          "bg-zinc-950 text-white font-black shadow-sm scale-110",
-                        isCorrectOption && "bg-success text-white shadow-xs font-bold",
-                        isWrongSelection && "bg-destructive text-destructive-foreground shadow-xs font-bold",
-                        isDimmed && "bg-zinc-100 text-zinc-400 border-0",
+                          "bg-primary text-primary-foreground border-primary font-black shadow-xs scale-105",
+                        isCorrectOption && "bg-success text-success-foreground border-success shadow-xs font-bold",
+                        isWrongSelection && "bg-destructive text-destructive-foreground border-destructive shadow-xs font-bold",
+                        isDimmed && "bg-muted text-muted-foreground border-border/40",
                       )}
                     >
                       {optionLabel(optionIndex)}
@@ -344,25 +339,25 @@ export function QuestionAnswer({
                         className={cn(
                           "flex size-6 items-center justify-center rounded-full transition-all shrink-0",
                           selected
-                            ? "bg-zinc-950 text-white shadow-md scale-110 ring-2 ring-zinc-950/20"
-                            : "border-2 border-zinc-300 bg-zinc-50 group-hover:border-zinc-400",
+                            ? "bg-primary text-primary-foreground shadow-xs ring-2 ring-primary/20"
+                            : "border-2 border-border bg-muted/40 group-hover:border-primary/50",
                         )}
                       >
-                        {selected && <Check className="size-3.5 stroke-[3.5] text-white" />}
+                        {selected && <Check className="size-3.5 stroke-[3] text-primary-foreground" />}
                       </div>
                     )}
                     {isCorrectOption && (
-                      <div className="flex size-6 items-center justify-center rounded-full bg-success text-white shadow-xs">
-                        <Check className="size-3.5 stroke-[3.5]" />
+                      <div className="flex size-6 items-center justify-center rounded-full bg-success text-success-foreground shadow-xs">
+                        <Check className="size-3.5 stroke-[3]" />
                       </div>
                     )}
                     {isWrongSelection && (
                       <div className="flex size-6 items-center justify-center rounded-full bg-destructive text-destructive-foreground shadow-xs">
-                        <X className="size-3.5 stroke-[3.5]" />
+                        <X className="size-3.5 stroke-[3]" />
                       </div>
                     )}
                     {isDimmed && (
-                      <div className="size-6 rounded-full border-2 border-zinc-200/60" />
+                      <div className="size-6 rounded-full border-2 border-border/40" />
                     )}
                   </div>
                 </button>
@@ -391,8 +386,8 @@ export function QuestionAnswer({
               className={cn(
                 "flex h-12 items-center justify-center rounded-2xl text-base font-bold transition-all duration-150 cursor-pointer shadow-sm active:scale-95",
                 isSelected
-                  ? "bg-zinc-900 text-white dark:bg-white dark:text-zinc-900 ring-2 ring-zinc-900/30 dark:ring-white/30 shadow-md scale-105"
-                  : "bg-white dark:bg-card text-zinc-900 dark:text-zinc-100 border-2 border-black/10 dark:border-white/15 hover:border-black/25 dark:hover:border-white/30 hover:shadow-md",
+                  ? "bg-primary text-primary-foreground ring-2 ring-primary/30 shadow-md scale-105"
+                  : "bg-card text-card-foreground border-2 border-border hover:border-primary/60 hover:shadow-md",
               )}
             >
               {rating}
@@ -408,7 +403,7 @@ export function QuestionAnswer({
       value={typeof answer === "string" ? answer : ""}
       disabled={disabled}
       placeholder="Schrijf jouw antwoord..."
-      className="min-h-36 rounded-2xl border-2 border-black/10 bg-white p-4 text-zinc-900 shadow-sm placeholder:text-zinc-400 focus-visible:border-zinc-900 focus-visible:ring-zinc-900/20 dark:border-white/15 dark:bg-card dark:text-zinc-100 dark:placeholder:text-zinc-500"
+      className="min-h-36 rounded-2xl border-2 border-border bg-card p-4 text-card-foreground shadow-sm placeholder:text-muted-foreground focus-visible:border-primary focus-visible:ring-primary/20"
       onChange={(event) => onAnswer(event.target.value)}
     />
   );

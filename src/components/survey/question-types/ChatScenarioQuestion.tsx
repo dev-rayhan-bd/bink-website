@@ -41,7 +41,7 @@ export function ChatScenarioQuestion({
   onAnswer,
   onAutoSubmit,
 }: ChatScenarioQuestionProps) {
-  const senderName = question.senderName?.trim() || "Klant";
+  const senderName = question.senderName?.trim() || "Henkie Penkie";
   const senderAvatar = question.senderAvatar;
 
   // Normalize chat steps from branching `chatSteps` or legacy `messages`/`options`
@@ -53,25 +53,27 @@ export function ChatScenarioQuestion({
 
         // Normalize messages
         const messages = (Array.isArray(step.messages) ? step.messages : [])
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          .map((m: any) => ({
-            sender: m?.sender || senderName,
-            text: typeof m?.text === "string" ? m.text : typeof m === "string" ? m : "",
-            isUser: Boolean(m?.isUser),
-          }))
+          .map((m: unknown) => {
+            const mObj = (typeof m === "object" && m !== null ? m : {}) as Record<string, unknown>;
+            return {
+              sender: typeof mObj.sender === "string" ? mObj.sender : senderName,
+              text: typeof mObj.text === "string" ? mObj.text : typeof m === "string" ? m : "",
+              isUser: Boolean(mObj.isUser),
+            };
+          })
           .filter((m) => m.text.trim().length > 0);
 
         // Normalize options
         const options: IChatStepOption[] = (Array.isArray(step.options) ? step.options : [])
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          .map((opt: any, oIdx: number) => {
+          .map((opt: unknown, oIdx: number) => {
             if (typeof opt === "object" && opt !== null) {
+              const optObj = opt as Record<string, unknown>;
               return {
-                optionId: opt.optionId || `opt-${sIdx + 1}-${oIdx + 1}`,
-                text: typeof opt.text === "string" ? opt.text : "",
-                nextStepId: opt.nextStepId || null,
-                feedback: typeof opt.feedback === "string" ? opt.feedback : "",
-                isCorrect: typeof opt.isCorrect === "boolean" ? opt.isCorrect : oIdx === 0,
+                optionId: typeof optObj.optionId === "string" ? optObj.optionId : `opt-${sIdx + 1}-${oIdx + 1}`,
+                text: typeof optObj.text === "string" ? optObj.text : "",
+                nextStepId: typeof optObj.nextStepId === "string" ? optObj.nextStepId : null,
+                feedback: typeof optObj.feedback === "string" ? optObj.feedback : "",
+                isCorrect: typeof optObj.isCorrect === "boolean" ? optObj.isCorrect : oIdx === 0,
               };
             }
             return {
@@ -95,7 +97,7 @@ export function ChatScenarioQuestion({
                     text:
                       question.content && question.content.trim().length > 0
                         ? question.content.trim()
-                        : "Hallo, hoe kan ik je helpen?",
+                        : "Hallo, dit is een test.",
                     isUser: false,
                   },
                 ]
@@ -159,7 +161,7 @@ export function ChatScenarioQuestion({
                   text:
                     question.content && question.content.trim().length > 0
                       ? question.content.trim()
-                      : "Hallo, hoe kan ik je helpen?",
+                      : "Hallo, dit is een test.",
                   isUser: false,
                 },
               ],
@@ -215,7 +217,6 @@ export function ChatScenarioQuestion({
   }, []);
 
   useEffect(() => {
-    // Small timeout to allow DOM layout to settle before scrolling
     const timer = setTimeout(() => {
       scrollToBottom(true);
     }, 40);
@@ -225,7 +226,6 @@ export function ChatScenarioQuestion({
   // Display a step with snappy typing delays
   const playStep = useCallback(
     (stepId: string) => {
-      // Clear any pending timers from previous steps
       activeStepTimeoutRef.current.forEach(clearTimeout);
       activeStepTimeoutRef.current = [];
 
@@ -275,20 +275,17 @@ export function ChatScenarioQuestion({
         return;
       }
 
-      let accumulatedDelay = 100;
+      let accumulatedDelay = 80;
 
       stepMessages.forEach((msg, idx) => {
-        // 1. Start typing indicator
         const typingTimer = setTimeout(() => {
           setIsTyping(true);
         }, accumulatedDelay);
         activeStepTimeoutRef.current.push(typingTimer);
 
-        // Typing duration based on text length (snappy 300ms - 600ms)
-        const typingDuration = 300 + Math.min(msg.text.length * 8, 300);
+        const typingDuration = 250 + Math.min(msg.text.length * 6, 250);
         accumulatedDelay += typingDuration;
 
-        // 2. Reveal message and stop typing
         const messageTimer = setTimeout(() => {
           setIsTyping(false);
           setVisibleMessages((prev) => [
@@ -303,11 +300,9 @@ export function ChatScenarioQuestion({
         }, accumulatedDelay);
         activeStepTimeoutRef.current.push(messageTimer);
 
-        // Small gap between messages
-        accumulatedDelay += 150;
+        accumulatedDelay += 120;
       });
 
-      // 3. Reveal response options after last message
       const optionsTimer = setTimeout(() => {
         setIsTyping(false);
         setCurrentOptions(optionsList);
@@ -395,7 +390,6 @@ export function ChatScenarioQuestion({
       (s) => s.stepId === currentStepId,
     );
 
-    // 1. Check if option has an explicit nextStepId pointing to an existing step
     let targetStepId: string | null = null;
     if (
       option.nextStepId &&
@@ -410,7 +404,6 @@ export function ChatScenarioQuestion({
       }
     }
 
-    // 2. If no explicit nextStepId and not explicitly set to __end__, advance to next sequential step in the tree
     if (
       !targetStepId &&
       option.nextStepId !== "__end__" &&
@@ -439,48 +432,10 @@ export function ChatScenarioQuestion({
   };
 
   return (
-    <div className="flex w-full min-w-0 flex-1 flex-col overflow-hidden rounded-[24px] border border-black/10 bg-zinc-950 text-white shadow-xl dark:border-white/15">
-      {/* ── Chat Header (Messenger Style) ── */}
-      <div className="relative z-20 flex items-center justify-between border-b border-white/10 bg-zinc-900/90 px-4 py-3 backdrop-blur-md">
-        <div className="flex items-center gap-3 min-w-0">
-          {/* Avatar with live online dot */}
-          <div className="relative size-10 shrink-0">
-            <div className="size-full overflow-hidden rounded-full border border-white/20 bg-zinc-800">
-              {senderAvatar ? (
-                typeof senderAvatar === "string" ? (
-                  <img
-                    src={senderAvatar}
-                    alt={senderName}
-                    className="size-full object-cover"
-                  />
-                ) : (
-                  <MediaImage
-                    value={senderAvatar as MediaValue}
-                    alt={senderName}
-                    className="size-full object-cover"
-                  />
-                )
-              ) : (
-                <div className="flex size-full items-center justify-center bg-gradient-to-tr from-primary/80 to-primary text-sm font-bold text-white uppercase">
-                  {senderName.slice(0, 2)}
-                </div>
-              )}
-            </div>
-            {/* Green Online Dot */}
-            <span className="absolute bottom-0 right-0 size-2.5 rounded-full border-2 border-zinc-900 bg-emerald-500 shadow-xs" />
-          </div>
-
-          <div className="flex flex-col justify-center min-w-0">
-            <span className="truncate font-heading text-sm font-bold text-white">
-              {senderName}
-            </span>
-          </div>
-        </div>
-      </div>
-
-      {/* ── Context Image (D3 requirement) ── */}
+    <div className="flex w-full min-w-0 flex-1 flex-col space-y-4">
+      {/* ── Context Image (if present) ── */}
       {question.image && (
-        <div className="relative w-full overflow-hidden border-b border-white/10 max-h-[22dvh] shrink-0 bg-black">
+        <div className="relative w-full overflow-hidden rounded-md border border-border/80 max-h-[24dvh] shrink-0 bg-black/5">
           <MediaImage
             value={question.image as MediaValue}
             alt="Context"
@@ -489,97 +444,107 @@ export function ChatScenarioQuestion({
         </div>
       )}
 
-      {/* ── Scenario Instruction / Description Pill ── */}
-      {question.content && question.content.trim().length > 0 && (
-        <div className="border-b border-white/5 bg-zinc-900/40 px-4 py-2 text-center text-xs text-zinc-300">
-          <span className="font-medium text-white/90">{question.content}</span>
-        </div>
-      )}
-
-      {/* ── Chat Messages Scroll Area ── */}
+      {/* ── Chat Messages Stream (Screenshot Style: Avatar Circle + Sky Blue Speech Bubble) ── */}
       <div
         ref={chatScrollContainerRef}
-        className="flex min-h-[140px] max-h-[55dvh] flex-1 flex-col space-y-3 overflow-y-auto overscroll-contain p-4 scrollbar-none [&::-webkit-scrollbar]:hidden"
+        className="flex min-h-[90px] flex-col space-y-3.5"
       >
-        {visibleMessages.map((msg, index) => {
-          const isFirstInGroup =
-            index === 0 || visibleMessages[index - 1]?.sender !== msg.sender;
+        {visibleMessages.map((msg) => {
+          if (!msg.isUser) {
+            // Character message: Pink ring avatar + Sky Blue / Cyan rectangular bubble
+            return (
+              <div
+                key={msg.id}
+                className="flex items-start gap-3 animate-in fade-in duration-200"
+              >
+                {/* Avatar with pink ring */}
+                <div className="flex size-9 shrink-0 items-center justify-center rounded-full border-2 border-primary bg-primary/10 text-primary overflow-hidden shadow-2xs">
+                  {senderAvatar ? (
+                    typeof senderAvatar === "string" ? (
+                      <img
+                        src={senderAvatar}
+                        alt={senderName}
+                        className="size-full object-cover"
+                      />
+                    ) : (
+                      <MediaImage
+                        value={senderAvatar as MediaValue}
+                        alt={senderName}
+                        className="size-full object-cover"
+                      />
+                    )
+                  ) : (
+                    <div className="size-4 rounded-full border-2 border-primary" />
+                  )}
+                </div>
 
+                {/* Character Cyan Speech Bubble (matching screenshot) */}
+                <div className="rounded-xs bg-secondary px-4 py-2.5 text-xs sm:text-sm font-medium text-secondary-foreground shadow-2xs leading-relaxed max-w-[85%] whitespace-pre-wrap wrap-break-word">
+                  {msg.text}
+                </div>
+              </div>
+            );
+          }
+
+          // User response bubble: Right-aligned primary bubble
           return (
             <div
               key={msg.id}
-              className={cn(
-                "flex flex-col animate-in fade-in slide-in-from-bottom-2 duration-200",
-                msg.isUser ? "items-end" : "items-start",
-              )}
+              className="flex justify-end animate-in fade-in duration-200"
             >
-              {/* Sender Name above other person's first bubble */}
-              {!msg.isUser && isFirstInGroup && (
-                <span className="mb-1 ml-1 text-[11px] font-semibold text-zinc-400">
-                  {msg.sender}
-                </span>
-              )}
-
-              <div
-                className={cn(
-                  "max-w-[82%] px-4 py-2.5 text-sm leading-relaxed whitespace-pre-wrap wrap-break-word shadow-md",
-                  msg.isUser
-                    ? "rounded-2xl rounded-tr-xs bg-primary font-medium text-primary-foreground"
-                    : "rounded-2xl rounded-tl-xs border border-white/10 bg-zinc-800/90 text-zinc-100",
-                )}
-              >
+              <div className="rounded-xs bg-primary px-4 py-2.5 text-xs sm:text-sm font-medium text-primary-foreground shadow-2xs leading-relaxed max-w-[85%] whitespace-pre-wrap wrap-break-word">
                 {msg.text}
               </div>
             </div>
           );
         })}
 
-        {/* Typing Indicator (D6) */}
+        {/* Character Typing Bubble */}
         {isTyping && (
-          <div className="flex items-start gap-2 animate-in fade-in duration-200">
-            <div className="flex items-center gap-1.5 rounded-2xl rounded-tl-xs border border-white/10 bg-zinc-800/90 px-3.5 py-2.5 shadow-sm">
-              <span className="size-2 rounded-full bg-zinc-400 animate-bounce [animation-delay:-0.3s]" />
-              <span className="size-2 rounded-full bg-zinc-400 animate-bounce [animation-delay:-0.15s]" />
-              <span className="size-2 rounded-full bg-zinc-400 animate-bounce" />
-              <span className="ml-1 text-[11px] font-medium text-zinc-400">
-                {CHAT_LABELS.typing}
-              </span>
+          <div className="flex items-start gap-3 animate-in fade-in duration-150">
+            <div className="flex size-9 shrink-0 items-center justify-center rounded-full border-2 border-primary bg-primary/10 text-primary">
+              <div className="size-4 rounded-full border-2 border-primary" />
+            </div>
+            <div className="flex items-center gap-1.5 rounded-xs bg-secondary px-4 py-3 shadow-2xs">
+              <span className="size-1.5 rounded-full bg-secondary-foreground/70 animate-bounce [animation-delay:-0.3s]" />
+              <span className="size-1.5 rounded-full bg-secondary-foreground/70 animate-bounce [animation-delay:-0.15s]" />
+              <span className="size-1.5 rounded-full bg-secondary-foreground/70 animate-bounce" />
             </div>
           </div>
         )}
 
-        {/* Feedback Toast after response selection (D6) */}
+        {/* Feedback Alert with high-contrast solid card background */}
         {feedback && (
           <div
             className={cn(
-              "my-2 rounded-xl p-3 text-xs leading-relaxed font-medium shadow-md transition-all animate-in fade-in zoom-in-95 duration-200",
+              "rounded-md border-2 bg-card p-3.5 text-xs sm:text-sm leading-relaxed font-semibold shadow-sm transition-all animate-in fade-in zoom-in-95 duration-200",
               feedback.isCorrect === true &&
-                "border border-emerald-500/40 bg-emerald-950/70 text-emerald-300",
+                "border-success text-card-foreground",
               feedback.isCorrect === false &&
-                "border border-rose-500/40 bg-rose-950/70 text-rose-300",
+                "border-destructive text-card-foreground",
               feedback.isCorrect === undefined &&
-                "border border-primary/40 bg-primary/20 text-white",
+                "border-primary text-card-foreground",
             )}
           >
-            <div className="flex items-start gap-2">
+            <div className="flex items-start gap-2.5">
               {feedback.isCorrect === true && (
-                <CheckCircle2 className="size-4 shrink-0 text-emerald-400 mt-0.5" />
+                <CheckCircle2 className="size-4.5 shrink-0 text-success mt-0.5" />
               )}
               {feedback.isCorrect === false && (
-                <XCircle className="size-4 shrink-0 text-rose-400 mt-0.5" />
+                <XCircle className="size-4.5 shrink-0 text-destructive mt-0.5" />
               )}
               {feedback.isCorrect === undefined && (
-                <Sparkles className="size-4 shrink-0 text-primary mt-0.5" />
+                <Sparkles className="size-4.5 shrink-0 text-primary mt-0.5" />
               )}
               <span className="flex-1">{feedback.text}</span>
             </div>
           </div>
         )}
 
-        {/* Completed banner */}
+        {/* Completed banner with high-contrast solid card background */}
         {isCompleted && (
-          <div className="my-2 flex items-center justify-center gap-2 rounded-xl border border-emerald-500/30 bg-emerald-950/40 py-2.5 text-xs font-bold text-emerald-400 shadow-sm animate-in fade-in zoom-in-95 duration-200">
-            <CheckCircle2 className="size-4 text-emerald-400" />
+          <div className="flex items-center justify-center gap-2.5 rounded-md border-2 border-success bg-card py-3.5 px-4 text-xs sm:text-sm font-bold text-card-foreground shadow-sm animate-in fade-in zoom-in-95 duration-200">
+            <CheckCircle2 className="size-4.5 text-success shrink-0" />
             <span>{CHAT_LABELS.conversationComplete}</span>
           </div>
         )}
@@ -587,26 +552,24 @@ export function ChatScenarioQuestion({
         <div ref={messagesEndRef} />
       </div>
 
-      {/* ── Response Choices (Bottom Sheet / Buttons) ── */}
+      {/* ── Response Choices Container Card (Exact Screenshot Design) ── */}
       {showOptions && currentOptions.length > 0 && !isCompleted && (
-        <div className="relative z-20 shrink-0 border-t border-white/10 bg-zinc-900 p-3 space-y-2 animate-in slide-in-from-bottom-3 duration-200">
-          <p className="text-center text-[10px] font-bold uppercase tracking-wider text-zinc-400">
+        <div className="rounded-md border border-border/80 bg-card p-4 sm:p-5 shadow-2xs space-y-3 animate-in fade-in duration-200">
+          <p className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground/80">
             {CHAT_LABELS.chooseResponse}
           </p>
-          <div className="space-y-2 max-h-[46dvh] overflow-y-auto pr-1">
+
+          <div className="space-y-2.5">
             {currentOptions.map((option, idx) => (
               <button
                 key={option.optionId || `opt-${idx}`}
                 type="button"
                 disabled={disabled || isTyping}
                 onClick={() => handleSelectOption(option)}
-                className="group flex w-full min-w-0 items-center justify-between gap-2.5 rounded-xl border border-white/15 bg-zinc-800/90 px-3.5 py-2.5 text-left text-xs sm:text-sm font-medium text-white shadow-sm transition-all duration-150 hover:bg-zinc-700/90 hover:border-primary/60 active:scale-[0.99] cursor-pointer disabled:pointer-events-none disabled:opacity-50"
+                className="group flex w-full min-w-0 items-center justify-between gap-3 rounded-xs border border-border/80 bg-background px-4 py-3 text-left text-xs sm:text-sm font-medium text-foreground transition-all duration-150 hover:border-primary/80 hover:bg-primary/5 active:scale-[0.99] cursor-pointer disabled:pointer-events-none disabled:opacity-50 shadow-2xs"
               >
                 <span className="min-w-0 flex-1 leading-snug whitespace-pre-wrap wrap-break-word">
                   {option.text}
-                </span>
-                <span className="size-5 shrink-0 rounded-full border border-white/20 bg-white/5 flex items-center justify-center text-[10px] text-zinc-400 group-hover:border-primary group-hover:bg-primary group-hover:text-white transition-colors">
-                  →
                 </span>
               </button>
             ))}

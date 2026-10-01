@@ -1317,19 +1317,16 @@ export function ChatScenarioEditor({
             </Button>
           </div>
 
-          {/* Mobile Frame Simulation */}
-          <div className="mx-auto max-w-sm overflow-hidden rounded-3xl border-4 border-foreground/10 bg-background shadow-xl">
-            {/* Mobile Header */}
-            <div className="flex items-center gap-3 border-b border-border bg-primary px-4 py-3 text-primary-foreground">
-              <div className="flex size-9 items-center justify-center rounded-full bg-primary-foreground/20 text-primary-foreground font-bold text-sm">
-                <Bot className="size-5" />
-              </div>
-              <div className="flex-1 min-w-0">
-                <h5 className="font-heading text-sm font-bold truncate">
+          {/* Mobile Frame Simulation matching screenshot */}
+          <div className="mx-auto max-w-sm overflow-hidden rounded-3xl border-4 border-foreground/10 bg-background shadow-xl p-4 space-y-4">
+            {/* Simulation Header */}
+            <div className="flex items-center justify-between border-b border-border pb-3">
+              <div>
+                <h5 className="font-heading text-sm font-bold text-foreground">
                   {senderName}
                 </h5>
-                <p className="text-[10px] text-primary-foreground/80">
-                  Interactive Simulator
+                <p className="text-[10px] text-muted-foreground">
+                  Module Preview
                 </p>
               </div>
               <Button
@@ -1337,23 +1334,23 @@ export function ChatScenarioEditor({
                 variant="ghost"
                 size="icon-xs"
                 onClick={startSimulator}
-                className="text-primary-foreground hover:bg-primary-foreground/10 cursor-pointer"
+                className="hover:bg-muted cursor-pointer"
                 title="Restart"
               >
-                <RotateCcw className="size-3.5" />
+                <RotateCcw className="size-3.5 text-muted-foreground" />
               </Button>
             </div>
 
-            {/* Chat Message Scroll View */}
-            <div className="h-80 overflow-y-auto p-4 space-y-3 bg-muted/20">
+            {/* Chat Message Stream matching screenshot */}
+            <div className="min-h-56 space-y-3">
               {simHistory.map((item, idx) => {
                 if (item.type === "bot") {
                   return (
-                    <div key={`sim-msg-${idx}`} className="flex items-start gap-2">
-                      <div className="flex size-7 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary text-xs font-bold">
-                        <Bot className="size-3.5" />
+                    <div key={`sim-msg-${idx}`} className="flex items-start gap-3">
+                      <div className="flex size-8 shrink-0 items-center justify-center rounded-full border-2 border-primary bg-primary/10 text-primary">
+                        <div className="size-3.5 rounded-full border-2 border-primary" />
                       </div>
-                      <div className="max-w-[80%] rounded-2xl rounded-tl-xs bg-card border border-border/80 px-3.5 py-2.5 text-xs text-card-foreground shadow-2xs leading-relaxed">
+                      <div className="rounded-xs bg-secondary px-4 py-2.5 text-xs sm:text-sm font-medium text-secondary-foreground shadow-2xs leading-relaxed max-w-[85%] whitespace-pre-wrap wrap-break-word">
                         {item.text}
                       </div>
                     </div>
@@ -1363,13 +1360,10 @@ export function ChatScenarioEditor({
                   return (
                     <div
                       key={`sim-msg-${idx}`}
-                      className="flex justify-end items-start gap-2"
+                      className="flex justify-end"
                     >
-                      <div className="max-w-[80%] rounded-2xl rounded-tr-xs bg-primary px-3.5 py-2.5 text-xs font-medium text-primary-foreground shadow-2xs leading-relaxed">
+                      <div className="rounded-xs bg-primary px-4 py-2.5 text-xs sm:text-sm font-medium text-primary-foreground shadow-2xs leading-relaxed max-w-[85%] whitespace-pre-wrap wrap-break-word">
                         {item.text}
-                      </div>
-                      <div className="flex size-7 shrink-0 items-center justify-center rounded-full bg-primary text-primary-foreground text-xs font-bold">
-                        <User className="size-3.5" />
                       </div>
                     </div>
                   );
@@ -1379,10 +1373,10 @@ export function ChatScenarioEditor({
                     <div
                       key={`sim-msg-${idx}`}
                       className={cn(
-                        "rounded-xl border p-3 text-xs shadow-2xs",
+                        "rounded-md border p-3 text-xs shadow-2xs",
                         item.isCorrect
-                          ? "border-success/30 bg-success/10 text-success-foreground"
-                          : "border-muted-foreground/30 bg-muted text-muted-foreground",
+                          ? "border-success/40 bg-success/15 text-success-foreground"
+                          : "border-destructive/40 bg-destructive/15 text-destructive",
                       )}
                     >
                       <div className="flex items-center gap-1.5 font-bold mb-1">
@@ -1393,7 +1387,7 @@ export function ChatScenarioEditor({
                           </>
                         ) : (
                           <>
-                            <XCircle className="size-3.5 text-muted-foreground" />
+                            <XCircle className="size-3.5 text-destructive" />
                             <span>Feedback</span>
                           </>
                         )}
@@ -1406,13 +1400,10 @@ export function ChatScenarioEditor({
               })}
 
               {simIsFinished && (
-                <div className="rounded-2xl border border-border bg-card p-4 text-center space-y-2">
-                  <span className="text-xl">🎉</span>
-                  <p className="text-xs font-bold text-foreground">
+                <div className="rounded-md border-2 border-success bg-card p-3.5 text-center space-y-2 shadow-sm">
+                  <span className="text-lg">🎉</span>
+                  <p className="text-xs font-bold text-card-foreground">
                     Conversation Finished!
-                  </p>
-                  <p className="text-[11px] text-muted-foreground">
-                    The dialogue reached the conclusion.
                   </p>
                   <Button
                     type="button"
@@ -1428,34 +1419,29 @@ export function ChatScenarioEditor({
               )}
             </div>
 
-            {/* Mobile Options Drawer */}
-            <div className="border-t border-border bg-card p-3 space-y-2">
-              <div className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground text-center">
-                {simIsFinished
-                  ? "Conversation Ended"
-                  : "Choose your response:"}
-              </div>
+            {/* Response Choices Container Card matching screenshot */}
+            {!simIsFinished && simCurrentStep && (
+              <div className="rounded-md border border-border/80 bg-card p-4 shadow-2xs space-y-3">
+                <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground/80">
+                  CHOOSE YOUR RESPONSE
+                </p>
 
-              {!simIsFinished && simCurrentStep && (
-                <div className="space-y-1.5">
+                <div className="space-y-2">
                   {(simCurrentStep.options || []).map((opt, optIdx) => (
                     <button
                       key={opt.optionId || `sim-opt-${optIdx}`}
                       type="button"
                       onClick={() => handleSimChooseOption(opt)}
-                      className="flex w-full items-center gap-2 rounded-xl border border-border bg-background p-2.5 text-left text-xs font-semibold text-foreground transition-all hover:border-primary hover:bg-primary/5 active:scale-[0.99] cursor-pointer shadow-2xs"
+                      className="group flex w-full min-w-0 items-center justify-between gap-3 rounded-xs border border-border/80 bg-background px-3.5 py-2.5 text-left text-xs font-medium text-foreground transition-all hover:border-primary/80 hover:bg-primary/5 active:scale-[0.99] cursor-pointer shadow-2xs"
                     >
-                      <span className="flex size-5 shrink-0 items-center justify-center rounded-full bg-primary text-[10px] font-bold text-primary-foreground">
-                        {String.fromCharCode(65 + optIdx)}
-                      </span>
-                      <span className="flex-1 leading-snug">
+                      <span className="min-w-0 flex-1 leading-snug">
                         {opt.text || `(Option ${String.fromCharCode(65 + optIdx)})`}
                       </span>
                     </button>
                   ))}
                 </div>
-              )}
-            </div>
+              </div>
+            )}
           </div>
         </div>
       )}
