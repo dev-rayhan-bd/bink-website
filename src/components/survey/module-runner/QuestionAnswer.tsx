@@ -64,73 +64,68 @@ export function QuestionAnswer({
               type="button"
               disabled={disabled}
               onClick={() => onAnswer(option)}
+              style={{
+                backgroundColor: isCorrectOption ? "" : isWrongSelection ? "" : selected ? "#18181b" : "white",
+                boxShadow: selected
+                  ? "0 4px 12px rgba(0,0,0,0.15)"
+                  : "0 1px 3px rgba(0,0,0,0.08)",
+                border: "none",
+                color: isCorrectOption ? "" : isWrongSelection ? "" : selected ? "white" : "#18181b",
+              }}
               className={cn(
-                "group flex w-full min-w-0 items-center justify-between gap-2.5 rounded-xl text-left font-medium transition-all duration-150 cursor-pointer shadow-xs active:scale-[0.99]",
+                "group flex w-full min-w-0 items-center justify-between gap-2.5 rounded-xl text-left transition-all duration-150 cursor-pointer active:scale-[0.99]",
                 isManyOptions ? "p-2.5 sm:p-3" : "p-3 sm:p-3.5",
-                // Unsubmitted & Unselected (Solid high-contrast white card)
-                !isSubmitted &&
-                !selected &&
-                "bg-white text-zinc-950 border-2 border-zinc-200 dark:bg-card dark:text-zinc-100 dark:border-zinc-700 hover:border-zinc-400 hover:shadow-md",
-                // Unsubmitted & Selected (Highlighted active card with bold border)
-                !isSubmitted &&
-                selected &&
-                "bg-white text-zinc-950 border-2 border-zinc-950 ring-4 ring-black/10 dark:bg-card dark:text-white dark:border-white dark:ring-white/20 shadow-md font-bold",
-                // Submitted & Correct Option
-                isCorrectOption &&
-                "bg-white text-zinc-950 border-2 border-emerald-600 dark:bg-card dark:text-white shadow-md font-bold",
-                // Submitted & Wrong Option Selected
-                isWrongSelection &&
-                "bg-white text-zinc-950 border-2 border-rose-600 dark:bg-card dark:text-white shadow-md font-bold",
-                // Submitted & Dimmed Options
-                isDimmed &&
-                "bg-white/80 text-zinc-400 border border-zinc-200 opacity-60 dark:bg-card/70 dark:text-zinc-500 shadow-none",
+                isCorrectOption && "!bg-emerald-50 !text-emerald-950",
+                isWrongSelection && "!bg-rose-50 !text-rose-950",
+                isDimmed && "!opacity-50",
               )}
             >
               <div className="flex min-w-0 flex-1 items-center gap-2.5">
                 <span
+                  style={{
+                    backgroundColor: isCorrectOption ? "" : isWrongSelection ? "" : isDimmed ? "" : selected ? "white" : "#f4f4f5",
+                    color: isCorrectOption ? "" : isWrongSelection ? "" : isDimmed ? "" : "#18181b",
+                    border: "none",
+                  }}
                   className={cn(
-                    "flex shrink-0 items-center justify-center rounded-lg text-[11px] font-bold transition-all border",
+                    "flex shrink-0 items-center justify-center rounded-lg text-[11px] font-bold transition-all",
                     isManyOptions ? "size-6" : "size-6.5 sm:size-7",
-                    // Unselected badge
-                    !isSubmitted &&
-                    !selected &&
-                    "bg-zinc-100 text-zinc-900 border-zinc-300 dark:bg-zinc-800 dark:text-zinc-200 dark:border-zinc-700 group-hover:bg-zinc-200",
-                    // Selected badge
-                    !isSubmitted &&
-                    selected &&
-                    "bg-zinc-950 text-white border-zinc-950 dark:bg-white dark:text-zinc-950 font-black shadow-xs",
-                    // Correct badge
-                    isCorrectOption && "bg-emerald-600 text-white border-emerald-600 shadow-xs font-bold",
-                    // Wrong badge
-                    isWrongSelection && "bg-rose-600 text-white border-rose-600 shadow-xs font-bold",
-                    // Dimmed badge
-                    isDimmed && "bg-zinc-100 text-zinc-400 border-zinc-200",
+                    isCorrectOption && "!bg-emerald-600 !text-white",
+                    isWrongSelection && "!bg-rose-600 !text-white",
+                    isDimmed && "!bg-zinc-100 !text-zinc-400",
                   )}
                 >
                   {optionLabel(optionIndex)}
                 </span>
                 <span
                   className={cn(
-                    "min-w-0 flex-1 whitespace-pre-wrap wrap-break-word leading-snug",
+                    "min-w-0 flex-1 whitespace-pre-wrap wrap-break-word leading-snug font-medium",
                     isLongText || isManyOptions ? "text-xs sm:text-sm" : "text-xs sm:text-base",
+                    selected && "font-bold",
                   )}
                 >
                   {option}
                 </span>
               </div>
 
-              {/* Right Selection Indicator */}
-              <div className="shrink-0 pl-1">
+              {/* Right Selection Indicator (Radio Button) */}
+              <div className="shrink-0 pl-2 flex items-center">
                 {!isSubmitted && (
                   <div
-                    className={cn(
-                      "flex size-5 sm:size-5.5 items-center justify-center rounded-full transition-all shrink-0",
-                      selected
-                        ? "bg-zinc-950 text-white dark:bg-white dark:text-zinc-950 shadow-xs ring-2 ring-black/10"
-                        : "border-2 border-zinc-300 bg-zinc-50 dark:bg-zinc-800 dark:border-zinc-600 group-hover:border-zinc-400",
-                    )}
+                    style={{
+                      width: "20px",
+                      height: "20px",
+                      borderRadius: "50%",
+                      backgroundColor: selected ? "white" : "white",
+                      border: `2px solid ${selected ? "white" : "#71717a"}`,
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      flexShrink: 0,
+                      transition: "all 0.15s",
+                    }}
                   >
-                    {selected && <Check className="size-3 stroke-[3]" />}
+                    {selected && <Check style={{ width: 12, height: 12, strokeWidth: 4, color: "#18181b" }} />}
                   </div>
                 )}
                 {isCorrectOption && (
@@ -144,7 +139,7 @@ export function QuestionAnswer({
                   </div>
                 )}
                 {isDimmed && (
-                  <div className="size-5 rounded-full border border-zinc-300" />
+                  <div style={{ width: 20, height: 20, borderRadius: "50%", border: "1px solid #d4d4d8" }} />
                 )}
               </div>
             </button>
@@ -310,75 +305,68 @@ export function QuestionAnswer({
                   type="button"
                   disabled={disabled}
                   onClick={() => onAnswer(option)}
+                  style={{
+                    backgroundColor: isCorrectOption ? "" : isWrongSelection ? "" : selected ? "#18181b" : "white",
+                    boxShadow: selected
+                      ? "0 4px 12px rgba(0,0,0,0.15)"
+                      : "0 1px 3px rgba(0,0,0,0.08)",
+                    border: "none",
+                    color: isCorrectOption ? "" : isWrongSelection ? "" : selected ? "white" : "#18181b",
+                  }}
                   className={cn(
-                    "group flex w-full min-w-0 items-center justify-between gap-3 rounded-2xl text-left font-medium transition-all duration-150 cursor-pointer shadow-xs active:scale-[0.99]",
+                    "group flex w-full min-w-0 items-center justify-between gap-3 rounded-2xl text-left transition-all duration-150 cursor-pointer active:scale-[0.99]",
                     isManyOptions ? "p-3 sm:p-3.5" : "p-3.5 sm:p-4",
-                    // Unsubmitted & Unselected
-                    !isSubmitted &&
-                      !selected &&
-                      "bg-white text-zinc-950 border-2 border-zinc-200/90 hover:border-primary/60 hover:bg-zinc-50 hover:shadow-md",
-                    // Unsubmitted & Selected
-                    !isSubmitted &&
-                      selected &&
-                      "bg-white text-zinc-950 border-2 border-primary ring-4 ring-primary/20 shadow-md font-bold",
-                    // Submitted & Correct Option
-                    isCorrectOption &&
-                      "bg-emerald-50/90 text-emerald-950 border-2 border-emerald-600 shadow-md font-bold",
-                    // Submitted & Wrong Option Selected
-                    isWrongSelection &&
-                      "bg-rose-50/90 text-rose-950 border-2 border-rose-600 shadow-md font-bold",
-                    // Submitted & Dimmed Options
-                    isDimmed &&
-                      "bg-white/80 text-zinc-400 border border-zinc-200 opacity-60 shadow-none",
+                    isCorrectOption && "!bg-emerald-50 !text-emerald-950",
+                    isWrongSelection && "!bg-rose-50 !text-rose-950",
+                    isDimmed && "!opacity-50",
                   )}
                 >
                   <div className="flex min-w-0 flex-1 items-center gap-3">
                     <span
+                      style={{
+                        backgroundColor: isCorrectOption ? "" : isWrongSelection ? "" : isDimmed ? "" : selected ? "white" : "#f4f4f5",
+                        color: isCorrectOption ? "" : isWrongSelection ? "" : isDimmed ? "" : "#18181b",
+                        border: "none",
+                      }}
                       className={cn(
-                        "flex shrink-0 items-center justify-center rounded-xl text-xs sm:text-sm font-bold transition-all border",
+                        "flex shrink-0 items-center justify-center rounded-xl text-xs sm:text-sm font-bold transition-all",
                         isManyOptions ? "size-7" : "size-8",
-                        // Unselected badge
-                        !isSubmitted &&
-                          !selected &&
-                          "bg-zinc-100 text-zinc-900 border-zinc-300 group-hover:bg-primary/10 group-hover:text-primary group-hover:border-primary/40",
-                        // Selected badge
-                        !isSubmitted &&
-                          selected &&
-                          "bg-primary text-primary-foreground border-primary font-black shadow-xs",
-                        // Correct badge
-                        isCorrectOption && "bg-emerald-600 text-white border-emerald-600 shadow-xs font-bold",
-                        // Wrong badge
-                        isWrongSelection && "bg-rose-600 text-white border-rose-600 shadow-xs font-bold",
-                        // Dimmed badge
-                        isDimmed && "bg-zinc-100 text-zinc-400 border-zinc-200",
+                        isCorrectOption && "!bg-emerald-600 !text-white",
+                        isWrongSelection && "!bg-rose-600 !text-white",
+                        isDimmed && "!bg-zinc-100 !text-zinc-400",
                       )}
                     >
                       {optionLabel(optionIndex)}
                     </span>
                     <span
                       className={cn(
-                        "min-w-0 flex-1 whitespace-pre-wrap wrap-break-word leading-snug font-semibold text-zinc-950",
+                        "min-w-0 flex-1 whitespace-pre-wrap wrap-break-word leading-snug font-medium",
                         isLongText || isManyOptions ? "text-xs sm:text-sm" : "text-sm sm:text-base",
-                        isDimmed && "text-zinc-400 font-normal",
-                        isCorrectOption && "text-emerald-950",
-                        isWrongSelection && "text-rose-950",
+                        selected && "font-bold",
                       )}
                     >
                       {option}
                     </span>
                   </div>
 
-                  <div className="shrink-0 pl-1">
+                  {/* Right Selection Indicator (Radio Button) */}
+                  <div className="shrink-0 pl-2 flex items-center">
                     {!isSubmitted && (
                       <div
-                        className={cn(
-                          "flex size-5.5 sm:size-6 items-center justify-center rounded-full transition-all shrink-0",
-                          selected
-                            ? "bg-primary text-primary-foreground shadow-xs ring-2 ring-primary/20"
-                            : "border-2 border-zinc-300 bg-zinc-50 group-hover:border-primary/50",
-                        )}
+                        style={{
+                          width: "22px",
+                          height: "22px",
+                          borderRadius: "50%",
+                          backgroundColor: selected ? "white" : "white",
+                          border: `2px solid ${selected ? "white" : "#71717a"}`,
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                          flexShrink: 0,
+                          transition: "all 0.15s",
+                        }}
                       >
-                        {selected && <Check className="size-3.5 stroke-[3]" />}
+                        {selected && <Check style={{ width: 13, height: 13, strokeWidth: 4, color: "#18181b" }} />}
                       </div>
                     )}
                     {isCorrectOption && (
@@ -392,7 +380,7 @@ export function QuestionAnswer({
                       </div>
                     )}
                     {isDimmed && (
-                      <div className="size-5.5 rounded-full border border-zinc-300" />
+                      <div style={{ width: 22, height: 22, borderRadius: "50%", border: "1px solid #d4d4d8" }} />
                     )}
                   </div>
                 </button>
@@ -418,12 +406,17 @@ export function QuestionAnswer({
               type="button"
               disabled={disabled}
               onClick={() => onAnswer(rating)}
-              className={cn(
-                "flex h-12 sm:h-13 items-center justify-center rounded-xl text-base sm:text-lg font-bold transition-all duration-150 cursor-pointer shadow-xs active:scale-95",
-                isSelected
-                  ? "bg-zinc-950 text-white border-2 border-zinc-950 ring-4 ring-black/25 dark:bg-white dark:text-zinc-950 dark:border-white dark:ring-white/30 font-black shadow-md scale-105"
-                  : "bg-white text-zinc-950 border-2 border-zinc-200 dark:bg-card dark:text-zinc-100 dark:border-zinc-700 hover:border-zinc-400 hover:shadow-xs",
-              )}
+              style={{
+                backgroundColor: isSelected ? "#18181b" : "white",
+                boxShadow: isSelected
+                  ? "inset 0 0 0 3px #18181b, 0 4px 12px rgba(0,0,0,0.2)"
+                  : "0 1px 3px rgba(0,0,0,0.08)",
+                border: "none",
+                color: isSelected ? "white" : "#18181b",
+                transform: isSelected ? "scale(1.05)" : "scale(1)",
+                transition: "all 0.15s",
+              }}
+              className="flex h-12 sm:h-13 items-center justify-center rounded-xl text-base sm:text-lg font-bold cursor-pointer active:scale-95"
             >
               {rating}
             </button>

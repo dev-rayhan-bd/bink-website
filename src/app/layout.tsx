@@ -17,7 +17,7 @@ const raleway = Raleway({
 });
 
 export const metadata: Metadata = {
-  title: "Bink Sanders",
+  title: "Borging",
   description: "Microlearning Platform",
 };
 
