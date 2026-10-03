@@ -173,11 +173,11 @@ export function ModulePreview({
     setResult({
       isCorrect:
         !question.isScored ||
-        question.type === "Swipe" ||
-        question.type === "Free Input" ||
-        question.type === "Rating" ||
-        question.type === "Simulated Call" ||
-        (question.type === "Video" && !question.correctAnswer)
+          question.type === "Swipe" ||
+          question.type === "Free Input" ||
+          question.type === "Rating" ||
+          question.type === "Simulated Call" ||
+          (question.type === "Video" && !question.correctAnswer)
           ? undefined
           : isCorrect,
       correctAnswer,
@@ -231,82 +231,82 @@ export function ModulePreview({
           className="flex h-full flex-col"
         >
           <div className="flex h-full flex-1 flex-col justify-between">
-          <div className="space-y-4">
-            <div className="rounded-lg bg-primary p-3 text-center text-primary-foreground shadow-sm">
-              <CheckCircle2 className="mx-auto mb-2.5 size-10" />
-              <h1 className="font-heading text-xl font-bold">
-                Module afgerond
-              </h1>
-              <p className="mt-1.5 text-xs text-primary-foreground/85">
-                {totalQuestions === 1 ? (
-                  <>
-                    Je hebt de vraag van{" "}
-                    <span className="font-semibold text-primary-foreground">
-                      {formattedTitle}
-                    </span>{" "}
-                    beantwoord.
-                  </>
-                ) : (
-                  <>
-                    Je hebt alle {totalQuestions} vragen van{" "}
-                    <span className="font-semibold text-primary-foreground">
-                      {formattedTitle}
-                    </span>{" "}
-                    beantwoord.
-                  </>
-                )}
-              </p>
+            <div className="space-y-4">
+              <div className="rounded-lg bg-primary p-3 text-center text-primary-foreground shadow-sm">
+                <CheckCircle2 className="mx-auto mb-2.5 size-10" />
+                <h1 className="font-heading text-xl font-bold">
+                  Module afgerond
+                </h1>
+                <p className="mt-1.5 text-xs text-primary-foreground/85">
+                  {totalQuestions === 1 ? (
+                    <>
+                      Je hebt de vraag van{" "}
+                      <span className="font-semibold text-primary-foreground">
+                        {formattedTitle}
+                      </span>{" "}
+                      beantwoord.
+                    </>
+                  ) : (
+                    <>
+                      Je hebt alle {totalQuestions} vragen van{" "}
+                      <span className="font-semibold text-primary-foreground">
+                        {formattedTitle}
+                      </span>{" "}
+                      beantwoord.
+                    </>
+                  )}
+                </p>
+              </div>
+
+              {isModuleScored ? (
+                <div className="grid grid-cols-2 gap-3 rounded-lg border border-secondary-foreground/10 bg-secondary/30 p-3 text-center">
+                  <div>
+                    <p className="text-xl font-bold text-primary">100</p>
+                    <p className="text-xs text-muted-foreground">Modulescore</p>
+                  </div>
+                  <div>
+                    <p className="text-xl font-bold text-primary">100%</p>
+                    <p className="text-xs text-muted-foreground">Voortgang</p>
+                  </div>
+                </div>
+              ) : (
+                <div className="rounded-lg border border-secondary-foreground/10 bg-secondary/30 p-3 text-center">
+                  <div>
+                    <p className="text-xl font-bold text-primary">100%</p>
+                    <p className="text-xs text-muted-foreground">Voortgang</p>
+                  </div>
+                </div>
+              )}
+
+              <div className="flex flex-col items-center px-4 pt-8 text-center">
+                <div className="mb-4 flex size-16 items-center justify-center rounded-full bg-primary/10 text-primary">
+                  <PartyPopper className="size-8" />
+                </div>
+                <p className="font-heading text-xl font-bold text-foreground">
+                  {title?.trim()
+                    ? `Bedankt voor het afronden van ${formattedTitle}!`
+                    : "Bedankt voor het afronden van deze module!"}
+                </p>
+                <p className="mt-2 text-sm text-muted-foreground">
+                  We waarderen je deelname en feedback enorm.
+                </p>
+              </div>
             </div>
 
-            {isModuleScored ? (
-              <div className="grid grid-cols-2 gap-3 rounded-lg border border-secondary-foreground/10 bg-secondary/30 p-3 text-center">
-                <div>
-                  <p className="text-xl font-bold text-primary">100</p>
-                  <p className="text-xs text-muted-foreground">Modulescore</p>
-                </div>
-                <div>
-                  <p className="text-xl font-bold text-primary">100%</p>
-                  <p className="text-xs text-muted-foreground">Voortgang</p>
-                </div>
-              </div>
-            ) : (
-              <div className="rounded-lg border border-secondary-foreground/10 bg-secondary/30 p-3 text-center">
-                <div>
-                  <p className="text-xl font-bold text-primary">100%</p>
-                  <p className="text-xs text-muted-foreground">Voortgang</p>
-                </div>
-              </div>
-            )}
-
-            <div className="flex flex-col items-center px-4 pt-8 text-center">
-              <div className="mb-4 flex size-16 items-center justify-center rounded-full bg-primary/10 text-primary">
-                <PartyPopper className="size-8" />
-              </div>
-              <p className="font-heading text-xl font-bold text-foreground">
-                {title?.trim()
-                  ? `Bedankt voor het afronden van ${formattedTitle}!`
-                  : "Bedankt voor het afronden van deze module!"}
-              </p>
-              <p className="mt-2 text-sm text-muted-foreground">
-                We waarderen je deelname en feedback enorm.
-              </p>
+            <div className="mt-auto pt-6">
+              <Button
+                type="button"
+                size="lg-full"
+                onClick={() => {
+                  setIsStarted(false);
+                  setIsCompleted(false);
+                  setCurrentIndex(0);
+                  setResult(null);
+                }}
+              >
+                Voorbeeld herstarten
+              </Button>
             </div>
-          </div>
-
-          <div className="mt-auto pt-6">
-            <Button
-              type="button"
-              size="lg-full"
-              onClick={() => {
-                setIsStarted(false);
-                setIsCompleted(false);
-                setCurrentIndex(0);
-                setResult(null);
-              }}
-            >
-              Voorbeeld herstarten
-            </Button>
-          </div>
           </div>
         </AnimationWrapper>
       );
@@ -320,56 +320,12 @@ export function ModulePreview({
       );
     }
 
-    const isQuestionScored = Boolean(question?.isScored);
     const displayedProgress =
       totalQuestions > 0
         ? ((result ? currentIndex + 1 : currentIndex) / totalQuestions) * 100
         : 0;
-    const canShowCorrectAnswer =
-      isQuestionScored &&
-      ![
-        "Information",
-        "Rating",
-        "Free Input",
-        "Simulated Call",
-      ].includes(question.type);
-    const isOptionFeedback =
-      ["MCQ", "Chat Scenario", "Video"].includes(question.type) &&
-      isQuestionScored &&
-      Boolean(result);
-    const hasFeedbackCorrectAnswer =
-      result?.correctAnswer !== undefined &&
-      result?.correctAnswer !== null &&
-      !(
-        typeof result.correctAnswer === "string" &&
-        result.correctAnswer.trim() === ""
-      );
     const isOrderingRetry =
       question.type === "Ordering" && result?.isCorrect === false;
-    const feedbackTitle = canShowCorrectAnswer
-      ? result?.isCorrect === false
-        ? "Niet helemaal goed"
-        : result?.isCorrect === true
-          ? "Juist antwoord"
-          : "Antwoord verzonden"
-      : question.type === "Information" && answer === "reviewed"
-        ? "Bekeken"
-        : "Antwoord verzonden";
-
-    const getFormattedCorrectAnswer = (
-      correct: AnswerValue | string | string[] | undefined,
-    ) => {
-      if (!correct) return "";
-      if (question.type === "Swipe") {
-        if (correct === "left") return question.leftLabel || "Nee";
-        if (correct === "right") return question.rightLabel || "Ja";
-        return String(correct);
-      }
-      if (Array.isArray(correct)) {
-        return correct.join(" -> ");
-      }
-      return String(correct);
-    };
 
     const isSimulatedCall = question?.type === "Simulated Call";
     const questionBackgroundColor = /^#[0-9A-Fa-f]{6}$/.test(
@@ -451,10 +407,10 @@ export function ModulePreview({
             )}
           >
             {question.type !== "Swipe" &&
-            question.type !== "Simulated Call" &&
-            question.type !== "Chat Scenario" && (
-              <QuestionPromptCard question={question as any} />
-            )}
+              question.type !== "Simulated Call" &&
+              question.type !== "Chat Scenario" && (
+                <QuestionPromptCard question={question as any} />
+              )}
 
             <QuestionAnswer
               question={question as any}
@@ -475,73 +431,29 @@ export function ModulePreview({
             />
 
             {result &&
-            question.type !== "Simulated Call" &&
-            (question.type !== "Information" || result.explanation) && (
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.3, delay: 0.1 }}
-              className="mt-auto!"
-            >
-              <div className="space-y-3">
-                {isOptionFeedback ? (
-                  <div
-                    className={cn(
-                      "min-w-0 rounded-2xl border bg-white p-3.5 text-sm font-medium shadow-sm wrap-break-word dark:bg-card",
-                      result.isCorrect === false
-                        ? "border-2 border-destructive text-destructive"
-                        : result.isCorrect === true
-                          ? "border-2 border-success text-success"
-                          : "border-border text-foreground",
-                    )}
-                  >
-                    {result.isCorrect === false
-                      ? hasFeedbackCorrectAnswer
-                        ? "Helaas, het juiste antwoord is gemarkeerd."
-                        : "Helaas."
-                      : result.isCorrect === true
-                        ? hasFeedbackCorrectAnswer
-                          ? "Juist - antwoord is gemarkeerd."
-                          : "Juist."
-                        : "Antwoord verzonden."}
-                  </div>
-                ) : isQuestionScored && !["Rating", "Free Input", "Information"].includes(question.type) ? (
-                  <div
-                    className={cn(
-                      "min-w-0 overflow-hidden rounded-2xl border bg-white p-3.5 text-sm shadow-sm wrap-break-word dark:bg-card",
-                      result.isCorrect === false
-                        ? "border-2 border-destructive text-destructive"
-                        : result.isCorrect === true
-                          ? "border-2 border-success text-foreground"
-                          : "border-2 border-border text-foreground",
-                    )}
-                  >
-                    <p className="font-semibold">{feedbackTitle}</p>
+              question.type !== "Simulated Call" &&
+              (result.explanation || isOrderingRetry) && (
+                <motion.div
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.3, delay: 0.1 }}
+                  className="mt-auto!"
+                >
+                  <div className="space-y-3">
                     {isOrderingRetry && (
-                      <p className="mt-2 wrap-break-word font-medium">
-                        Zet de onderdelen in de juiste volgorde en probeer opnieuw.
-                      </p>
+                      <div className="min-w-0 overflow-hidden rounded-2xl border-2 border-zinc-200/90 bg-white p-4 text-sm font-semibold shadow-sm wrap-break-word text-zinc-950">
+                        <p>Zet de onderdelen in de juiste volgorde en probeer opnieuw.</p>
+                      </div>
                     )}
-                    {canShowCorrectAnswer &&
-                      !isOrderingRetry &&
-                      result.isCorrect === false &&
-                      result.correctAnswer && (
-                        <p className="mt-2 wrap-break-word font-medium">
-                          Juiste antwoord:{" "}
-                          {getFormattedCorrectAnswer(result.correctAnswer)}
-                        </p>
-                      )}
+                    {result.explanation && !isOrderingRetry && (
+                      <div className="min-w-0 rounded-2xl border-2 border-zinc-200/90 bg-white p-4 text-sm shadow-sm wrap-break-word text-zinc-950">
+                        <span className="font-bold text-zinc-950">Feedback: </span>
+                        <span className="text-zinc-800">{result.explanation}</span>
+                      </div>
+                    )}
                   </div>
-                ) : null}
-                {result.explanation && !isOrderingRetry && (
-                  <div className="min-w-0 rounded-2xl border border-border bg-white p-3.5 text-sm shadow-sm wrap-break-word dark:bg-card">
-                    <span className="font-bold text-foreground">Feedback: </span>
-                    <span className="text-foreground/90">{result.explanation}</span>
-                  </div>
-                )}
-              </div>
-            </motion.div>
-          )}
+                </motion.div>
+              )}
             <div ref={bottomRef} />
           </div>
         </AnimationWrapper>
@@ -599,7 +511,7 @@ export function ModulePreview({
       <div className="mx-auto flex w-full max-w-95 justify-center pt-2 pb-8">
         {/* Outer Device Frame (Titanium look) */}
         <div className="relative flex h-200 max-h-[82dvh] min-h-150 w-full flex-col overflow-visible rounded-[3.5rem] bg-linear-to-br from-zinc-700 via-zinc-900 to-zinc-700 p-0.75 shadow-2xl ring-1 ring-zinc-800/50">
-          
+
           {/* Hardware Buttons */}
           <div className="absolute -left-1 top-27.5 h-8 w-1 rounded-l-md bg-zinc-600 shadow-[inset_1px_0_1px_rgba(255,255,255,0.2)]" />
           <div className="absolute -left-1 top-40 h-14 w-1 rounded-l-md bg-zinc-600 shadow-[inset_1px_0_1px_rgba(255,255,255,0.2)]" />
@@ -608,10 +520,10 @@ export function ModulePreview({
 
           {/* Inner Black Bezel */}
           <div className="relative flex h-full w-full flex-col overflow-hidden rounded-[3.35rem] bg-black p-2 sm:p-3 shadow-[inset_0_0_12px_rgba(0,0,0,1)]">
-            
+
             {/* Screen */}
             <div className="relative flex h-full w-full flex-col overflow-hidden rounded-[2.8rem] bg-card ring-1 ring-white/10">
-              
+
               {/* Front Camera Cutout */}
               <div className="absolute inset-x-0 top-3 z-50 flex justify-center drop-shadow-md">
                 <div className="h-5 w-5 rounded-full bg-black ring-1 ring-white/5" />
@@ -619,7 +531,7 @@ export function ModulePreview({
 
               {/* Glossy Screen Reflection Overlay */}
               <div className="pointer-events-none absolute inset-0 z-40 bg-linear-to-tr from-transparent via-transparent to-white/3" />
-              
+
               {renderContent()}
             </div>
           </div>

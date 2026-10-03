@@ -69,20 +69,20 @@ export function ModuleSurveyRunner({
         !(question.type === "Ordering" && response.data.isCorrect === false);
       const nextResult = shouldForceCompletion
         ? {
-            ...response.data,
-            moduleStatus:
-              response.data.moduleStatus === "completed"
-                ? response.data.moduleStatus
-                : "completed",
-            progressPercentage: Math.max(
-              response.data.progressPercentage ?? 0,
-              100,
-            ),
-            completedQuestions: Math.max(
-              response.data.completedQuestions ?? 0,
-              totalQuestions,
-            ),
-          }
+          ...response.data,
+          moduleStatus:
+            response.data.moduleStatus === "completed"
+              ? response.data.moduleStatus
+              : "completed",
+          progressPercentage: Math.max(
+            response.data.progressPercentage ?? 0,
+            100,
+          ),
+          completedQuestions: Math.max(
+            response.data.completedQuestions ?? 0,
+            totalQuestions,
+          ),
+        }
         : response.data;
       setResult(nextResult);
       setFinalResult(nextResult);
@@ -175,7 +175,6 @@ export function ModuleSurveyRunner({
   const isModuleScored = module.questions.some(
     (q) => q.isScored === true || String(q.isScored) === "true",
   );
-  const isQuestionScored = Boolean(question?.isScored);
 
   if (!isStarted && !isCompleted) {
     return (
@@ -299,9 +298,9 @@ export function ModuleSurveyRunner({
   const displayedProgress = result
     ? result.progressPercentage
     : Math.max(
-        localProgress,
-        (currentIndex / Math.max(totalQuestions, 1)) * 100,
-      );
+      localProgress,
+      (currentIndex / Math.max(totalQuestions, 1)) * 100,
+    );
   const isSimulatedCall = question.type === "Simulated Call";
   const questionBackgroundColor = /^#[0-9A-Fa-f]{6}$/.test(
     question.colorCode || "",
@@ -309,53 +308,8 @@ export function ModuleSurveyRunner({
     ? question.colorCode
     : undefined;
   const isDarkBg = isDarkColor(questionBackgroundColor);
-  const canShowCorrectAnswer =
-    isQuestionScored &&
-    result?.isCorrect !== null &&
-    result?.isCorrect !== undefined &&
-    ![
-      "Information",
-      "Rating",
-      "Free Input",
-      "Simulated Call",
-    ].includes(question.type);
-  const isOptionFeedback =
-    ["MCQ", "Chat Scenario", "Video"].includes(question.type) &&
-    isQuestionScored &&
-    Boolean(result);
-  const hasFeedbackCorrectAnswer =
-    result?.correctAnswer !== undefined &&
-    result?.correctAnswer !== null &&
-    !(
-      typeof result.correctAnswer === "string" &&
-      result.correctAnswer.trim() === ""
-    );
   const isOrderingRetry =
     question.type === "Ordering" && result?.isCorrect === false;
-  const feedbackTitle = canShowCorrectAnswer
-    ? result?.isCorrect === false
-      ? "Niet helemaal goed"
-      : result?.isCorrect === true
-        ? "Juist antwoord"
-        : "Antwoord verzonden"
-    : question.type === "Information" && answer === "reviewed"
-      ? "Bekeken"
-      : "Antwoord verzonden";
-
-  const getFormattedCorrectAnswer = (
-    correct: AnswerValue | string | string[] | undefined,
-  ) => {
-    if (!correct) return "";
-    if (question.type === "Swipe") {
-      if (correct === "left") return question.leftLabel || "Nee";
-      if (correct === "right") return question.rightLabel || "Ja";
-      return String(correct);
-    }
-    if (Array.isArray(correct)) {
-      return correct.join(" -> ");
-    }
-    return String(correct);
-  };
 
   return (
     <div
@@ -454,72 +408,28 @@ export function ModuleSurveyRunner({
 
           {result &&
             question.type !== "Simulated Call" &&
-            (question.type !== "Information" || result.explanation) && (
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.3, delay: 0.1 }}
-              className="mt-auto!"
-            >
-              <div className="space-y-3">
-                {isOptionFeedback ? (
-                  <div
-                    className={cn(
-                      "min-w-0 rounded-2xl border bg-white p-3.5 text-sm font-medium shadow-sm wrap-break-word dark:bg-card",
-                      result.isCorrect === false
-                        ? "border-2 border-destructive text-destructive"
-                        : result.isCorrect === true
-                          ? "border-2 border-success text-success"
-                          : "border-border text-foreground",
-                    )}
-                  >
-                    {result.isCorrect === false
-                      ? hasFeedbackCorrectAnswer
-                        ? "Helaas, het juiste antwoord is gemarkeerd."
-                        : "Helaas."
-                      : result.isCorrect === true
-                        ? hasFeedbackCorrectAnswer
-                          ? "Juist - antwoord is gemarkeerd."
-                          : "Juist."
-                        : "Antwoord verzonden."}
-                  </div>
-                ) : isQuestionScored && !["Rating", "Free Input", "Information"].includes(question.type) ? (
-                  <div
-                    className={cn(
-                      "min-w-0 overflow-hidden rounded-2xl border bg-white p-3.5 text-sm shadow-sm wrap-break-word dark:bg-card",
-                      result.isCorrect === false
-                        ? "border-2 border-destructive text-destructive"
-                        : result.isCorrect === true
-                          ? "border-2 border-success text-foreground"
-                          : "border-2 border-border text-foreground",
-                    )}
-                  >
-                    <p className="font-semibold">{feedbackTitle}</p>
-                    {isOrderingRetry && (
-                      <p className="mt-2 wrap-break-word font-medium">
-                        Zet de onderdelen in de juiste volgorde en probeer opnieuw.
-                      </p>
-                    )}
-                    {canShowCorrectAnswer &&
-                      !isOrderingRetry &&
-                      result.isCorrect === false &&
-                      result.correctAnswer && (
-                        <p className="mt-2 wrap-break-word font-medium">
-                          Juiste antwoord:{" "}
-                          {getFormattedCorrectAnswer(result.correctAnswer)}
-                        </p>
-                      )}
-                  </div>
-                ) : null}
-                {result.explanation && !isOrderingRetry && (
-                  <div className="min-w-0 rounded-2xl border border-border bg-white p-3.5 text-sm shadow-sm wrap-break-word dark:bg-card">
-                    <span className="font-bold text-foreground">Feedback: </span>
-                    <span className="text-foreground/90">{result.explanation}</span>
-                  </div>
-                )}
-              </div>
-            </motion.div>
-          )}
+            (result.explanation || isOrderingRetry) && (
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.3, delay: 0.1 }}
+                className="mt-auto!"
+              >
+                <div className="space-y-3">
+                  {isOrderingRetry && (
+                    <div className="min-w-0 overflow-hidden rounded-2xl border-2 border-zinc-200/90 bg-white p-4 text-sm font-semibold shadow-sm wrap-break-word text-zinc-950">
+                      <p>Zet de onderdelen in de juiste volgorde en probeer opnieuw.</p>
+                    </div>
+                  )}
+                  {result.explanation && !isOrderingRetry && (
+                    <div className="min-w-0 rounded-2xl border-2 border-zinc-200/90 bg-white p-4 text-sm shadow-sm wrap-break-word text-zinc-950">
+                      <span className="font-bold text-zinc-950">Feedback: </span>
+                      <span className="text-zinc-800">{result.explanation}</span>
+                    </div>
+                  )}
+                </div>
+              </motion.div>
+            )}
           <div ref={bottomRef} />
         </div>
       </AnimationWrapper>
@@ -538,7 +448,7 @@ export function ModuleSurveyRunner({
             ) : (
               <Button size="lg-full" onClick={handleContinue}>
                 {currentIndex === totalQuestions - 1 ||
-                result.moduleStatus === "completed"
+                  result.moduleStatus === "completed"
                   ? "Bekijk resultaat"
                   : "Verder"}
                 <ArrowRight />

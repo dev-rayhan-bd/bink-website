@@ -92,15 +92,15 @@ export function ChatScenarioQuestion({
             ? messages
             : sIdx === 0
               ? [
-                  {
-                    sender: senderName,
-                    text:
-                      question.content && question.content.trim().length > 0
-                        ? question.content.trim()
-                        : "Hallo, dit is een test.",
-                    isUser: false,
-                  },
-                ]
+                {
+                  sender: senderName,
+                  text:
+                    question.content && question.content.trim().length > 0
+                      ? question.content.trim()
+                      : "Hallo, dit is een test.",
+                  isUser: false,
+                },
+              ]
               : [];
 
         return {
@@ -114,39 +114,39 @@ export function ChatScenarioQuestion({
     // 2. Legacy fallback from question.messages / question.options / question.content
     const legacyOptions: IChatStepOption[] = Array.isArray(question.options)
       ? question.options
-          .map((opt: unknown, index: number) => {
-            if (typeof opt === "object" && opt !== null) {
-              const optObj = opt as Record<string, unknown>;
-              return {
-                optionId: typeof optObj.optionId === "string" ? optObj.optionId : `opt-1-${index + 1}`,
-                text: typeof optObj.text === "string" ? optObj.text : "",
-                nextStepId: typeof optObj.nextStepId === "string" ? optObj.nextStepId : null,
-                feedback: typeof optObj.feedback === "string" ? optObj.feedback : "",
-                isCorrect:
-                  typeof optObj.isCorrect === "boolean" ? optObj.isCorrect : index === 0,
-              };
-            }
+        .map((opt: unknown, index: number) => {
+          if (typeof opt === "object" && opt !== null) {
+            const optObj = opt as Record<string, unknown>;
             return {
-              optionId: `opt-1-${index + 1}`,
-              text: String(opt || ""),
-              nextStepId: null,
-              feedback: "",
-              isCorrect: question.correctAnswer
-                ? question.correctAnswer === opt
-                : index === 0,
+              optionId: typeof optObj.optionId === "string" ? optObj.optionId : `opt-1-${index + 1}`,
+              text: typeof optObj.text === "string" ? optObj.text : "",
+              nextStepId: typeof optObj.nextStepId === "string" ? optObj.nextStepId : null,
+              feedback: typeof optObj.feedback === "string" ? optObj.feedback : "",
+              isCorrect:
+                typeof optObj.isCorrect === "boolean" ? optObj.isCorrect : index === 0,
             };
-          })
-          .filter((o) => o.text.trim().length > 0)
+          }
+          return {
+            optionId: `opt-1-${index + 1}`,
+            text: String(opt || ""),
+            nextStepId: null,
+            feedback: "",
+            isCorrect: question.correctAnswer
+              ? question.correctAnswer === opt
+              : index === 0,
+          };
+        })
+        .filter((o) => o.text.trim().length > 0)
       : [];
 
     const legacyMessages = Array.isArray(question.messages) && question.messages.length > 0
       ? question.messages
-          .map((m) => ({
-            sender: m.sender || senderName,
-            text: typeof m.text === "string" ? m.text : "",
-            isUser: Boolean(m.isUser),
-          }))
-          .filter((m) => m.text.trim().length > 0)
+        .map((m) => ({
+          sender: m.sender || senderName,
+          text: typeof m.text === "string" ? m.text : "",
+          isUser: Boolean(m.isUser),
+        }))
+        .filter((m) => m.text.trim().length > 0)
       : [];
 
     return [
@@ -156,15 +156,15 @@ export function ChatScenarioQuestion({
           legacyMessages.length > 0
             ? legacyMessages
             : [
-                {
-                  sender: senderName,
-                  text:
-                    question.content && question.content.trim().length > 0
-                      ? question.content.trim()
-                      : "Hallo, dit is een test.",
-                  isUser: false,
-                },
-              ],
+              {
+                sender: senderName,
+                text:
+                  question.content && question.content.trim().length > 0
+                    ? question.content.trim()
+                    : "Hallo, dit is een test.",
+                isUser: false,
+              },
+            ],
         options: legacyOptions,
       },
     ];
@@ -519,11 +519,11 @@ export function ChatScenarioQuestion({
             className={cn(
               "rounded-md border-2 bg-card p-3.5 text-xs sm:text-sm leading-relaxed font-semibold shadow-sm transition-all animate-in fade-in zoom-in-95 duration-200",
               feedback.isCorrect === true &&
-                "border-success text-card-foreground",
+              "border-success text-card-foreground",
               feedback.isCorrect === false &&
-                "border-destructive text-card-foreground",
+              "border-destructive text-card-foreground",
               feedback.isCorrect === undefined &&
-                "border-primary text-card-foreground",
+              "border-primary text-card-foreground",
             )}
           >
             <div className="flex items-start gap-2.5">

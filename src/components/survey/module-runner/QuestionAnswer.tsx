@@ -69,21 +69,21 @@ export function QuestionAnswer({
                 isManyOptions ? "p-2.5 sm:p-3" : "p-3 sm:p-3.5",
                 // Unsubmitted & Unselected (Solid high-contrast white card)
                 !isSubmitted &&
-                  !selected &&
-                  "bg-white text-zinc-950 border-2 border-zinc-200 dark:bg-card dark:text-zinc-100 dark:border-zinc-700 hover:border-zinc-400 hover:shadow-md",
+                !selected &&
+                "bg-white text-zinc-950 border-2 border-zinc-200 dark:bg-card dark:text-zinc-100 dark:border-zinc-700 hover:border-zinc-400 hover:shadow-md",
                 // Unsubmitted & Selected (Highlighted active card with bold border)
                 !isSubmitted &&
-                  selected &&
-                  "bg-white text-zinc-950 border-2 border-zinc-950 ring-4 ring-black/10 dark:bg-card dark:text-white dark:border-white dark:ring-white/20 shadow-md font-bold",
+                selected &&
+                "bg-white text-zinc-950 border-2 border-zinc-950 ring-4 ring-black/10 dark:bg-card dark:text-white dark:border-white dark:ring-white/20 shadow-md font-bold",
                 // Submitted & Correct Option
                 isCorrectOption &&
-                  "bg-white text-zinc-950 border-2 border-emerald-600 dark:bg-card dark:text-white shadow-md font-bold",
+                "bg-white text-zinc-950 border-2 border-emerald-600 dark:bg-card dark:text-white shadow-md font-bold",
                 // Submitted & Wrong Option Selected
                 isWrongSelection &&
-                  "bg-white text-zinc-950 border-2 border-rose-600 dark:bg-card dark:text-white shadow-md font-bold",
+                "bg-white text-zinc-950 border-2 border-rose-600 dark:bg-card dark:text-white shadow-md font-bold",
                 // Submitted & Dimmed Options
                 isDimmed &&
-                  "bg-white/80 text-zinc-400 border border-zinc-200 opacity-60 dark:bg-card/70 dark:text-zinc-500 shadow-none",
+                "bg-white/80 text-zinc-400 border border-zinc-200 opacity-60 dark:bg-card/70 dark:text-zinc-500 shadow-none",
               )}
             >
               <div className="flex min-w-0 flex-1 items-center gap-2.5">
@@ -93,12 +93,12 @@ export function QuestionAnswer({
                     isManyOptions ? "size-6" : "size-6.5 sm:size-7",
                     // Unselected badge
                     !isSubmitted &&
-                      !selected &&
-                      "bg-zinc-100 text-zinc-900 border-zinc-300 dark:bg-zinc-800 dark:text-zinc-200 dark:border-zinc-700 group-hover:bg-zinc-200",
+                    !selected &&
+                    "bg-zinc-100 text-zinc-900 border-zinc-300 dark:bg-zinc-800 dark:text-zinc-200 dark:border-zinc-700 group-hover:bg-zinc-200",
                     // Selected badge
                     !isSubmitted &&
-                      selected &&
-                      "bg-zinc-950 text-white border-zinc-950 dark:bg-white dark:text-zinc-950 font-black shadow-xs",
+                    selected &&
+                    "bg-zinc-950 text-white border-zinc-950 dark:bg-white dark:text-zinc-950 font-black shadow-xs",
                     // Correct badge
                     isCorrectOption && "bg-emerald-600 text-white border-emerald-600 shadow-xs font-bold",
                     // Wrong badge
@@ -265,21 +265,21 @@ export function QuestionAnswer({
 
     return (
       <div className="space-y-2.5 w-full">
-        <div className="aspect-video max-h-[22dvh] overflow-hidden rounded-xl bg-black shadow-xs shrink-0">
+        <div className="relative w-full aspect-video overflow-hidden rounded-2xl border border-black/10 bg-black shadow-sm shrink-0">
           {youtubeId ? (
             <iframe
               src={`https://www.youtube.com/embed/${youtubeId}`}
               title={question.content}
-              className="size-full"
+              className="h-full w-full"
               allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
               allowFullScreen
             />
           ) : (
-            <MediaVideo value={videoSrc} className="size-full" />
+            <MediaVideo value={videoSrc} className="h-full w-full" />
           )}
         </div>
         {hasOptions ? (
-          <div className={cn("w-full pt-1", isManyOptions ? "space-y-1.5" : "space-y-2")}>
+          <div className={cn("w-full pt-1", isManyOptions ? "space-y-2" : "space-y-2.5")}>
             {question.options?.map((option, optionIndex) => {
               const selected = answer === option;
               const hasCorrectAnswer =
@@ -311,40 +311,40 @@ export function QuestionAnswer({
                   disabled={disabled}
                   onClick={() => onAnswer(option)}
                   className={cn(
-                    "group flex w-full min-w-0 items-center justify-between gap-2.5 rounded-xl text-left font-medium transition-all duration-150 cursor-pointer shadow-xs active:scale-[0.99]",
-                    isManyOptions ? "p-2.5 sm:p-3" : "p-3 sm:p-3.5",
-                    // Unsubmitted & Unselected (Solid high-contrast white card)
+                    "group flex w-full min-w-0 items-center justify-between gap-3 rounded-2xl text-left font-medium transition-all duration-150 cursor-pointer shadow-xs active:scale-[0.99]",
+                    isManyOptions ? "p-3 sm:p-3.5" : "p-3.5 sm:p-4",
+                    // Unsubmitted & Unselected
                     !isSubmitted &&
                       !selected &&
-                      "bg-white text-zinc-950 border-2 border-zinc-200 dark:bg-card dark:text-zinc-100 dark:border-zinc-700 hover:border-zinc-400 hover:shadow-md",
-                    // Unsubmitted & Selected (Highlighted active card with bold border)
+                      "bg-white text-zinc-950 border-2 border-zinc-200/90 hover:border-primary/60 hover:bg-zinc-50 hover:shadow-md",
+                    // Unsubmitted & Selected
                     !isSubmitted &&
                       selected &&
-                      "bg-white text-zinc-950 border-2 border-zinc-950 ring-4 ring-black/10 dark:bg-card dark:text-white dark:border-white dark:ring-white/20 shadow-md font-bold",
+                      "bg-white text-zinc-950 border-2 border-primary ring-4 ring-primary/20 shadow-md font-bold",
                     // Submitted & Correct Option
                     isCorrectOption &&
-                      "bg-white text-zinc-950 border-2 border-emerald-600 dark:bg-card dark:text-white shadow-md font-bold",
+                      "bg-emerald-50/90 text-emerald-950 border-2 border-emerald-600 shadow-md font-bold",
                     // Submitted & Wrong Option Selected
                     isWrongSelection &&
-                      "bg-white text-zinc-950 border-2 border-rose-600 dark:bg-card dark:text-white shadow-md font-bold",
+                      "bg-rose-50/90 text-rose-950 border-2 border-rose-600 shadow-md font-bold",
                     // Submitted & Dimmed Options
                     isDimmed &&
-                      "bg-white/80 text-zinc-400 border border-zinc-200 opacity-60 dark:bg-card/70 dark:text-zinc-500 shadow-none",
+                      "bg-white/80 text-zinc-400 border border-zinc-200 opacity-60 shadow-none",
                   )}
                 >
-                  <div className="flex min-w-0 flex-1 items-center gap-2.5">
+                  <div className="flex min-w-0 flex-1 items-center gap-3">
                     <span
                       className={cn(
-                        "flex shrink-0 items-center justify-center rounded-lg text-[11px] font-bold transition-all border",
-                        isManyOptions ? "size-6" : "size-6.5 sm:size-7",
+                        "flex shrink-0 items-center justify-center rounded-xl text-xs sm:text-sm font-bold transition-all border",
+                        isManyOptions ? "size-7" : "size-8",
                         // Unselected badge
                         !isSubmitted &&
                           !selected &&
-                          "bg-zinc-100 text-zinc-900 border-zinc-300 dark:bg-zinc-800 dark:text-zinc-200 dark:border-zinc-700 group-hover:bg-zinc-200",
+                          "bg-zinc-100 text-zinc-900 border-zinc-300 group-hover:bg-primary/10 group-hover:text-primary group-hover:border-primary/40",
                         // Selected badge
                         !isSubmitted &&
                           selected &&
-                          "bg-zinc-950 text-white border-zinc-950 dark:bg-white dark:text-zinc-950 font-black shadow-xs",
+                          "bg-primary text-primary-foreground border-primary font-black shadow-xs",
                         // Correct badge
                         isCorrectOption && "bg-emerald-600 text-white border-emerald-600 shadow-xs font-bold",
                         // Wrong badge
@@ -357,8 +357,11 @@ export function QuestionAnswer({
                     </span>
                     <span
                       className={cn(
-                        "min-w-0 flex-1 whitespace-pre-wrap wrap-break-word leading-snug",
-                        isLongText || isManyOptions ? "text-xs sm:text-sm" : "text-xs sm:text-base",
+                        "min-w-0 flex-1 whitespace-pre-wrap wrap-break-word leading-snug font-semibold text-zinc-950",
+                        isLongText || isManyOptions ? "text-xs sm:text-sm" : "text-sm sm:text-base",
+                        isDimmed && "text-zinc-400 font-normal",
+                        isCorrectOption && "text-emerald-950",
+                        isWrongSelection && "text-rose-950",
                       )}
                     >
                       {option}
@@ -369,27 +372,27 @@ export function QuestionAnswer({
                     {!isSubmitted && (
                       <div
                         className={cn(
-                          "flex size-5 sm:size-5.5 items-center justify-center rounded-full transition-all shrink-0",
+                          "flex size-5.5 sm:size-6 items-center justify-center rounded-full transition-all shrink-0",
                           selected
-                            ? "bg-zinc-950 text-white dark:bg-white dark:text-zinc-950 shadow-xs ring-2 ring-black/10"
-                            : "border-2 border-zinc-300 bg-zinc-50 dark:bg-zinc-800 dark:border-zinc-600 group-hover:border-zinc-400",
+                            ? "bg-primary text-primary-foreground shadow-xs ring-2 ring-primary/20"
+                            : "border-2 border-zinc-300 bg-zinc-50 group-hover:border-primary/50",
                         )}
                       >
-                        {selected && <Check className="size-3 stroke-[3]" />}
+                        {selected && <Check className="size-3.5 stroke-[3]" />}
                       </div>
                     )}
                     {isCorrectOption && (
-                      <div className="flex size-5 sm:size-5.5 items-center justify-center rounded-full bg-emerald-600 text-white shadow-xs">
-                        <Check className="size-3 stroke-[3]" />
+                      <div className="flex size-5.5 sm:size-6 items-center justify-center rounded-full bg-emerald-600 text-white shadow-xs">
+                        <Check className="size-3.5 stroke-[3]" />
                       </div>
                     )}
                     {isWrongSelection && (
-                      <div className="flex size-5 sm:size-5.5 items-center justify-center rounded-full bg-rose-600 text-white shadow-xs">
-                        <X className="size-3 stroke-[3]" />
+                      <div className="flex size-5.5 sm:size-6 items-center justify-center rounded-full bg-rose-600 text-white shadow-xs">
+                        <X className="size-3.5 stroke-[3]" />
                       </div>
                     )}
                     {isDimmed && (
-                      <div className="size-5 rounded-full border border-zinc-300" />
+                      <div className="size-5.5 rounded-full border border-zinc-300" />
                     )}
                   </div>
                 </button>
