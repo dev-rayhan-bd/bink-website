@@ -151,6 +151,13 @@ export function ModuleSurveyRunner({
     else if (question?.type === "Swipe") delay = 100;
     else if (question?.type === "Rating") delay = 400;
     else if (question?.type === "Free Input") delay = 400;
+    else if (question?.type === "Ordering" && result?.isCorrect !== false)
+      delay = 300;
+    else if (
+      question?.type === "Video" &&
+      (!question.options || question.options.length === 0)
+    )
+      delay = 300;
 
     if (delay === null) return;
 
@@ -170,7 +177,7 @@ export function ModuleSurveyRunner({
     }, delay);
 
     return () => window.clearTimeout(timer);
-  }, [currentIndex, module.questions, question?.type, question?.isScored, result, totalQuestions]);
+  }, [currentIndex, module.questions, question, result, totalQuestions]);
 
   const isModuleScored = module.questions.some(
     (q) => q.isScored === true || String(q.isScored) === "true",

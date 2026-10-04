@@ -104,6 +104,13 @@ export function ModulePreview({
     else if (question?.type === "Swipe") delay = 100;
     else if (question?.type === "Rating") delay = 400;
     else if (question?.type === "Free Input") delay = 400;
+    else if (question?.type === "Ordering" && result?.isCorrect !== false)
+      delay = 300;
+    else if (
+      question?.type === "Video" &&
+      !("options" in question && Array.isArray((question as any).options) && (question as any).options.length > 0)
+    )
+      delay = 300;
 
     if (delay === null) return;
 
@@ -119,7 +126,7 @@ export function ModulePreview({
     }, delay);
 
     return () => window.clearTimeout(timer);
-  }, [question?.type, question?.isScored, result, currentIndex, totalQuestions, safeQuestions]);
+  }, [question, result, currentIndex, totalQuestions, safeQuestions]);
 
   useEffect(() => {
     if (!result || !bottomRef.current) return;
