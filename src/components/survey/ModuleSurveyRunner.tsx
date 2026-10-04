@@ -145,19 +145,33 @@ export function ModuleSurveyRunner({
   useEffect(() => {
     if (!result || result.explanation) return;
 
+    const hasCorrectAnswer = Boolean(
+      (question?.isScored || question?.isScored === undefined) &&
+      ((result?.correctAnswer && typeof result.correctAnswer === "string" && result.correctAnswer.trim().length > 0) ||
+       (question?.correctAnswer && typeof question.correctAnswer === "string" && question.correctAnswer.trim().length > 0))
+    );
+
     let delay: number | null = null;
-    if (question?.type === "Simulated Call") delay = 650;
-    else if (question?.type === "Information") delay = 300;
-    else if (question?.type === "Swipe") delay = 100;
-    else if (question?.type === "Rating") delay = 400;
-    else if (question?.type === "Free Input") delay = 400;
-    else if (question?.type === "Ordering" && result?.isCorrect !== false)
+    if (question?.type === "Ordering") {
+      if (result?.isCorrect !== false) delay = 300;
+    } else if (question?.type === "Simulated Call") {
+      delay = 650;
+    } else if (question?.type === "Information") {
       delay = 300;
-    else if (
+    } else if (question?.type === "Swipe") {
+      delay = 100;
+    } else if (question?.type === "Rating") {
+      delay = 400;
+    } else if (question?.type === "Free Input") {
+      delay = 400;
+    } else if (
       question?.type === "Video" &&
       (!question.options || question.options.length === 0)
-    )
+    ) {
       delay = 300;
+    } else if (!hasCorrectAnswer) {
+      delay = 300;
+    }
 
     if (delay === null) return;
 
