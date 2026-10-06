@@ -8,8 +8,11 @@ import { Badge } from "@/components/ui/badge";
 import { FeaturedTrainingSection } from "@/components/survey/FeaturedTrainingSection";
 import { WelcomeVideoOverlay } from "@/components/survey/WelcomeVideoOverlay";
 import { getFeaturedTrainings } from "@/services/featured-training.service";
+import { translateScreenTexts } from "@/services/translate.service";
 import { getMyTrainings } from "@/services/training.service";
 import { getMyProfile } from "@/services/user.service";
+import type { FeaturedTraining, Topic, Training } from "@/lib/types/training.type";
+import type { LearningModule } from "@/lib/types/module.type";
 
 export default async function ModulesPage() {
   const [response, profileResponse, featuredResult] = await Promise.all([
@@ -38,13 +41,82 @@ export default async function ModulesPage() {
     redirect("/auth/login");
   }
 
-  const trainings = Array.isArray(response?.data) ? response.data : [];
+  const rawTrainings: Training[] = Array.isArray(response?.data) ? response.data : [];
   const user = profileResponse.success ? profileResponse.data : null;
   const branding = user?.branding;
   const featuredResponse = featuredResult.value;
-  const featuredTrainings = featuredResponse?.success
+  const rawFeaturedTrainings: FeaturedTraining[] = featuredResponse?.success
     ? featuredResponse.data
     : [];
+
+  const textsToTranslate: string[] = [];
+  for (const tr of rawTrainings) {
+    if (tr.title) textsToTranslate.push(tr.title);
+    if (tr.description) textsToTranslate.push(tr.description);
+  }
+  for (const feat of rawFeaturedTrainings) {
+    if (feat.customText) textsToTranslate.push(feat.customText);
+    const mod = typeof feat.moduleId === "object" ? (feat.moduleId as LearningModule) : null;
+    if (mod?.title) textsToTranslate.push(mod.title);
+    if (mod?.description) textsToTranslate.push(mod.description);
+    const tr = typeof feat.trainingId === "object" ? (feat.trainingId as Training) : null;
+    if (tr?.title) textsToTranslate.push(tr.title);
+    const top = typeof feat.topicId === "object" ? (feat.topicId as Topic) : null;
+    if (top?.title) textsToTranslate.push(top.title);
+  }
+
+  const translations = await translateScreenTexts(
+    textsToTranslate,
+    "modules_screen",
+    "nl",
+  );
+
+  const t = (text?: string | null) => {
+    if (!text) return "";
+    const trimmed = text.trim();
+    return translations[trimmed] || translations[text] || text;
+  };
+
+  const trainings = rawTrainings.map((tr) => ({
+    ...tr,
+    title: t(tr.title),
+    description: tr.description ? t(tr.description) : tr.description,
+  }));
+
+  const featuredTrainings = rawFeaturedTrainings.map((feat) => {
+    const mod = typeof feat.moduleId === "object" && feat.moduleId !== null
+      ? {
+          ...(feat.moduleId as LearningModule),
+          title: t((feat.moduleId as LearningModule).title),
+          description: (feat.moduleId as LearningModule).description
+            ? t((feat.moduleId as LearningModule).description)
+            : (feat.moduleId as LearningModule).description,
+        }
+      : feat.moduleId;
+
+    const tr = typeof feat.trainingId === "object" && feat.trainingId !== null
+      ? {
+          ...(feat.trainingId as Training),
+          title: t((feat.trainingId as Training).title),
+        }
+      : feat.trainingId;
+
+    const top = typeof feat.topicId === "object" && feat.topicId !== null
+      ? {
+          ...(feat.topicId as Topic),
+          title: t((feat.topicId as Topic).title),
+        }
+      : feat.topicId;
+
+    return {
+      ...feat,
+      customText: feat.customText ? t(feat.customText) : feat.customText,
+      moduleId: mod,
+      trainingId: tr,
+      topicId: top,
+    };
+  });
+
   const featuredErrorMessage =
     featuredResult.errorMessage ||
     (featuredResponse && !featuredResponse.success

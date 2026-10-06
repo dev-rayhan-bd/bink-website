@@ -68,7 +68,7 @@ export function WelcomeCallScreen({
               <div className="absolute top-4 left-4 z-10 p-2 bg-background/70 backdrop-blur-md rounded-lg border border-border shadow-sm">
                 <Image
                   src={logoSrc}
-                  alt="Company Logo"
+                  alt="Bedrijfslogo"
                   width={90}
                   height={28}
                   className="h-auto w-auto object-contain dark:invert"
@@ -91,27 +91,27 @@ export function WelcomeCallScreen({
                   className="text-xs font-bold tracking-widest uppercase text-primary"
                   style={secondaryColor ? { color: secondaryColor } : undefined}
                 >
-                  Welcome Message
+                  Welkomstboodschap
                 </p>
                 <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-foreground">
                   {formatBrandingVideoTitle(
                     user?.branding?.videoTitle,
                     getParticipantFirstName(user),
-                    "en",
+                    "nl",
                   )}
                 </h1>
                 <p className="text-muted-foreground text-xs sm:text-sm leading-relaxed">
                   {user?.branding?.videoDescription ||
-                    "We're asking everyone in our organization to take part in this short training. It's about creating a workplace where everyone feels respected and heard."}
+                    "We vragen iedereen in onze organisatie om deel te nemen aan deze korte training. Samen zorgen we voor een respectvolle werkomgeving."}
                 </p>
               </div>
 
               <div className="bg-muted/50 border border-border p-3.5 rounded-lg flex flex-col gap-0.5 w-full">
                 <p className="font-semibold text-sm text-foreground">
-                  {user?.branding?.presenterName || "Presenter"}
+                  {user?.branding?.presenterName || "Presentator"}
                 </p>
                 <p className="text-muted-foreground text-xs">
-                  {user?.branding?.presenterDesignation || "Programme Lead"}
+                  {user?.branding?.presenterDesignation || "Programmamanager"}
                 </p>
               </div>
 
@@ -121,7 +121,7 @@ export function WelcomeCallScreen({
                 style={secondaryColor ? { backgroundColor: secondaryColor } : undefined}
                 className="w-full bg-primary text-primary-foreground font-bold tracking-wide uppercase px-6 py-3.5 rounded-lg hover:opacity-90 transition-opacity flex items-center justify-center gap-2 shadow-sm text-sm"
               >
-                Skip to the program <span className="text-base leading-none">→</span>
+                Door naar het programma <span className="text-base leading-none">→</span>
               </button>
             </div>
           </div>
@@ -130,14 +130,14 @@ export function WelcomeCallScreen({
           <div className="flex-1 flex flex-col items-center justify-between py-12 px-6 h-full animate-in slide-in-from-bottom-full duration-500">
             <div className="flex flex-col items-center gap-10 mt-8">
               <p className="text-muted-foreground text-base font-medium tracking-wide">
-                Incoming call...
+                Inkomende oproep...
               </p>
 
               <div className="relative">
                 <div className="w-36 h-36 rounded-full overflow-hidden border-4 border-border bg-card shadow-xl flex items-center justify-center p-4 relative z-10">
                   <Image
                     src={logoSrc}
-                    alt="Company Logo"
+                    alt="Bedrijfslogo"
                     width={90}
                     height={90}
                     className="object-contain dark:invert"
@@ -151,7 +151,7 @@ export function WelcomeCallScreen({
               </div>
 
               <h1 className="text-3xl font-bold text-foreground tracking-tight text-center px-4">
-                {user?.branding?.presenterName || "Company Presenter"}
+                {user?.branding?.presenterName || "Bedrijfspresentator"}
               </h1>
             </div>
 

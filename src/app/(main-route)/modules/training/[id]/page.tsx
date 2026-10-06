@@ -3,6 +3,7 @@ import { ArrowRight, BookOpen, Layers3 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import type { TParams } from "@/lib/types/global.type";
 import type { Topic, UserTrainingView } from "@/lib/types/training.type";
+import { translateScreenTexts } from "@/services/translate.service";
 import { getTrainingTopics, getUserTrainingView } from "@/services/training.service";
 
 const TrainingUnavailable = ({ message }: { message: string }) => (
@@ -47,13 +48,45 @@ export default async function TrainingModulesPage({
     );
   }
 
-  const training = trainingResponse.data as UserTrainingView;
-  const topics: Topic[] =
+  const rawTraining = trainingResponse.data as UserTrainingView;
+  const rawTopics: Topic[] =
     topicsResponse?.success && Array.isArray(topicsResponse.data) && topicsResponse.data.length > 0
       ? topicsResponse.data
-      : Array.isArray(training?.topics)
-        ? training.topics
+      : Array.isArray(rawTraining?.topics)
+        ? rawTraining.topics
         : [];
+
+  const textsToTranslate: string[] = [];
+  if (rawTraining.title) textsToTranslate.push(rawTraining.title);
+  if (rawTraining.description) textsToTranslate.push(rawTraining.description);
+  for (const topic of rawTopics) {
+    if (topic.title) textsToTranslate.push(topic.title);
+    if (topic.description) textsToTranslate.push(topic.description);
+  }
+
+  const translations = await translateScreenTexts(
+    textsToTranslate,
+    "training_detail_screen",
+    "nl",
+  );
+
+  const t = (text?: string | null) => {
+    if (!text) return "";
+    const trimmed = text.trim();
+    return translations[trimmed] || translations[text] || text;
+  };
+
+  const training = {
+    ...rawTraining,
+    title: t(rawTraining.title),
+    description: rawTraining.description ? t(rawTraining.description) : rawTraining.description,
+  };
+
+  const topics = rawTopics.map((topic) => ({
+    ...topic,
+    title: t(topic.title),
+    description: topic.description ? t(topic.description) : topic.description,
+  }));
 
   const totalModules = topics.reduce(
     (acc, t) => acc + (t.moduleCount ?? (Array.isArray(t.modules) ? t.modules.length : 0)),

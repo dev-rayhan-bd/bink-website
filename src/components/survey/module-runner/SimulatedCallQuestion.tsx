@@ -24,7 +24,7 @@ export function SimulatedCallQuestion({
   const completionRef = useRef(false);
   const isComplete = answer === "completed";
   const hasAnswered = isComplete || localAnswered;
-  const callerName = question.callerName || "Training caller";
+  const callerName = question.callerName || "Inkomende beller";
 
   const completeOnce = useCallback(() => {
     if (disabled || isComplete || completionRef.current) return;

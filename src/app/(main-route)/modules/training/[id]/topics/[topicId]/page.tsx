@@ -3,6 +3,7 @@ import { ArrowRight, BookOpen, Layers3 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import type { TParams } from "@/lib/types/global.type";
+import { translateScreenTexts } from "@/services/translate.service";
 import { getTrainingTopic } from "@/services/training.service";
 
 const TopicUnavailable = ({ message }: { message: string }) => (
@@ -35,8 +36,41 @@ export default async function TopicModulesPage({
     );
   }
 
-  const topic = response.data;
-  const modules = topic.modules || [];
+  const rawTopic = response.data;
+  const rawModules = rawTopic.modules || [];
+
+  const textsToTranslate: string[] = [];
+  if (rawTopic.title) textsToTranslate.push(rawTopic.title);
+  if (rawTopic.description) textsToTranslate.push(rawTopic.description);
+  for (const mod of rawModules) {
+    if (mod.title) textsToTranslate.push(mod.title);
+    if (mod.description) textsToTranslate.push(mod.description);
+  }
+
+  const translations = await translateScreenTexts(
+    textsToTranslate,
+    "topic_detail_screen",
+    "nl",
+  );
+
+  const t = (text?: string | null) => {
+    if (!text) return "";
+    const trimmed = text.trim();
+    return translations[trimmed] || translations[text] || text;
+  };
+
+  const topic = {
+    ...rawTopic,
+    title: t(rawTopic.title),
+    description: rawTopic.description ? t(rawTopic.description) : rawTopic.description,
+  };
+
+  const modules = rawModules.map((mod) => ({
+    ...mod,
+    title: t(mod.title),
+    description: mod.description ? t(mod.description) : mod.description,
+  }));
+
   const moduleCount = topic.moduleCount ?? modules.length;
 
   return (

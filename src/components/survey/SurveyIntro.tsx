@@ -22,7 +22,7 @@ export function SurveyIntro({
   imageUrl, 
   questionCount, 
   format = "Interactief", 
-  startLabel = "Start",
+  startLabel = "Starten",
   onStart, 
   className,
 }: SurveyIntroProps) {

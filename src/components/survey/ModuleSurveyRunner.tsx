@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState, useRef, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import { ArrowRight, CheckCircle2, LoaderCircle, PartyPopper } from "lucide-react";
 import { motion } from "framer-motion";
@@ -11,9 +11,12 @@ import type {
   UserModuleDetails,
 } from "@/lib/types/module.type";
 import { cn, ErrorToast, isDarkColor } from "@/lib/utils";
+import { extractModuleTexts, translateModuleData } from "@/lib/module-translator";
+import { translateScreenTexts } from "@/services/translate.service";
 import { submitModuleAnswer } from "@/services/user-progress.service";
 import AnimationWrapper from "@/components/ui/custom/animation-wrapper";
 import { SurveyIntro } from "./SurveyIntro";
+import { ModuleRunnerSkeleton } from "./ModuleRunnerSkeleton";
 import { QuestionAnswer } from "./module-runner/QuestionAnswer";
 import { QuestionPromptCard } from "./module-runner/QuestionPromptCard";
 import { initialAnswer, hasAnswer } from "./module-runner/answer-utils";
@@ -21,16 +24,66 @@ import type { AnswerValue } from "./module-runner/types";
 
 export function ModuleSurveyRunner({
   details,
+  initialTranslations = {},
 }: {
   details: UserModuleDetails;
+  initialTranslations?: Record<string, string>;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   user?: any;
 }) {
   const router = useRouter();
-  const { module, userProgress } = details;
+  const hasInitial = Boolean(
+    initialTranslations && Object.keys(initialTranslations).length > 0,
+  );
+  const [translations, setTranslations] = useState<Record<string, string>>(
+    initialTranslations || {},
+  );
+  const [isLoadingTranslations, setIsLoadingTranslations] = useState(() => {
+    if (hasInitial) return false;
+    const texts = extractModuleTexts(details.module);
+    return texts.length > 0;
+  });
+
+  useEffect(() => {
+    if (hasInitial) return;
+
+    const texts = extractModuleTexts(details.module);
+    if (texts.length === 0) {
+      return;
+    }
+
+    let isMounted = true;
+    void translateScreenTexts(texts, "quiz_screen", "nl")
+      .then((res) => {
+        if (isMounted) {
+          if (res && Object.keys(res).length > 0) {
+            setTranslations(res);
+          }
+          setIsLoadingTranslations(false);
+        }
+      })
+      .catch(() => {
+        if (isMounted) {
+          setIsLoadingTranslations(false);
+        }
+      });
+
+    return () => {
+      isMounted = false;
+    };
+  }, [details.module, hasInitial]);
+
+  const translatedData = useMemo(
+    () => translateModuleData(details.module, translations),
+    [details.module, translations],
+  );
+
+  const activeModule = translatedData.module;
+  const userProgress = details.userProgress;
+
   const startingIndex = Math.min(
     userProgress.completedQuestions,
-    Math.max(module.questions.length - 1, 0),
+    Math.max(activeModule.questions.length - 1, 0),
   );
   const [isStarted, setIsStarted] = useState(
     userProgress.status === "in_progress",
@@ -40,14 +93,14 @@ export function ModuleSurveyRunner({
   );
   const [currentIndex, setCurrentIndex] = useState(startingIndex);
   const [answer, setAnswer] = useState<AnswerValue | null>(() =>
-    initialAnswer(module.questions[startingIndex]),
+    initialAnswer(activeModule.questions[startingIndex]),
   );
   const [result, setResult] = useState<SubmitModuleAnswerResult>();
   const [finalResult, setFinalResult] = useState<SubmitModuleAnswerResult>();
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const question = module.questions[currentIndex];
-  const totalQuestions = module.questions.length;
+  const question = activeModule.questions[currentIndex];
+  const totalQuestions = activeModule.questions.length;
   const localProgress =
     result?.progressPercentage ?? userProgress.progressPercentage;
 
@@ -56,20 +109,48 @@ export function ModuleSurveyRunner({
     setIsSubmitting(true);
 
     try {
+      let answerToSend: AnswerValue = submittedAnswer as AnswerValue;
+
+      if (question.type === "MCQ" && typeof submittedAnswer === "string") {
+        answerToSend = translatedData.translatedToOriginal(submittedAnswer);
+      } else if (question.type === "Ordering" && Array.isArray(submittedAnswer)) {
+        answerToSend = (submittedAnswer as string[]).map((item) =>
+          translatedData.translatedToOriginal(item),
+        );
+      } else if (question.type === "Video" && typeof submittedAnswer === "string") {
+        answerToSend = translatedData.translatedToOriginal(submittedAnswer);
+      }
+
       const response = await submitModuleAnswer({
-        moduleId: module._id,
+        moduleId: details.module._id,
         questionId: question.id,
-        answer: submittedAnswer as AnswerValue,
+        answer: answerToSend,
       });
 
       if (!response.success) throw new Error(response.message);
+
+      const rawCorrectAnswer = response.data.correctAnswer;
+      const translatedCorrectAnswer =
+        typeof rawCorrectAnswer === "string"
+          ? translatedData.originalToTranslated(rawCorrectAnswer)
+          : rawCorrectAnswer;
+
+      const rawExplanation = response.data.explanation;
+      const translatedExplanation =
+        typeof rawExplanation === "string"
+          ? translatedData.originalToTranslated(rawExplanation)
+          : rawExplanation;
+
       const isLastQuestion = currentIndex >= totalQuestions - 1;
       const shouldForceCompletion =
         isLastQuestion &&
         !(question.type === "Ordering" && response.data.isCorrect === false);
+
       const nextResult = shouldForceCompletion
         ? {
           ...response.data,
+          correctAnswer: translatedCorrectAnswer,
+          explanation: translatedExplanation,
           moduleStatus:
             response.data.moduleStatus === "completed"
               ? response.data.moduleStatus
@@ -83,7 +164,12 @@ export function ModuleSurveyRunner({
             totalQuestions,
           ),
         }
-        : response.data;
+        : {
+          ...response.data,
+          correctAnswer: translatedCorrectAnswer,
+          explanation: translatedExplanation,
+        };
+
       setResult(nextResult);
       setFinalResult(nextResult);
     } catch (error: unknown) {
@@ -112,7 +198,7 @@ export function ModuleSurveyRunner({
 
     const nextIndex = currentIndex + 1;
     setCurrentIndex(nextIndex);
-    setAnswer(initialAnswer(module.questions[nextIndex]));
+    setAnswer(initialAnswer(activeModule.questions[nextIndex]));
     setResult(undefined);
   };
 
@@ -186,28 +272,32 @@ export function ModuleSurveyRunner({
 
       const nextIndex = currentIndex + 1;
       setCurrentIndex(nextIndex);
-      setAnswer(initialAnswer(module.questions[nextIndex]));
+      setAnswer(initialAnswer(activeModule.questions[nextIndex]));
       setResult(undefined);
     }, delay);
 
     return () => window.clearTimeout(timer);
-  }, [currentIndex, module.questions, question, result, totalQuestions]);
+  }, [currentIndex, activeModule.questions, question, result, totalQuestions]);
 
-  const isModuleScored = module.questions.some(
+  const isModuleScored = activeModule.questions.some(
     (q) => q.isScored === true || String(q.isScored) === "true",
   );
+
+  if (isLoadingTranslations) {
+    return <ModuleRunnerSkeleton />;
+  }
 
   if (!isStarted && !isCompleted) {
     return (
       <div className="-m-3 flex flex-1 h-[calc(100%+1.5rem)] min-h-[calc(100%+1.5rem)] flex-col overflow-hidden">
         <SurveyIntro
-          title={module.title}
-          description={module.description}
+          title={activeModule.title}
+          description={activeModule.description}
           badge="Leermodule"
-          imageUrl={module.thumbnailImage || "/window.svg"}
-          questionCount={module.questions.length}
+          imageUrl={activeModule.thumbnailImage || "/window.svg"}
+          questionCount={activeModule.questions.length}
           format="Interactief"
-          startLabel={userProgress.completedQuestions > 0 ? "Doorgaan" : "Start"}
+          startLabel={userProgress.completedQuestions > 0 ? "Doorgaan" : "Starten"}
           onStart={() => setIsStarted(true)}
         />
       </div>
@@ -215,8 +305,8 @@ export function ModuleSurveyRunner({
   }
 
   if (isCompleted) {
-    const formattedTitle = module.title?.trim()
-      ? `"${module.title.trim()}"`
+    const formattedTitle = activeModule.title?.trim()
+      ? `"${activeModule.title.trim()}"`
       : "deze module";
 
     return (
@@ -285,7 +375,7 @@ export function ModuleSurveyRunner({
                 <PartyPopper className="size-8" />
               </div>
               <p className="font-heading text-xl font-bold text-foreground">
-                {module.title?.trim()
+                {activeModule.title?.trim()
                   ? `Bedankt voor het afronden van ${formattedTitle}!`
                   : "Bedankt voor het afronden van deze module!"}
               </p>
@@ -354,7 +444,7 @@ export function ModuleSurveyRunner({
                 : "text-secondary-foreground",
             )}
           >
-            {module.title}
+            {activeModule.title}
           </h2>
           <div className="flex flex-col gap-1">
             <div className="flex items-center">
