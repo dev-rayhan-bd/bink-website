@@ -70,6 +70,7 @@ export function MediaVideo({
   loop?: boolean;
 }) {
   const videoRef = useRef<HTMLVideoElement>(null);
+  const ambientVideoRef = useRef<HTMLVideoElement>(null);
   const [objectUrl, setObjectUrl] = useState<string>();
   const [isBuffering, setIsBuffering] = useState(false);
   const [isPlaying, setIsPlaying] = useState(false);
@@ -93,20 +94,19 @@ export function MediaVideo({
     };
   }, [value]);
 
-  const showControlsTemporarily = useCallback(() => {
+  const resetControlsTimer = useCallback((timeoutMs = 2500) => {
     setAreControlsVisible(true);
     if (hideControlsTimerRef.current) {
       clearTimeout(hideControlsTimerRef.current);
     }
     hideControlsTimerRef.current = setTimeout(() => {
-      if (isPlaying) {
-        setAreControlsVisible(false);
-      }
-    }, 2800);
-  }, [isPlaying]);
+      setAreControlsVisible(false);
+    }, timeoutMs);
+  }, []);
 
   useEffect(() => {
     const video = videoRef.current;
+    const ambientVideo = ambientVideoRef.current;
     if (!video || !src) return;
 
     let isMounted = true;
@@ -122,6 +122,8 @@ export function MediaVideo({
               if (isMounted) {
                 setIsBuffering(false);
                 setIsPlaying(true);
+                ambientVideo?.play().catch(() => {});
+                resetControlsTimer(2000);
               }
             })
             .catch(() => {
@@ -132,6 +134,8 @@ export function MediaVideo({
                   if (isMounted) {
                     setIsBuffering(false);
                     setIsPlaying(true);
+                    ambientVideo?.play().catch(() => {});
+                    resetControlsTimer(2000);
                   }
                 });
               }
@@ -154,19 +158,28 @@ export function MediaVideo({
       if (isMounted) {
         setIsBuffering(false);
         setIsPlaying(true);
+        ambientVideo?.play().catch(() => {});
+        resetControlsTimer(2000);
       }
     };
 
     const handlePause = () => {
       if (isMounted) {
         setIsPlaying(false);
-        setAreControlsVisible(true);
+        ambientVideo?.pause();
+        resetControlsTimer(3500);
       }
     };
 
     const handleTimeUpdate = () => {
       if (isMounted && video) {
         setCurrentTime(video.currentTime);
+        if (
+          ambientVideo &&
+          Math.abs(ambientVideo.currentTime - video.currentTime) > 0.3
+        ) {
+          ambientVideo.currentTime = video.currentTime;
+        }
       }
     };
 
@@ -180,6 +193,7 @@ export function MediaVideo({
       if (isMounted) {
         setIsPlaying(false);
         setAreControlsVisible(true);
+        ambientVideo?.pause();
         onEnded?.();
       }
     };
@@ -217,21 +231,25 @@ export function MediaVideo({
         clearTimeout(hideControlsTimerRef.current);
       }
     };
-  }, [src, autoPlay, onEnded]);
+  }, [src, autoPlay, onEnded, resetControlsTimer]);
 
   if (!src) return null;
 
   const togglePlay = (e?: React.MouseEvent) => {
     e?.stopPropagation();
     const video = videoRef.current;
+    const ambientVideo = ambientVideoRef.current;
     if (!video) return;
 
     if (video.paused || video.ended) {
       void video.play();
+      ambientVideo?.play().catch(() => {});
+      resetControlsTimer(2000);
     } else {
       video.pause();
+      ambientVideo?.pause();
+      resetControlsTimer(3500);
     }
-    showControlsTemporarily();
   };
 
   const handleSeek = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -240,7 +258,10 @@ export function MediaVideo({
     if (videoRef.current) {
       videoRef.current.currentTime = newTime;
     }
-    showControlsTemporarily();
+    if (ambientVideoRef.current) {
+      ambientVideoRef.current.currentTime = newTime;
+    }
+    resetControlsTimer(3000);
   };
 
   const skipTime = (seconds: number, e?: React.MouseEvent) => {
@@ -252,8 +273,11 @@ export function MediaVideo({
       duration || video.duration || 0,
     );
     video.currentTime = target;
+    if (ambientVideoRef.current) {
+      ambientVideoRef.current.currentTime = target;
+    }
     setCurrentTime(target);
-    showControlsTemporarily();
+    resetControlsTimer(3000);
   };
 
   const toggleMute = (e?: React.MouseEvent) => {
@@ -263,16 +287,41 @@ export function MediaVideo({
     const nextMuted = !video.muted;
     video.muted = nextMuted;
     setIsMuted(nextMuted);
-    showControlsTemporarily();
+    resetControlsTimer(3000);
   };
 
   const progressPercent = duration > 0 ? (currentTime / duration) * 100 : 0;
 
   return (
     <div
-      onClick={() => showControlsTemporarily()}
-      className="group relative size-full flex items-center justify-center overflow-hidden bg-black select-none"
+      onClick={togglePlay}
+      onMouseMove={() => resetControlsTimer(2500)}
+      onTouchStart={() => resetControlsTimer(2500)}
+      onMouseLeave={() => {
+        if (isPlaying) {
+          setAreControlsVisible(false);
+        }
+      }}
+      className="group relative size-full flex items-center justify-center overflow-hidden bg-zinc-950 select-none cursor-pointer"
     >
+      {/* Instagram-style Ambient Blurred Video Background (Ultra-smooth & saturated) */}
+      <div className="pointer-events-none absolute inset-0 overflow-hidden select-none">
+        <video
+          ref={ambientVideoRef}
+          src={src}
+          playsInline
+          preload="auto"
+          muted
+          loop={loop}
+          aria-hidden="true"
+          className="size-full object-cover scale-135 blur-[36px] saturate-150 brightness-95 contrast-105 transition-opacity duration-500"
+        />
+        {/* Cinematic ambient vignette & glassmorphic depth overlay */}
+        <div className="absolute inset-0 bg-gradient-to-t from-black/45 via-black/10 to-black/35" />
+        <div className="absolute inset-0 bg-radial from-transparent via-black/10 to-black/40" />
+      </div>
+
+      {/* Main Sharp Video Layer with 3D Cinematic Shadow */}
       <video
         ref={videoRef}
         src={src}
@@ -280,12 +329,15 @@ export function MediaVideo({
         preload="auto"
         muted={isMuted}
         loop={loop}
-        className={cn("size-full object-contain", className)}
+        className={cn(
+          "relative z-10 size-full object-contain drop-shadow-[0_8px_28px_rgba(0,0,0,0.7)]",
+          className,
+        )}
       />
 
       {/* Center Buffering Spinner */}
       {isBuffering && (
-        <div className="pointer-events-none absolute inset-0 z-20 flex items-center justify-center bg-black/30 backdrop-blur-[2px] animate-fadeIn">
+        <div className="pointer-events-none absolute inset-0 z-20 flex items-center justify-center bg-black/40 backdrop-blur-xs animate-fadeIn">
           <div className="size-11 animate-spin rounded-full border-3 border-white/20 border-t-white" />
         </div>
       )}
@@ -295,23 +347,31 @@ export function MediaVideo({
         <button
           type="button"
           onClick={togglePlay}
-          className="absolute z-20 flex size-16 items-center justify-center rounded-full bg-black/65 text-white border border-white/25 shadow-2xl backdrop-blur-md hover:scale-110 active:scale-95 transition-all cursor-pointer"
+          className={cn(
+            "absolute z-20 flex size-16 items-center justify-center rounded-full bg-black/65 text-white border border-white/25 shadow-2xl backdrop-blur-md hover:scale-110 active:scale-95 transition-all duration-300 cursor-pointer",
+            areControlsVisible
+              ? "opacity-100 scale-100 pointer-events-auto"
+              : "opacity-0 scale-90 pointer-events-none",
+          )}
           aria-label="Video afspelen"
         >
           <Play className="size-8 fill-white translate-x-0.5 text-white" />
         </button>
       )}
 
-      {/* Bottom Interactive Video Controller Bar */}
+      {/* Bottom Interactive Video Controller Bar (Auto-hides like real player) */}
       {showControls && (
         <div
           className={cn(
             "absolute inset-x-0 bottom-0 z-30 flex flex-col gap-2 p-3 sm:p-4 bg-gradient-to-t from-black/90 via-black/55 to-transparent transition-all duration-300",
-            areControlsVisible || !isPlaying
+            areControlsVisible
               ? "opacity-100 translate-y-0 pointer-events-auto"
               : "opacity-0 translate-y-2 pointer-events-none",
           )}
-          onClick={(e) => e.stopPropagation()}
+          onClick={(e) => {
+            e.stopPropagation();
+            resetControlsTimer(3000);
+          }}
         >
           {/* Progress / Scrubber Range Bar */}
           <div className="flex items-center gap-3 w-full">
