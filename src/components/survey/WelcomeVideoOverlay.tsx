@@ -38,6 +38,17 @@ export function WelcomeVideoOverlay({
   user: any;
   loginSessionId: string;
 }) {
+  const effectiveBranding =
+    branding?.videoUrl ? branding : (user?.branding || branding);
+  const videoUrl = effectiveBranding?.videoUrl || user?.branding?.videoUrl;
+
+  console.log("=== WELCOME VIDEO OVERLAY FETCHED DATA ===", {
+    branding,
+    user,
+    effectiveBranding,
+    videoUrl,
+  });
+
   const [show, setShow] = useState(false);
   const [isPlaying, setIsPlaying] = useState(false);
   const [isMuted, setIsMuted] = useState(false);
@@ -59,7 +70,7 @@ export function WelcomeVideoOverlay({
 
   // Initialize display based on session storage
   useEffect(() => {
-    if (!branding?.videoUrl) return;
+    if (!videoUrl) return;
 
     const sessionKey = getWelcomeSessionKey(loginSessionId, user);
 
@@ -88,11 +99,11 @@ export function WelcomeVideoOverlay({
     return () => {
       window.clearTimeout(timer);
     };
-  }, [branding?.videoUrl, loginSessionId, user]);
+  }, [videoUrl, loginSessionId, user]);
 
   // Handle Autoplay & Sound
   useEffect(() => {
-    if (!show || !branding?.videoUrl) return;
+    if (!show || !videoUrl) return;
 
     const video = videoRef.current;
     if (!video) return;
@@ -116,7 +127,7 @@ export function WelcomeVideoOverlay({
           });
         });
     }
-  }, [show, branding?.videoUrl]);
+  }, [show, videoUrl]);
 
   // High-performance direct DOM progress tracking without causing React re-renders
   useEffect(() => {
@@ -258,16 +269,20 @@ export function WelcomeVideoOverlay({
     }
   };
 
-  if (!show || !branding?.videoUrl) return null;
+  if (!show || !videoUrl) return null;
 
   const participantFirstName = getParticipantFirstName(user);
   const greeting = formatBrandingVideoTitle(
-    branding?.videoTitle,
+    effectiveBranding?.videoTitle || user?.branding?.videoTitle,
     participantFirstName,
     "nl",
   );
 
-  const logoSrc = branding?.logo || "/acme-inc.svg";
+  const logoSrc =
+    effectiveBranding?.logo ||
+    user?.branding?.logo ||
+    user?.image ||
+    "/acme-inc.svg";
 
   return (
     <div className="fixed inset-0 z-50 mx-auto flex max-w-120 flex-col justify-between overflow-hidden bg-black text-white animate-fadeIn select-none font-sans">
@@ -286,7 +301,7 @@ export function WelcomeVideoOverlay({
       >
         <video
           ref={videoRef}
-          src={branding.videoUrl}
+          src={videoUrl}
           className="relative z-0 size-full max-h-full object-contain"
           playsInline
           preload="auto"
@@ -358,7 +373,7 @@ export function WelcomeVideoOverlay({
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
                   src={logoSrc}
-                  alt={branding.presenterName || "Logo"}
+                  alt={effectiveBranding?.presenterName || user?.branding?.presenterName || "Logo"}
                   className="size-full object-contain"
                 />
               </div>
@@ -367,14 +382,14 @@ export function WelcomeVideoOverlay({
             <div className="flex flex-col min-w-0">
               <div className="flex items-center gap-1.5">
                 <span className="font-heading text-xs sm:text-sm font-bold text-white tracking-tight leading-tight truncate drop-shadow-sm">
-                  {branding.presenterName || "Welkomstboodschap"}
+                  {effectiveBranding?.presenterName || user?.branding?.presenterName || "Welkomstboodschap"}
                 </span>
                 <span className="inline-block text-[9px] font-bold uppercase tracking-wider bg-primary text-primary-foreground px-1.5 py-0.2 rounded-full shadow-xs shrink-0">
                   WELKOM
                 </span>
               </div>
               <span className="text-[11px] text-white/80 font-medium leading-tight truncate drop-shadow-xs">
-                {branding.presenterDesignation || "Borging Programma"}
+                {effectiveBranding?.presenterDesignation || user?.branding?.presenterDesignation || "Borging Programma"}
               </span>
             </div>
           </div>
@@ -453,9 +468,9 @@ export function WelcomeVideoOverlay({
             {greeting}
           </h1>
 
-          {branding.videoDescription ? (
+          {effectiveBranding?.videoDescription || user?.branding?.videoDescription ? (
             <p className="text-xs sm:text-sm leading-relaxed text-white/90 line-clamp-3 drop-shadow-sm">
-              {branding.videoDescription}
+              {effectiveBranding?.videoDescription || user?.branding?.videoDescription}
             </p>
           ) : (
             <p className="text-xs text-white/70 leading-relaxed drop-shadow-sm">
@@ -470,15 +485,15 @@ export function WelcomeVideoOverlay({
             <Button
               size="story-cta"
               onClick={handleSkip}
-            >
+            > 
               DOOR NAAR HET PROGRAMMA <ArrowRight className="size-4" />
             </Button>
           </div>
 
           <BrandFooter
             variant="white"
-            logoUrl={branding?.logo || user?.branding?.logo}
-            companyName={branding?.presenterName || user?.firstName}
+            logoUrl={effectiveBranding?.logo || user?.branding?.logo || user?.image}
+            companyName={effectiveBranding?.presenterName || user?.branding?.presenterName || user?.firstName}
           />
         </div>
       </div>

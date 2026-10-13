@@ -22,7 +22,7 @@ export function BrandFooter({
     <div
       className={`flex items-center justify-center gap-1.5 text-[10px] font-bold uppercase tracking-widest ${textColor} ${className || ""}`.trim()}
     >
-      <span>MOGELIJK GEMAAKT DOOR</span>
+      <span>MEDE MOGELIJK GEMAAKT DOOR</span>
       {logoUrl ? (
         // eslint-disable-next-line @next/next/no-img-element
         <img

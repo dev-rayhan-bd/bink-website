@@ -295,7 +295,11 @@ export const authenticateTraining = async (
       { method: "POST", body: payload, auth: "none" },
     );
 
-    if (response.success) await setTrainingSessionCookies(response.data);
+    if (response.success) {
+      await setTrainingSessionCookies(response.data);
+      updateTag("me");
+      updateTag(TRAININGS_TAG);
+    }
 
     return response;
   } catch (error: unknown) {

@@ -13,8 +13,14 @@ import { headers } from "next/headers";
  */
 export const getSessionCookieOptions = async () => {
   const headerStore = await headers();
-  const protocol = headerStore.get("x-forwarded-proto") ?? "https";
-  const isHttps = protocol === "https";
+  const host = headerStore.get("host") ?? "";
+  const isLocalhost =
+    host.includes("localhost") ||
+    host.includes("127.0.0.1") ||
+    process.env.NODE_ENV === "development";
+  const protocol =
+    headerStore.get("x-forwarded-proto") ?? (isLocalhost ? "http" : "https");
+  const isHttps = !isLocalhost && protocol === "https";
 
   return {
     httpOnly: true,

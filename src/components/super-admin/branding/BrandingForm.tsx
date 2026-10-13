@@ -35,15 +35,47 @@ export function BrandingForm({
   const [isPending, setIsPending] = useState(false);
   const [logo, setLogo] = useState<File>();
   const [video, setVideo] = useState<File>();
-  const [logoPreview, setLogoPreview] = useState(company.logo);
-  const [videoPreview, setVideoPreview] = useState(company.branding.videoUrl);
+
+  console.log("=== BRANDING FETCHED DATA (Company) ===", {
+    companyId: company._id,
+    name: company.firstName || company.name,
+    branding: company.branding,
+    fullCompany: company,
+  });
+
+  const initialLogo =
+    company.branding?.logo || company.logo || company.image || "";
+  const initialVideo =
+    company.branding?.videoUrl || (company as unknown as { videoUrl?: string }).videoUrl || "";
+
+  const [logoPreview, setLogoPreview] = useState(initialLogo);
+  const [videoPreview, setVideoPreview] = useState(initialVideo);
   const [form, setForm] = useState<CompanyBrandingData>({
-    primaryColor: company.branding.primaryColor,
-    secondaryColor: company.branding.secondaryColor,
-    videoTitle: company.branding.videoTitle,
-    videoDescription: company.branding.videoDescription,
-    presenterName: company.branding.presenterName,
-    presenterDesignation: company.branding.presenterDesignation,
+    primaryColor:
+      company.branding?.primaryColor ||
+      (company as unknown as { primaryColor?: string }).primaryColor ||
+      "#E9308F",
+    secondaryColor:
+      company.branding?.secondaryColor ||
+      (company as unknown as { secondaryColor?: string }).secondaryColor ||
+      "#8ACDDE",
+    videoTitle:
+      company.branding?.videoTitle ||
+      (company as unknown as { videoTitle?: string }).videoTitle ||
+      "",
+    videoDescription:
+      company.branding?.videoDescription ||
+      (company as unknown as { videoDescription?: string }).videoDescription ||
+      (company as unknown as { description?: string }).description ||
+      "",
+    presenterName:
+      company.branding?.presenterName ||
+      (company as unknown as { presenterName?: string }).presenterName ||
+      "",
+    presenterDesignation:
+      company.branding?.presenterDesignation ||
+      (company as unknown as { presenterDesignation?: string }).presenterDesignation ||
+      "",
   });
 
   const updateField = (field: keyof CompanyBrandingData, value: string) => {

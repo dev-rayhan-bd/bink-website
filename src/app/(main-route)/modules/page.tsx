@@ -2,7 +2,7 @@ import { createHash } from "node:crypto";
 import Link from "next/link";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
-import { ArrowRight, BookOpen, CheckCircle2, Layers3 } from "lucide-react";
+import { ArrowRight, BookOpen, CheckCircle2, Clock, Layers3 } from "lucide-react";
 import { BlockedSessionRedirect } from "@/components/auth/BlockedSessionRedirect";
 import { Badge } from "@/components/ui/badge";
 import { FeaturedTrainingSection } from "@/components/survey/FeaturedTrainingSection";
@@ -11,7 +11,13 @@ import { getFeaturedTrainings } from "@/services/featured-training.service";
 import { translateScreenTexts } from "@/services/translate.service";
 import { getMyTrainings } from "@/services/training.service";
 import { getMyProfile } from "@/services/user.service";
-import type { FeaturedTraining, Topic, Training } from "@/lib/types/training.type";
+import type {
+  FeaturedTraining,
+  Topic,
+  Training,
+  TrainingCompany,
+  UserTrainingView,
+} from "@/lib/types/training.type";
 import type { LearningModule } from "@/lib/types/module.type";
 
 export default async function ModulesPage() {
@@ -43,7 +49,13 @@ export default async function ModulesPage() {
 
   const rawTrainings: Training[] = Array.isArray(response?.data) ? response.data : [];
   const user = profileResponse.success ? profileResponse.data : null;
-  const branding = user?.branding;
+  const trainingCompany =
+    typeof rawTrainings[0]?.companyId === "object" && rawTrainings[0]?.companyId !== null
+      ? (rawTrainings[0].companyId as TrainingCompany)
+      : null;
+  const branding = user?.branding?.videoUrl
+    ? user.branding
+    : (trainingCompany?.branding?.videoUrl ? trainingCompany.branding : user?.branding);
   const featuredResponse = featuredResult.value;
   const rawFeaturedTrainings: FeaturedTraining[] = featuredResponse?.success
     ? featuredResponse.data
@@ -205,6 +217,18 @@ export default async function ModulesPage() {
           trainings.map((training) => {
             const topicCount = training.topicCount ?? training.topics?.length ?? 0;
             const moduleCount = training.totalModules ?? 0;
+            const userTraining = training as UserTrainingView;
+            const isCompleted =
+              Boolean((training as unknown as { isCompleted?: boolean }).isCompleted) ||
+              training.status === "completed" ||
+              (training as unknown as { userProgress?: { status?: string } }).userProgress?.status === "completed" ||
+              (training as unknown as { progress?: { status?: string } }).progress?.status === "completed" ||
+              (typeof userTraining.progressPercentage === "number" &&
+                userTraining.progressPercentage >= 100) ||
+              (typeof userTraining.completedModules === "number" &&
+                typeof userTraining.totalModules === "number" &&
+                userTraining.totalModules > 0 &&
+                userTraining.completedModules >= userTraining.totalModules);
 
             return (
               <article
@@ -260,9 +284,13 @@ export default async function ModulesPage() {
                       <Layers3 className="size-4" /> {moduleCount}{" "}
                       {moduleCount === 1 ? "module" : "modules"}
                     </span>
-                    {training.status === "published" && (
+                    {isCompleted ? (
                       <span className="flex items-center gap-1 font-medium text-primary">
-                        <CheckCircle2 className="size-3.5" /> Klaar
+                        <CheckCircle2 className="size-3.5" /> Voltooid
+                      </span>
+                    ) : (
+                      <span className="flex items-center gap-1 font-medium text-muted-foreground">
+                        <Clock className="size-3.5" /> Niet voltooid
                       </span>
                     )}
                   </div>

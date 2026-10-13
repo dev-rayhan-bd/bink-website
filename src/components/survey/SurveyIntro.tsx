@@ -26,6 +26,15 @@ export function SurveyIntro({
   onStart, 
   className,
 }: SurveyIntroProps) {
+  console.log("=== SURVEY INTRO DATA ===", {
+    title,
+    description,
+    badge,
+    imageUrl,
+    questionCount,
+    format,
+  });
+
   const questionLabel = questionCount === 1 ? "Vraag" : "Vragen";
 
   return (

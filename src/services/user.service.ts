@@ -29,7 +29,7 @@ export const getCompanyUsers = async (params: TQuery = {}) =>
 
 export const getMyProfile = async () =>
   nextServerFetch<ApiResponse<CurrentUser>>("/user/me", {
-    next: {revalidate: 3600, tags: ["me"] },
+    next: { revalidate: 3600, tags: ["me"] },
   });
 
 export const updateProfile = async <T = unknown>({
