@@ -490,11 +490,7 @@ export function WelcomeVideoOverlay({
             </Button>
           </div>
 
-          <BrandFooter
-            variant="white"
-            logoUrl={effectiveBranding?.logo || user?.branding?.logo || user?.image}
-            companyName={effectiveBranding?.presenterName || user?.branding?.presenterName || user?.firstName}
-          />
+          <BrandFooter variant="white" />
         </div>
       </div>
     </div>
