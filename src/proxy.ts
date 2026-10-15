@@ -2,7 +2,7 @@ import { jwtDecode } from "jwt-decode";
 import type { NextRequest } from "next/server";
 import { NextResponse } from "next/server";
 
-type UserRole = "user" | "guest" | "company" | "superAdmin";
+type UserRole = "user" | "guest" | "company" | "superAdmin" | "admin";
 
 interface TokenPayload {
   exp?: number;
@@ -33,6 +33,7 @@ const ROLE_HOME: Record<UserRole, string> = {
   guest: "/modules",
   company: "/company/dashboard",
   superAdmin: "/super-admin",
+  admin: "/super-admin",
 };
 
 const decodeToken = (token: string): TokenPayload | null => {
@@ -55,7 +56,11 @@ const getRole = (token: string): UserRole | null => {
   const payload = decodeToken(token);
   const role = payload?.role;
 
-  return role === "user" || role === "guest" || role === "company" || role === "superAdmin"
+  return role === "user" ||
+    role === "guest" ||
+    role === "company" ||
+    role === "superAdmin" ||
+    role === "admin"
     ? role
     : null;
 };
@@ -120,7 +125,7 @@ export async function proxy(request: NextRequest): Promise<NextResponse> {
       return NextResponse.redirect(new URL("/not-found", request.url));
     }
 
-    if (pathname.startsWith("/super-admin") && role !== "superAdmin") {
+    if (pathname.startsWith("/super-admin") && role !== "superAdmin" && role !== "admin") {
       return NextResponse.redirect(new URL("/not-found", request.url));
     }
   }

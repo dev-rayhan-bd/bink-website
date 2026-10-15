@@ -38,7 +38,7 @@ export type GuestProfile = BaseUser & {
 };
 
 export type AdminProfile = BaseUser & {
-  role: "superAdmin" | "company";
+  role: "superAdmin" | "admin" | "company";
   email: string;
   phone?: string;
   image?: string;
