@@ -59,7 +59,6 @@ export default async function CompanyProfilePage() {
             <ProfileDetail icon={<Mail />} label="Company Email" value={company.email} />
             <ProfileDetail icon={<MapPin />} label="Address" value={company.address || "—"} />
             <ProfileDetail icon={<Building2 />} label="Member Since" value={formatDate(company.createdAt)} />
-            <ProfileDetail icon={<ShieldCheck />} label="Company ID" value={company._id} />
           </div>
         </section>
 

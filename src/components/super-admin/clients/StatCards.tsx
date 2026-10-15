@@ -33,7 +33,7 @@ const stats = [
   {
     label: "Organization Grade",
     value: organizationGrade.toString(),
-    suffix: "/100",
+    suffix: "/10",
     icon: Award,
     color: "from-success/10 to-success/5",
     border: "border-success/10",

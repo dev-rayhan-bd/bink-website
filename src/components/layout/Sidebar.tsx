@@ -47,7 +47,6 @@ const superAdminNavItems = [
   },
   { name: "Client", href: "/super-admin/clients", icon: Users },
   { name: "Broadcast Message", href: "/super-admin/broadcast", icon: Rss },
-  { name: "Notifications", href: "/super-admin/notifications", icon: Bell },
   { name: "Make admin", href: "/super-admin/make-admin", icon: UserPlus },
   {
     name: "Privacy Policy",

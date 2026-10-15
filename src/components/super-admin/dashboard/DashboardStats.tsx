@@ -72,7 +72,7 @@ export function DashboardStats({ data, companyStats }: DashboardStatsProps) {
       {
         title: "Organization Grade",
         value: `${companyStats.organizationGrade ?? 0}`,
-        suffix: "",
+        suffix: "/10",
         bgColor: "bg-muted/40 dark:bg-card",
         borderColor: "border-border dark:border-border",
       },
@@ -103,7 +103,7 @@ export function DashboardStats({ data, companyStats }: DashboardStatsProps) {
       {
         title: "Organization Grade",
         value: "0",
-        suffix: "",
+        suffix: "/10",
         bgColor: "bg-muted/40 dark:bg-card",
         borderColor: "border-border dark:border-border",
       },
