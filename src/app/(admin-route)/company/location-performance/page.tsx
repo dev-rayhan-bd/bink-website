@@ -21,7 +21,7 @@ export default async function LocationPerformancePage({
     <div className="animate-fadeIn">
       <DashboardPageLayout>
         <DashboardHeader
-          title="Location & Performance"
+          title="Our Teams"
           description="View the teams assigned to your company."
         />
 

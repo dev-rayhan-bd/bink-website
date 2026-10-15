@@ -18,9 +18,11 @@ import {
   BookOpen,
   Sparkles,
   MailCheck,
+  Bell,
 } from "lucide-react";
 import { ScrollArea } from "../ui/scroll-area";
 import { logout } from "@/services/auth.service";
+import { useUserContext } from "@/providers/UserProvider";
 
 interface SidebarProps {
   isSidebarOpen: boolean;
@@ -45,6 +47,7 @@ const superAdminNavItems = [
   },
   { name: "Client", href: "/super-admin/clients", icon: Users },
   { name: "Broadcast Message", href: "/super-admin/broadcast", icon: Rss },
+  { name: "Notifications", href: "/super-admin/notifications", icon: Bell },
   { name: "Make admin", href: "/super-admin/make-admin", icon: UserPlus },
   {
     name: "Privacy Policy",
@@ -62,11 +65,12 @@ const companyNavItems = [
   { name: "Dashboard", href: "/company", icon: LayoutDashboard },
   { name: "Course", href: "/company/course", icon: GraduationCap },
   {
-    name: "Location & Performance",
+    name: "Our Teams",
     href: "/company/location-performance",
     icon: LayoutList,
   },
   { name: "All user", href: "/company/users", icon: Users },
+  { name: "Notifications", href: "/company/notifications", icon: Bell },
 ];
 
 export default function Sidebar({
@@ -74,11 +78,18 @@ export default function Sidebar({
   setIsSidebarOpen,
 }: SidebarProps) {
   const pathname = usePathname();
+  const { user } = useUserContext();
   const [isLoggingOut, setIsLoggingOutState] = useState(false);
 
   const isSuperAdmin = pathname?.startsWith("/super-admin");
   const navItems = isSuperAdmin ? superAdminNavItems : companyNavItems;
   const basePath = isSuperAdmin ? "/super-admin" : "/company";
+
+  const companyLogo =
+    user?.branding?.logo ||
+    (user as { logo?: string })?.logo ||
+    (user?.role === "company" ? user?.image : undefined);
+  const displayLogo = !isSuperAdmin && companyLogo ? companyLogo : null;
 
   const handleLogout = async () => {
     setIsLoggingOutState(true);
@@ -92,15 +103,24 @@ export default function Sidebar({
         isSidebarOpen ? "translate-x-0" : "-translate-x-full"
       }`}
     >
-      <div className="flex h-16 items-center px-4 border-b shrink-0">
-        <Image
-          src="/acme-inc.svg"
-          alt="Acme Inc Logo"
-          width={160}
-          height={48}
-          priority
-          className="dark:invert"
-        />
+      <div className="flex h-16 items-center px-4 border-b shrink-0 overflow-hidden">
+        {displayLogo ? (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img
+            src={displayLogo}
+            alt={user?.fullName || "Company Logo"}
+            className="max-h-12 max-w-48 object-contain"
+          />
+        ) : (
+          <Image
+            src="/acme-inc.svg"
+            alt="Acme Inc Logo"
+            width={160}
+            height={48}
+            priority
+            className="dark:invert"
+          />
+        )}
       </div>
 
       <ScrollArea className="flex-1 overflow-y-auto">

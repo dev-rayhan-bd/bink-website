@@ -1,4 +1,6 @@
-import { Menu } from "lucide-react";
+"use client";
+
+import { Menu, Bell } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "@/components/common/ThemeToggle";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -49,7 +51,16 @@ export default function Header({ onMenuClick }: HeaderProps) {
         </h1>
       </div>
 
-      <div className="flex items-center gap-4">
+      <div className="flex items-center gap-2 sm:gap-3">
+        {/* Notification Bell */}
+        <Link
+          href={isSuperAdmin ? "/super-admin/notifications" : "/company/notifications"}
+          className="relative inline-flex items-center justify-center rounded-lg p-2 text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"
+          title="Notifications"
+        >
+          <Bell className="h-5 w-5" />
+        </Link>
+
         {/* Theme Toggle */}
         <ThemeToggle />
         

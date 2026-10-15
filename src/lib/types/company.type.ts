@@ -97,6 +97,7 @@ export type CompanyAnalytics = {
   stats: {
     activeParticipants: number;
     completionRate: number;
+    averageScore?: number;
     organizationGrade: number;
   };
   barChart: {
