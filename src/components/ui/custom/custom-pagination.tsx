@@ -74,7 +74,7 @@ const CustomPagination: React.FC<CustomPaginationProps> = ({
     defaultMethod: "push",
   });
 
-  if (totalPages <= 1) return null;
+  if (totalPages < 1) return null;
 
   const paginationRange = getPaginationRange(totalPages, currentPage);
 

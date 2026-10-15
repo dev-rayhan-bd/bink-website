@@ -5,6 +5,8 @@ import DashboardPageLayout from "@/components/ui/custom/DashboardPageLayout";
 import type { TSearchParams } from "@/lib/types/global.type";
 import { getCompanyUsers } from "@/services/user.service";
 
+export const dynamic = "force-dynamic";
+
 export default async function CompanyUsersPage({
   searchParams,
 }: {

@@ -35,6 +35,37 @@ export const columns: ColumnDef<CompanyUser>[] = [
     ),
   },
   {
+    id: "identifier",
+    header: "Email / ID",
+    cell: ({ row }) => {
+      const user = row.original;
+      const isEmailAuth = user.authType === "email";
+      const isEmployeeIdAuth = user.authType === "employeeId";
+
+      if (isEmailAuth) {
+        const isRealEmail =
+          user.email &&
+          !user.email.includes("@actinc.local") &&
+          !user.email.startsWith("passcode_");
+        return (
+          <span className="text-muted-foreground">
+            {isRealEmail ? user.email : "—"}
+          </span>
+        );
+      }
+
+      if (isEmployeeIdAuth || user.employeeId) {
+        return (
+          <span className="text-muted-foreground font-mono text-xs">
+            {user.employeeId || "—"}
+          </span>
+        );
+      }
+
+      return <span className="text-muted-foreground/40">—</span>;
+    },
+  },
+  {
     accessorKey: "authType",
     header: "Login Method",
     cell: ({ row }) => {
