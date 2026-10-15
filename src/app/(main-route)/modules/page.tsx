@@ -62,6 +62,16 @@ export default async function ModulesPage() {
     : [];
 
   const textsToTranslate: string[] = [];
+  if (branding?.videoTitle) textsToTranslate.push(branding.videoTitle);
+  if (branding?.videoDescription) textsToTranslate.push(branding.videoDescription);
+  if (branding?.presenterName) textsToTranslate.push(branding.presenterName);
+  if (branding?.presenterDesignation) textsToTranslate.push(branding.presenterDesignation);
+
+  if (user?.branding?.videoTitle) textsToTranslate.push(user.branding.videoTitle);
+  if (user?.branding?.videoDescription) textsToTranslate.push(user.branding.videoDescription);
+  if (user?.branding?.presenterName) textsToTranslate.push(user.branding.presenterName);
+  if (user?.branding?.presenterDesignation) textsToTranslate.push(user.branding.presenterDesignation);
+
   for (const tr of rawTrainings) {
     if (tr.title) textsToTranslate.push(tr.title);
     if (tr.description) textsToTranslate.push(tr.description);
@@ -88,6 +98,45 @@ export default async function ModulesPage() {
     const trimmed = text.trim();
     return translations[trimmed] || translations[text] || text;
   };
+
+  const translatedBranding = branding
+    ? {
+        ...branding,
+        videoTitle: branding.videoTitle ? t(branding.videoTitle) : branding.videoTitle,
+        videoDescription: branding.videoDescription
+          ? t(branding.videoDescription)
+          : branding.videoDescription,
+        presenterName: branding.presenterName
+          ? t(branding.presenterName)
+          : branding.presenterName,
+        presenterDesignation: branding.presenterDesignation
+          ? t(branding.presenterDesignation)
+          : branding.presenterDesignation,
+      }
+    : branding;
+
+  const translatedUser = user
+    ? {
+        ...user,
+        branding: user.branding
+          ? {
+              ...user.branding,
+              videoTitle: user.branding.videoTitle
+                ? t(user.branding.videoTitle)
+                : user.branding.videoTitle,
+              videoDescription: user.branding.videoDescription
+                ? t(user.branding.videoDescription)
+                : user.branding.videoDescription,
+              presenterName: user.branding.presenterName
+                ? t(user.branding.presenterName)
+                : user.branding.presenterName,
+              presenterDesignation: user.branding.presenterDesignation
+                ? t(user.branding.presenterDesignation)
+                : user.branding.presenterDesignation,
+            }
+          : user.branding,
+      }
+    : user;
 
   const trainings = rawTrainings.map((tr) => ({
     ...tr,
@@ -150,8 +199,8 @@ export default async function ModulesPage() {
   return (
     <div className="flex flex-1 min-h-0 flex-col gap-4 pb-8 animate-fadeIn overflow-y-auto">
       <WelcomeVideoOverlay
-        branding={branding}
-        user={user}
+        branding={translatedBranding}
+        user={translatedUser}
         loginSessionId={loginSessionId}
       />
 
