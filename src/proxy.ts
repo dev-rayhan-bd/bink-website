@@ -70,6 +70,11 @@ export async function proxy(request: NextRequest): Promise<NextResponse> {
     return NextResponse.next();
   }
 
+  // Bypass Next.js internal Server Action calls so proxy redirects don't break them
+  if (request.headers.get("next-action")) {
+    return NextResponse.next();
+  }
+
   const pathname = request.nextUrl.pathname;
 
   const isPublic =
