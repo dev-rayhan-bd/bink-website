@@ -5,7 +5,7 @@ import DashboardPageLayout from "@/components/ui/custom/DashboardPageLayout";
 import { HistoryBackButton } from "@/components/ui/custom/HistoryBackButton";
 import type { TSearchParams } from "@/lib/types/global.type";
 import { getCompany, getCompanyDropdown } from "@/services/company.service";
-
+//
 export default async function ClientBrandingPage({
   searchParams,
 }: {
