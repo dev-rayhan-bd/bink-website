@@ -7,7 +7,7 @@ import DashboardPageLayout from "@/components/ui/custom/DashboardPageLayout";
 import { formatDate, getInitials } from "@/lib/utils";
 import { getCompany } from "@/services/company.service";
 import { getMyProfile } from "@/services/user.service";
-
+//
 export default async function CompanyProfilePage() {
   const profileResponse = await getMyProfile();
 
